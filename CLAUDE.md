@@ -28,8 +28,9 @@ deployed to from this repo.** HydroTrack uses its own Supabase project,
 - Supabase: auth, Postgres, storage, Edge Functions
 - Riverpod (`flutter_riverpod`) for ALL shared/business state
 - `intl` for ₦ and date formatting; `pdf`/`printing`/`file_saver` for exports
-- Config comes from `--dart-define-from-file=.env.json`
-  (`SUPABASE_URL`, `SUPABASE_PUBLISHABLE_KEY`). The service-role key is
+- Config: hydrotrack URL + publishable key are built-in defaults in
+  `supabase_config.dart` (public by design); `--dart-define-from-file=.env.json`
+  overrides them (`SUPABASE_URL`, `SUPABASE_PUBLISHABLE_KEY`). The service-role key is
   never in the Flutter app — only inside Edge Functions, injected by Supabase.
 
 ## Folder structure (strict)

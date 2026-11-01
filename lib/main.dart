@@ -20,10 +20,9 @@ Future<void> main() async {
   runApp(const ProviderScope(child: _AppBootstrap()));
 }
 
-/// Thrown when the app was launched without real `SUPABASE_URL`/
-/// `SUPABASE_PUBLISHABLE_KEY` values — i.e. without
-/// `--dart-define-from-file=.env.json`, or with that file still holding
-/// its placeholders. Without this check,
+/// Thrown when a `--dart-define-from-file` override left
+/// `SUPABASE_URL`/`SUPABASE_PUBLISHABLE_KEY` empty or still holding the
+/// `.env.json.example` placeholders. Without this check,
 /// [Supabase.initialize] "succeeds" anyway (it doesn't validate the URL),
 /// and every request then silently resolves against the app's own
 /// dev-server origin instead of Supabase — surfacing later as a
@@ -33,10 +32,10 @@ class MissingSupabaseConfigException implements Exception {
 
   @override
   String toString() =>
-      'SUPABASE_URL/SUPABASE_PUBLISHABLE_KEY are missing or still '
-      'placeholders. Put the hydrotrack project\'s URL and publishable key '
-      'in .env.json and launch with --dart-define-from-file=.env.json (in '
-      'VS Code, use one of the "hydrotrack" launch configurations).';
+      'The Supabase settings passed with --dart-define-from-file are '
+      'empty or still placeholders. Fill in the hydrotrack project\'s URL '
+      'and publishable key in that file, or launch without the flag to use '
+      'the built-in hydrotrack project.';
 }
 
 /// Connects to Supabase before showing the real app. If the connection

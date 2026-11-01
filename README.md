@@ -6,12 +6,15 @@ Flutter (mobile + web + desktop) + Supabase + Riverpod.
 
 ## Running
 
-1. Copy `.env.json.example` to `.env.json` and fill in the **hydrotrack**
-   Supabase project's URL and publishable key (never the service-role key).
-2. `flutter run --dart-define-from-file=.env.json` (or use the VS Code
-   "hydrotrack" launch configurations, which already pass that flag).
+`flutter run` (or Run in VS Code / Android Studio). The hydrotrack
+project's URL and publishable key are built in
+(`lib/core/constants/supabase_config.dart`); the publishable key is public
+by design and row-level security protects the data.
 
-The app refuses to start with an empty or placeholder config.
+To use a different Supabase project, copy `.env.json.example` to
+`.env.json`, fill in its URL and publishable key (never the service-role
+key) and run with `--dart-define-from-file=.env.json`. The app refuses to
+start if that file still holds placeholders.
 
 ## Tests
 

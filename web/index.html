@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <!--
+    If you are serving your web app in a path other than the root, change the
+    href value below to reflect the base path you are serving from.
+
+    The path provided below has to start and end with a slash "/" in order for
+    it to work correctly.
+
+    For more details:
+    * https://developer.mozilla.org/en-US/docs/Web/HTML/Element/base
+
+    This is a placeholder for base href that will be replaced by the value of
+    the `--base-href` argument provided to `flutter build`.
+  -->
+  <base href="$FLUTTER_BASE_HREF">
+
+  <meta charset="UTF-8">
+  <meta content="IE=Edge" http-equiv="X-UA-Compatible">
+  <meta name="description" content="HydroTrack — production, stock, sales and debts for water factories.">
+  <meta name="theme-color" content="#002179">
+
+  <!-- iOS meta tags & icons -->
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black">
+  <meta name="apple-mobile-web-app-title" content="HydroTrack">
+  <link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
+
+  <!-- Favicon -->
+  <link rel="icon" type="image/png" href="favicon.png"/>
+
+  <title>HydroTrack</title>
+  <link rel="manifest" href="manifest.json">
+
+  <style>
+    /* Shown the instant the tab opens, before Flutter's own JS/wasm has
+       downloaded or run — otherwise the tab is a blank white rectangle
+       for however long that takes. Pure HTML/CSS, no script dependency.
+       Removed by the small inline script below the moment Flutter
+       paints its first real frame, so there's never a seam between
+       this and the app's own (near-identical) SplashScreen. */
+    #boot-splash {
+      position: fixed;
+      inset: 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: #FFFFFF;
+      z-index: 9999;
+    }
+    #boot-splash img {
+      width: 320px;
+      height: auto;
+    }
+    .flutter-loaded #boot-splash {
+      display: none;
+    }
+  </style>
+</head>
+<body>
+  <div id="boot-splash">
+    <img src="icons/splash-logo.png" alt="" />
+  </div>
+  <script src="flutter_bootstrap.js" async></script>
+  <script>
+    // Flutter web calls this once the engine has initialized and the
+    // first frame is about to be drawn — the earliest reliable signal
+    // that it's safe to hand off from the static boot splash to the
+    // app's own UI.
+    window.addEventListener('flutter-first-frame', function () {
+      document.body.classList.add('flutter-loaded');
+    });
+  </script>
+</body>
+</html>

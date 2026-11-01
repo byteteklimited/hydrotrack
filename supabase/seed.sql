@@ -1,0 +1,12 @@
+-- HydroTrack — seed data.
+--
+-- Intentionally empty of business data. Per-tenant starter data (the
+-- four finished-goods catalog items) is created by create_tenant() when
+-- an organization is set up, so every tenant gets it — not just the ones
+-- that exist when this file runs. Users can't be seeded here in a portable
+-- way (auth.users is managed by Supabase Auth); the isolation tests in
+-- supabase/tests/ create their own throwaway users and tenants.
+--
+-- This file only runs on a local `supabase db reset`; it is never pushed
+-- to the hosted hydrotrack project.
+select 1;

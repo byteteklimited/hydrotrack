@@ -14,4 +14,7 @@ class AppRoutes {
   static const resetPin = '/reset-pin';
   static const forgotPassword = '/forgot-password';
   static const setNewPassword = '/set-new-password';
+
+  /// HydroTrack admin console (platform admins only).
+  static const admin = '/admin';
 }

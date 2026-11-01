@@ -10,7 +10,7 @@
 //   {"action": "pull", "device_key": "..."}
 //     -> the organization's data for offline use: staff (with offline
 //        sign-in checks), products, stock, customers, drivers, vehicles, recipes,
-//        open flags, and the last 90 days of sales, payments, cash,
+//        open flags, subscription status, and the last 90 days of sales, payments, cash,
 //        expenses, production, stock movements and load-outs, in the same
 //        shape the app's own queries return.
 //   {"action": "push", "device_key": "...", "operations": [...]}
@@ -67,6 +67,7 @@ async function pull(admin: SupabaseClient, deviceKey: string, tenantId: string) 
     financePosition,
     lastCount,
     totals,
+    subscription,
   ] = await Promise.all([
     admin.from("tenants")
       .select(
@@ -79,8 +80,11 @@ async function pull(admin: SupabaseClient, deviceKey: string, tenantId: string) 
     t("stock_movements", "at").eq("type", "adjustment")
       .order("at", { ascending: false }).limit(1),
     admin.rpc("device_totals", { p_device_key: deviceKey }),
+    admin.rpc("device_subscription", { p_device_key: deviceKey }),
   ]);
-  for (const result of [organization, members, financePosition, lastCount, totals]) {
+  for (
+    const result of [organization, members, financePosition, lastCount, totals, subscription]
+  ) {
     if (result.error) throw new Error(result.error.message);
   }
 
@@ -137,6 +141,7 @@ async function pull(admin: SupabaseClient, deviceKey: string, tenantId: string) 
     members: members.data,
     finance_position: financePosition.data,
     totals: totals.data,
+    subscription: subscription.data,
     last_stock_count_at: (lastCount.data?.[0] as { at?: string } | undefined)?.at ?? null,
     tables: Object.fromEntries(names.map((name, i) => [name, results[i]])),
   };

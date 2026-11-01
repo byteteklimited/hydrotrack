@@ -17,8 +17,12 @@ const testIterations = 1000;
 /// A small organization as `device-sync` would download it: 100 sachet
 /// bags in two batches, 10 nylon rolls (1 per 100 bags), one distributor,
 /// a driver and a vehicle, two members (one with an offline check).
-OfflineSnapshot sampleSnapshot({OfflineCredential? cashierCredential}) {
+OfflineSnapshot sampleSnapshot({
+  OfflineCredential? cashierCredential,
+  Map<String, dynamic>? subscription,
+}) {
   return OfflineSnapshot.fromPull({
+    'subscription': subscription,
     'pulled_at': '2026-11-01T08:00:00Z',
     'history_since': '2026-08-03T08:00:00Z',
     'organization': {'id': tenantId, 'name': 'Sunny Water'},
@@ -241,3 +245,27 @@ class FakeSyncApi implements DeviceSyncApi {
     required String deviceId,
   }) async {}
 }
+
+/// A `my_subscription` result whose access ends at [accessEndsAt].
+Map<String, dynamic> subscriptionJson({
+  required String status,
+  required DateTime accessEndsAt,
+  DateTime? suspendedAt,
+}) => {
+  'status': status,
+  'trial_ends_at': accessEndsAt
+      .subtract(const Duration(days: 7))
+      .toUtc()
+      .toIso8601String(),
+  'paid_until': null,
+  'ends_at': accessEndsAt
+      .subtract(const Duration(days: 7))
+      .toUtc()
+      .toIso8601String(),
+  'access_ends_at': accessEndsAt.toUtc().toIso8601String(),
+  'suspended_at': suspendedAt?.toUtc().toIso8601String(),
+  'suspended_reason': suspendedAt == null ? null : 'Cheque bounced',
+  'can_record': status != 'expired' && status != 'suspended',
+  'monthly_price': 15000,
+  'payment_instructions': 'GTBank 0123456789',
+};

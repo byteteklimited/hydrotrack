@@ -1,9 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../../features/admin/data/providers/admin_providers.dart';
 import '../../features/auth/data/models/staff_user.dart';
 import '../../features/auth/data/providers/auth_providers.dart';
 import '../../features/organizations/data/providers/organization_providers.dart';
+import '../constants/app_routes.dart';
 import '../theme/app_brand.dart';
 import '../theme/app_breakpoints.dart';
 import '../theme/app_colors.dart';
@@ -324,7 +326,15 @@ class _SidebarFooter extends ConsumerWidget {
         style: textTheme.labelMedium?.copyWith(color: AppColors.brandNavy),
       ),
     );
+    final isPlatformAdmin =
+        ref.watch(isPlatformAdminProvider).valueOrNull ?? false;
     final actions = [
+      if (isPlatformAdmin)
+        _FooterAction(
+          tooltip: 'HydroTrack admin',
+          icon: Icons.admin_panel_settings_outlined,
+          onPressed: () => Navigator.of(context).pushNamed(AppRoutes.admin),
+        ),
       _FooterAction(
         tooltip: 'Switch organization',
         icon: Icons.swap_horiz,

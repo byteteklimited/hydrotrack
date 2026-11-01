@@ -23,9 +23,12 @@ start if that file still holds placeholders.
   device sync (throwaway organization, always deleted).
 - `python3 -I supabase/tests/pin_reset_test.py` — live check of staff PIN
   reset through the `reset-pin` Edge Function (throwaway accounts).
+- `python3 -I supabase/tests/subscriptions_test.py` — live check of the
+  trial, read-only after it ends, and the admin console being refused to
+  owners (throwaway account).
 - `./supabase/tests/run_linked.sh` — database suites (pgTAP: isolation,
   debt reminders, offline sync, products and prices, PIN reset, cash
-  counts, purchases and costs, alerts)
+  counts, purchases and costs, alerts, subscriptions)
   against the linked hydrotrack project. Runs in one transaction and rolls
   back; nothing persists. With Docker: `supabase test db --linked`.
 - `python3 -I supabase/tests/api_isolation_test.py` — the same boundaries
@@ -136,3 +139,32 @@ Android build note: this machine's newest Android Studio ("Android
 Studio 2") bundles Java 25, which Gradle 8.14 can't run on. Build with
 Java 21, e.g. `flutter config --jdk-dir="/Applications/Android
 Studio.app/Contents/jbr/Contents/Home"`, or upgrade Gradle.
+
+## Subscriptions and admin console (Phase C)
+
+- **Plan**: one monthly price. New organizations get a free trial (14
+  days by default); when the trial or paid time ends there are 7 days of
+  grace; after that the organization is **read-only** — everyone can still
+  sign in, view and export, but nothing can be recorded, edited or deleted
+  until it pays. Owners can still deactivate or remove staff.
+- **Paying** is manual: owners see the price and "How to pay" under
+  Organization → Subscription, pay by transfer and send the receipt;
+  the HydroTrack admin records the payment, which adds the months after
+  the trial or current paid time (or from today if it has run out).
+- **Banner**: read-only shows to everyone; "payment due" and "trial ends
+  in 3 days or less" show to Owner/Admin, who can tap through to renew.
+- **Offline**: a set-up device gets the status with each download and
+  stops recording once access has ended. Records made offline before that
+  are accepted whenever they sync; ones made after are kept on the device
+  (refused) and go through on retry once the organization has paid.
+- **Admin console** (platform admins only — the operator account set in
+  migration 0023; add others with
+  `insert into platform_admins (user_id) …`): "HydroTrack admin" in the
+  account menu / sidebar footer / organization picker. Every organization
+  with owner contact, staff count, last activity and status (search and
+  filter); Record payment, Give free days, Suspend (with a reason the
+  organization sees) / Resume, and history. "Plan and price" sets the
+  monthly price, trial days (new organizations), grace days (everyone)
+  and the payment instructions owners see. **Set the price and payment
+  instructions before going live.** The console gives no access to any
+  organization's own records.

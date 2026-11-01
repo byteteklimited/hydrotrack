@@ -7,6 +7,7 @@ import 'core/constants/supabase_config.dart';
 import 'core/theme/app_theme.dart';
 import 'core/widgets/app_error_state.dart';
 import 'core/widgets/app_loading.dart';
+import 'features/admin/view/screens/admin_console_screen.dart';
 import 'features/auth/view/screens/forgot_password_screen.dart';
 import 'features/auth/view/screens/join_with_invite_screen.dart';
 import 'features/auth/view/screens/login_screen.dart';
@@ -19,6 +20,8 @@ import 'features/offline/view/screens/sync_status_screen.dart';
 import 'features/offline/view/widgets/offline_banner.dart';
 import 'features/organizations/view/screens/organizations_screen.dart';
 import 'features/reports/view/screens/app_home_screen.dart';
+import 'features/subscriptions/view/screens/subscription_screen.dart';
+import 'features/subscriptions/view/widgets/subscription_banner.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -154,6 +157,7 @@ class HydroTrackApp extends StatelessWidget {
         AppRoutes.resetPin: (context) => const ResetPinScreen(),
         AppRoutes.forgotPassword: (context) => const ForgotPasswordScreen(),
         AppRoutes.setNewPassword: (context) => const SetNewPasswordScreen(),
+        AppRoutes.admin: (context) => const AdminConsoleScreen(),
       },
       navigatorKey: _navigatorKey,
       builder: (context, child) => Column(
@@ -161,6 +165,13 @@ class HydroTrackApp extends StatelessWidget {
           OfflineBanner(
             onOpenRecords: () => _navigatorKey.currentState?.push(
               MaterialPageRoute<void>(builder: (_) => const SyncStatusScreen()),
+            ),
+          ),
+          SubscriptionBanner(
+            onOpenSubscription: () => _navigatorKey.currentState?.push(
+              MaterialPageRoute<void>(
+                builder: (_) => const SubscriptionScreen(),
+              ),
             ),
           ),
           Expanded(

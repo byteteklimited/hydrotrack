@@ -7,6 +7,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../../core/utils/action_error.dart';
 import '../../../../core/utils/network_error.dart';
 import '../../../auth/data/models/staff_user.dart';
+import '../../../subscriptions/data/models/subscription.dart';
 import '../models/device_registration.dart';
 import '../models/offline_credential.dart';
 import '../models/offline_member.dart';
@@ -225,6 +226,11 @@ class OfflineController extends StateNotifier<OfflineState> {
       final snapshot = state.snapshot;
       if (snapshot == null) {
         throw StateError('This device is not set up for offline use.');
+      }
+      final subscription = snapshot.subscription;
+      if (subscription != null &&
+          !Subscription.fromJson(subscription).canRecordAt(DateTime.now())) {
+        throw StateError(subscriptionEndedOnDeviceMessage);
       }
       final operation = OutboxOperation(
         opId: newId(),

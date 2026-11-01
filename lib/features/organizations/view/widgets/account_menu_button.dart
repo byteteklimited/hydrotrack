@@ -1,15 +1,18 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../../../../core/constants/app_routes.dart';
 import '../../../../core/theme/app_colors.dart';
+import '../../../admin/data/providers/admin_providers.dart';
 import '../../../auth/data/models/staff_user.dart';
 import '../../../auth/data/providers/auth_providers.dart';
 import '../../data/providers/organization_providers.dart';
 
-enum _AccountAction { switchOrganization, signOut }
+enum _AccountAction { adminConsole, switchOrganization, signOut }
 
 /// The signed-in person's avatar as an app-bar menu: which organization
-/// they're in, "Switch organization" and "Sign out". Used on phones,
+/// they're in, "HydroTrack admin" (platform admins only), "Switch
+/// organization" and "Sign out". Used on phones,
 /// where there's no sidebar footer to hold these.
 class AccountMenuButton extends ConsumerWidget {
   const AccountMenuButton({super.key});
@@ -20,10 +23,15 @@ class AccountMenuButton extends ConsumerWidget {
     final organization = ref.watch(currentOrganizationProvider);
     if (user == null || organization == null) return const SizedBox.shrink();
     final textTheme = Theme.of(context).textTheme;
+    final isPlatformAdmin =
+        ref.watch(isPlatformAdminProvider).valueOrNull ?? false;
 
     return PopupMenuButton<_AccountAction>(
       tooltip: 'Account',
       onSelected: (action) => switch (action) {
+        _AccountAction.adminConsole => Navigator.of(
+          context,
+        ).pushNamed(AppRoutes.admin),
         _AccountAction.switchOrganization => switchOrganization(context, ref),
         _AccountAction.signOut => signOutAndReturnToLogin(context, ref),
       },
@@ -44,6 +52,15 @@ class AccountMenuButton extends ConsumerWidget {
           ),
         ),
         const PopupMenuDivider(),
+        if (isPlatformAdmin)
+          const PopupMenuItem(
+            value: _AccountAction.adminConsole,
+            child: ListTile(
+              leading: Icon(Icons.admin_panel_settings_outlined),
+              title: Text('HydroTrack admin'),
+              contentPadding: EdgeInsets.zero,
+            ),
+          ),
         const PopupMenuItem(
           value: _AccountAction.switchOrganization,
           child: ListTile(

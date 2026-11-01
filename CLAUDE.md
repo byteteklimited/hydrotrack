@@ -261,3 +261,24 @@ supabase/
          thermal + esc_pos_utils_plus, conditional import so web builds);
          printer + paper width per phone (shared_preferences).
       Next: Phase C (subscriptions, admin console), then D.
+- [x] Phase C (2026-11-01): subscriptions and admin console (agreed:
+      one monthly plan, manual payment recorded by the admin, 14-day
+      trial, then 7 days' grace, then read-only; only the operator account
+      is platform admin; console inside the app; offline records made in
+      time are always accepted). Migration 0023: platform_admins,
+      platform_settings, tenant_subscriptions (trial started by trigger on
+      tenants; existing organizations got 14 days from now),
+      subscription_events; `guard_subscription` trigger on 22 business
+      tables (not on membership, sign-in/offline credentials, devices,
+      alerts, audit) — background jobs (no auth.uid) never blocked,
+      offline records judged at their recorded time; my_subscription,
+      device_subscription (in device-sync pull), admin_* RPCs. 0024 pins
+      a search_path. App: features/subscriptions (banner under the offline
+      banner, Subscription screen + card in Organization settings; device
+      refuses records after access ends, refreshing first when online),
+      features/admin (console, organization detail with Record payment /
+      Free days / Suspend-Resume, Plan and price). Tests: pgTAP
+      subscriptions (55), all 9 suites pass; live subscriptions_test.py
+      (8), api_isolation (22), pin_reset (7), device_sync (9); 283 Flutter
+      tests. Before launch: set the price and payment instructions in the
+      console. Next: Phase D.

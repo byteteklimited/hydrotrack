@@ -21,6 +21,7 @@ class OfflineSnapshot {
     this.totalBagsProduced = 0,
     this.totalRevenue = 0,
     this.lastStockCountAt,
+    this.subscription,
   });
 
   final DateTime pulledAt;
@@ -37,6 +38,10 @@ class OfflineSnapshot {
   int totalBagsProduced;
   num totalRevenue;
   DateTime? lastStockCountAt;
+
+  /// The organization's subscription as of the last download (`my_subscription`
+  /// shape), or null from an older download.
+  final Map<String, dynamic>? subscription;
 
   List<Map<String, dynamic>> rows(String table) =>
       tables.putIfAbsent(table, () => []);
@@ -87,6 +92,9 @@ class OfflineSnapshot {
       lastStockCountAt: json['last_stock_count_at'] == null
           ? null
           : DateTime.parse(json['last_stock_count_at'] as String),
+      subscription: json['subscription'] == null
+          ? null
+          : Map<String, dynamic>.from(json['subscription'] as Map),
     );
   }
 
@@ -108,5 +116,6 @@ class OfflineSnapshot {
       'total_revenue': totalRevenue,
     },
     'last_stock_count_at': lastStockCountAt?.toUtc().toIso8601String(),
+    'subscription': subscription,
   };
 }

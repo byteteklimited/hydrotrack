@@ -9,14 +9,15 @@ import '../../../auth/data/models/staff_user.dart';
 import '../../../auth/data/providers/auth_providers.dart';
 import '../../../offline/view/widgets/offline_device_card.dart';
 import '../../../offline/view/widgets/registered_devices_card.dart';
+import '../../../subscriptions/view/widgets/subscription_card.dart';
 import '../../data/providers/organization_providers.dart';
 import '../widgets/business_profile_card.dart';
 import '../widgets/debt_reminders_card.dart';
 
-/// Organization settings (Owner/Admin): the business profile receipts and
-/// reports carry, the bank details SMS debt reminders print, offline use
-/// on this device, and switching to another organization. Staff and
-/// invite codes are managed on the Staff screen.
+/// Organization settings (Owner/Admin): the subscription, the business
+/// profile receipts and reports carry, the bank details SMS debt
+/// reminders print, offline use on this device, and switching to another
+/// organization. Staff and invite codes are managed on the Staff screen.
 class OrganizationSettingsScreen extends ConsumerWidget {
   const OrganizationSettingsScreen({super.key});
 
@@ -39,6 +40,7 @@ class OrganizationSettingsScreen extends ConsumerWidget {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
+                const SubscriptionCard(),
                 BusinessProfileCard(organization: organization),
                 const SizedBox(height: AppSpacing.lg),
                 DebtRemindersCard(organization: organization),

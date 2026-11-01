@@ -28,6 +28,7 @@ class AppTextField extends StatefulWidget {
     this.enabled = true,
     this.inputFormatters,
     this.obscureText = false,
+    this.maxLines = 1,
   });
 
   final String label;
@@ -46,6 +47,9 @@ class AppTextField extends StatefulWidget {
   final bool enabled;
   final List<TextInputFormatter>? inputFormatters;
   final bool obscureText;
+
+  /// More than 1 for free text such as instructions or notes.
+  final int maxLines;
 
   /// ₦ amount field — digits only, with live thousands-grouping.
   factory AppTextField.naira({
@@ -149,6 +153,7 @@ class _AppTextFieldState extends State<AppTextField> {
           enabled: widget.enabled,
           inputFormatters: widget.inputFormatters,
           obscureText: widget.obscureText && _obscured,
+          maxLines: widget.obscureText ? 1 : widget.maxLines,
           decoration: InputDecoration(
             helperText: widget.helperText,
             prefixIcon: widget.prefixIcon,

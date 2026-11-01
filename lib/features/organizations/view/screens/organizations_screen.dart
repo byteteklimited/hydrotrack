@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../../../../core/constants/app_routes.dart';
 import '../../../../core/theme/app_spacing.dart';
 import '../../../../core/widgets/app_button.dart';
 import '../../../../core/widgets/app_card.dart';
@@ -9,6 +10,7 @@ import '../../../../core/widgets/app_error_state.dart';
 import '../../../../core/widgets/app_loading.dart';
 import '../../../../core/widgets/app_modal.dart';
 import '../../../../core/widgets/responsive_center.dart';
+import '../../../admin/data/providers/admin_providers.dart';
 import '../../../auth/data/providers/auth_providers.dart';
 import '../../data/models/membership.dart';
 import '../../data/providers/organization_providers.dart';
@@ -105,6 +107,12 @@ class OrganizationsScreen extends ConsumerWidget {
         title: const Text('Your organizations'),
         automaticallyImplyLeading: false,
         actions: [
+          if (ref.watch(isPlatformAdminProvider).valueOrNull ?? false)
+            IconButton(
+              tooltip: 'HydroTrack admin',
+              icon: const Icon(Icons.admin_panel_settings_outlined),
+              onPressed: () => Navigator.of(context).pushNamed(AppRoutes.admin),
+            ),
           IconButton(
             tooltip: 'Sign out',
             icon: const Icon(Icons.logout),

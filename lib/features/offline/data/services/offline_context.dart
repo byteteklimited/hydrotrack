@@ -2,6 +2,7 @@ import 'package:supabase_flutter/supabase_flutter.dart';
 
 import '../../../../core/utils/network_error.dart';
 import '../../../auth/data/models/staff_user.dart';
+import '../../../subscriptions/data/models/subscription.dart';
 import '../models/offline_snapshot.dart';
 import '../models/outbox_operation.dart';
 import 'offline_controller.dart';
@@ -59,10 +60,18 @@ class OfflineContext {
   String newId() => _controller.newId();
 
   /// Saves a daily record on the device and sends it when possible.
+  /// When the device's copy says the subscription has ended but there's
+  /// internet, it refreshes first — the owner may have just renewed.
   Future<OutboxOperation> record(
     OperationType type,
     Map<String, dynamic> payload,
-  ) {
+  ) async {
+    final subscription = snapshot.subscription;
+    if (subscription != null &&
+        !Subscription.fromJson(subscription).canRecordAt(DateTime.now()) &&
+        _isConnected()) {
+      await _controller.sync();
+    }
     return _controller.record(type: type, payload: payload, actor: actor);
   }
 

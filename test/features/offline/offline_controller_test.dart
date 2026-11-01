@@ -43,6 +43,58 @@ void main() {
     return controller;
   }
 
+  test(
+    'stops recording once the subscription has ended, until it is renewed',
+    () async {
+      final now = DateTime.now();
+      api.serverData = sampleSnapshot(
+        subscription: subscriptionJson(
+          status: 'expired',
+          accessEndsAt: now.subtract(const Duration(days: 1)),
+        ),
+      );
+      final controller = await setUpDevice();
+      await expectLater(
+        controller.record(
+          type: OperationType.sale,
+          payload: salePayload(),
+          actor: _cashier,
+        ),
+        throwsA(isA<StateError>()),
+      );
+      expect(controller.state.outbox, isEmpty, reason: 'nothing queued');
+
+      api.serverData = sampleSnapshot(
+        subscription: subscriptionJson(
+          status: 'active',
+          accessEndsAt: now.add(const Duration(days: 30)),
+        ),
+      );
+      await controller.sync();
+      await controller.record(
+        type: OperationType.sale,
+        payload: salePayload(),
+        actor: _cashier,
+      );
+      expect(controller.state.outbox, isNotEmpty, reason: 'renewed');
+    },
+  );
+
+  test('the subscription is kept with the device copy', () async {
+    final now = DateTime.now();
+    api.serverData = sampleSnapshot(
+      subscription: subscriptionJson(
+        status: 'trial',
+        accessEndsAt: now.add(const Duration(days: 10)),
+      ),
+    );
+    final controller = await setUpDevice();
+    final restarted = newController();
+    await restarted.ready;
+    expect(restarted.currentSnapshot!.subscription?['status'], 'trial');
+    expect(controller.currentSnapshot!.copy().subscription, isNotNull);
+  });
+
   test('setting up downloads the organization onto the device', () async {
     final controller = await setUpDevice();
     expect(controller.state.isReadyFor(tenantId), isTrue);

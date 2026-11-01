@@ -5,6 +5,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../../core/constants/app_routes.dart';
 import '../../../../core/utils/action_controller.dart';
+import '../../../admin/data/providers/admin_providers.dart';
 import '../../../offline/data/providers/offline_providers.dart';
 import '../../../offline/data/services/offline_controller.dart';
 import '../../../organizations/data/models/organization.dart';
@@ -203,4 +204,5 @@ Future<void> signOutAndReturnToLogin(
   ref.read(currentOrganizationProvider.notifier).state = null;
   ref.read(offlineSessionProvider.notifier).state = null;
   ref.invalidate(myMembershipsProvider);
+  ref.invalidate(isPlatformAdminProvider);
 }

@@ -13,6 +13,9 @@ class Validators {
   /// Owner passwords: at least this many characters.
   static const passwordMinLength = 8;
 
+  /// Nigerian bank account numbers (NUBAN).
+  static const accountNumberLength = 10;
+
   static final _email = RegExp(r'^[^@\s]+@[^@\s]+\.[^@\s]+$');
   static final _digits = RegExp(r'^\d+$');
 
@@ -53,5 +56,12 @@ class Validators {
     return (value ?? '').length >= passwordMinLength
         ? null
         : 'Use at least $passwordMinLength characters';
+  }
+
+  static String? accountNumber(String? value) {
+    final digits = value?.trim() ?? '';
+    return digits.length == accountNumberLength && _digits.hasMatch(digits)
+        ? null
+        : 'Enter the $accountNumberLength-digit account number';
   }
 }

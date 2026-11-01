@@ -4,6 +4,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../../core/constants/app_routes.dart';
 import '../../../../core/utils/action_controller.dart';
 import '../../../auth/data/providers/auth_providers.dart';
+import '../models/bank_details.dart';
 import '../models/membership.dart';
 import '../models/organization.dart';
 import '../repositories/organization_repository.dart';
@@ -76,6 +77,22 @@ class OrganizationActionController extends ActionController {
       _ref.read(currentOrganizationProvider.notifier).state = renamed;
       _ref.invalidate(myMembershipsProvider);
       return renamed;
+    });
+  }
+
+  /// Saves (or, with null, removes) the bank details used in SMS debt
+  /// reminders.
+  Future<Organization?> saveBankDetails({
+    required String organizationId,
+    required BankDetails? details,
+  }) {
+    return guard(() async {
+      final updated = await _ref
+          .read(organizationRepositoryProvider)
+          .updateBankDetails(organizationId: organizationId, details: details);
+      _ref.read(currentOrganizationProvider.notifier).state = updated;
+      _ref.invalidate(myMembershipsProvider);
+      return updated;
     });
   }
 }

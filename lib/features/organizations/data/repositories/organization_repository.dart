@@ -1,5 +1,6 @@
 import 'package:supabase_flutter/supabase_flutter.dart';
 
+import '../models/bank_details.dart';
 import '../models/membership.dart';
 import '../models/organization.dart';
 
@@ -24,6 +25,13 @@ abstract class OrganizationRepository {
     required String name,
   });
 
+  /// Sets (or, with null, clears) the bank details printed in SMS debt
+  /// reminders. Owner/Admin only (enforced by RLS).
+  Future<Organization> updateBankDetails({
+    required String organizationId,
+    required BankDetails? details,
+  });
+
   /// The organization the person last worked in, if any — reopened
   /// automatically on their next sign-in, on any device.
   String? lastOrganizationId();
@@ -39,8 +47,10 @@ class SupabaseOrganizationRepository implements OrganizationRepository {
   SupabaseClient get _client => Supabase.instance.client;
 
   static const _lastOrganizationKey = 'last_tenant_id';
+  static const _organizationColumns =
+      'id, name, logo_path, bank_name, bank_account_number, bank_account_name';
   static const _selectMembership =
-      'role, is_active, user_id, tenants(id, name, logo_path), '
+      'role, is_active, user_id, tenants($_organizationColumns), '
       'profiles!user_id(full_name, phone, email)';
 
   @override
@@ -86,7 +96,21 @@ class SupabaseOrganizationRepository implements OrganizationRepository {
         .from('tenants')
         .update({'name': name})
         .eq('id', organizationId)
-        .select('id, name, logo_path')
+        .select(_organizationColumns)
+        .single();
+    return Organization.fromJson(row);
+  }
+
+  @override
+  Future<Organization> updateBankDetails({
+    required String organizationId,
+    required BankDetails? details,
+  }) async {
+    final row = await _client
+        .from('tenants')
+        .update(BankDetails.toTenantJson(details))
+        .eq('id', organizationId)
+        .select(_organizationColumns)
         .single();
     return Organization.fromJson(row);
   }

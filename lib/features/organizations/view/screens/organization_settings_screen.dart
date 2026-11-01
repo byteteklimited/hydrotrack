@@ -11,10 +11,12 @@ import '../../../auth/data/models/staff_user.dart';
 import '../../../auth/data/providers/auth_providers.dart';
 import '../../data/models/organization.dart';
 import '../../data/providers/organization_providers.dart';
+import '../widgets/debt_reminders_card.dart';
 import '../widgets/single_field_action_screen.dart';
 
 /// Organization settings (Owner/Admin): the business name every receipt
-/// and report carries, and switching to another organization. Staff and
+/// and report carries, the bank details SMS debt reminders print, and
+/// switching to another organization. Staff and
 /// invite codes are managed on the Staff screen.
 class OrganizationSettingsScreen extends ConsumerWidget {
   const OrganizationSettingsScreen({super.key});
@@ -83,6 +85,8 @@ class OrganizationSettingsScreen extends ConsumerWidget {
                     ],
                   ),
                 ),
+                const SizedBox(height: AppSpacing.lg),
+                DebtRemindersCard(organization: organization),
                 const SizedBox(height: AppSpacing.lg),
                 AppCard(
                   title: 'Your access',

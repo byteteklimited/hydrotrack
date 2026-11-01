@@ -42,4 +42,17 @@ void main() {
       expect(Validators.required('x', 'Enter it'), isNull);
     });
   });
+
+  group('Validators.accountNumber', () {
+    test('accepts a 10-digit NUBAN', () {
+      expect(Validators.accountNumber('0123456789'), isNull);
+    });
+
+    test('rejects the wrong length or non-digits', () {
+      expect(Validators.accountNumber('012345678'), isNotNull);
+      expect(Validators.accountNumber('01234567890'), isNotNull);
+      expect(Validators.accountNumber('01234-6789'), isNotNull);
+      expect(Validators.accountNumber(null), isNotNull);
+    });
+  });
 }

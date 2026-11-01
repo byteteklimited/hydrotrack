@@ -190,3 +190,18 @@ supabase/
       Live staff flow verified: invite by phone → `accept-invite` with PIN
       → phone+PIN sign-in → correct role; code reuse rejected. Placeholder
       logo/icons and `com.example.hydrotrack` stay for now.
+- [x] Debt reminders phase (2026-11-01): automatic SMS via one HydroTrack
+      Termii account. Migration 0014: tenant bank details (all-or-none,
+      10-digit NUBAN), `debt_reminders` log (members read own tenant; only
+      service role writes), `claim_due_debt_reminders` /
+      `finish_debt_reminder` (service role only; rules: 14 days overdue →
+      every 7 days → max 4 since last payment; failed sends retry next
+      day, max 3 failures; once per day), pg_cron job 08:00–10:30 Lagos.
+      Edge Function `send-debt-reminders` (deployed `--no-verify-jwt`,
+      cron-secret header). App: Organization → "Debt reminders" card +
+      bank details form. Tests: `debt_reminders.test.sql` (25 checks),
+      217 Flutter tests. Pending manual setup: cron secret + Vault
+      secrets, Termii key/sender (README "Debt reminders").
+      Next agreed phase: offline daily recording (sales, debt payments,
+      expenses, production; credit sales allowed offline, flagged on
+      sync if over limit).

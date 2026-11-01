@@ -14,6 +14,7 @@ import '../../../auth/data/models/staff_user.dart';
 import '../../../auth/data/providers/auth_providers.dart';
 import '../../../organizations/data/models/business_header.dart';
 import '../../../organizations/data/providers/organization_providers.dart';
+import '../../../printing/view/thermal_print_button.dart';
 import '../../data/models/sale.dart';
 import '../../data/providers/sales_providers.dart';
 import '../widgets/receipt_pdf.dart';
@@ -265,6 +266,7 @@ class _ReceiptBodyState extends ConsumerState<_ReceiptBody> {
               ),
             ],
           ),
+          ThermalPrintButton(sale: sale),
         ],
       ),
     );

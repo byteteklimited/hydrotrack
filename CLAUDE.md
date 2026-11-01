@@ -243,5 +243,21 @@ supabase/
          business profile; dismissal kept in auth user metadata.
       Tests: pgTAP 326 assertions across 5 suites; live checks 22 + 9 +
       7; 261 Flutter tests. Manual: custom SMTP before production.
-      Next: Phase B (end-of-day cash count, WhatsApp/SMS alerts,
-      purchases with costs, thermal printing), then C, D.
+- [x] Phase B (2026-11-01), four parts, each committed:
+      1. Cash counts (0020): per cashier, expected = own cash in − own
+         cash out since last count today (cash_entries.created_at =
+         record time; offline = device time via hydrotrack.recorded_at /
+         effective_now()); note required on mismatch; shortage flag
+         ('cash_short'); managers confirm; offline 'cash_count' op.
+      2. Suppliers & purchases (0021): credit purchases, supplier_ledger,
+         pay_supplier; average cost (trigger on stock_movements), run
+         material_cost, sale_lines.unit_cost; profit = revenue − cost of
+         bags sold − expenses (materials_purchase excluded). Online only.
+      3. Alerts (0022): owners only; generate_alerts via pg_cron every 15
+         min (low stock once/day/item; summary from 20:00 Lagos);
+         send-alerts Edge Function (Termii, business phone, no backlog);
+         Termii code shared in functions/_shared/termii.ts.
+      4. Bluetooth ESC/POS receipt printing (Android; print_bluetooth_
+         thermal + esc_pos_utils_plus, conditional import so web builds);
+         printer + paper width per phone (shared_preferences).
+      Next: Phase C (subscriptions, admin console), then D.

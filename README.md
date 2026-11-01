@@ -24,7 +24,8 @@ start if that file still holds placeholders.
 - `python3 -I supabase/tests/pin_reset_test.py` — live check of staff PIN
   reset through the `reset-pin` Edge Function (throwaway accounts).
 - `./supabase/tests/run_linked.sh` — database suites (pgTAP: isolation,
-  debt reminders, offline sync, products and prices, PIN reset)
+  debt reminders, offline sync, products and prices, PIN reset, cash
+  counts, purchases and costs, alerts)
   against the linked hydrotrack project. Runs in one transaction and rolls
   back; nothing persists. With Docker: `supabase test db --linked`.
 - `python3 -I supabase/tests/api_isolation_test.py` — the same boundaries
@@ -108,3 +109,30 @@ Server: `supabase/migrations/0015_offline_devices.sql`,
   days"); Home's all-time totals come from `organization_totals`.
 - **Setup checklist**: owners see "Finish setting up" on Home until the
   business profile is complete (or they dismiss it).
+
+## Daily control (Phase B)
+
+- **Cash counts**: Home → "Count cash" (cashiers, managers, admins). The
+  server works out what the person should hold (cash in they recorded −
+  cash out they paid, since their last count today); a note is required
+  when it doesn't match; shortages go to the owner's "Needs checking";
+  managers confirm counts in Finance. Works offline.
+- **Purchases** (More → Purchases; store keepers in the main bar):
+  suppliers, purchases paid now / on credit / part, what we owe each
+  supplier, paying suppliers. Stock uses average cost; production runs
+  get a material cost and cost per bag; sale lines keep their cost; the
+  profit report subtracts the cost of bags sold (materials-purchase
+  expenses are left out to avoid counting them twice). Needs internet.
+- **Alerts** (owners; bell on Home): daily summary from 8 pm Lagos time
+  and low stock (once a day per item), made by the `generate-alerts`
+  pg_cron job. SMS copies go to the business phone in the profile via
+  `send-alerts` once Termii and the cron secret are set (README "Debt
+  reminders"); alerts older than 2 hours are never texted.
+- **Receipt printers** (Android app): receipt → "Print receipt" sends to
+  a paired Bluetooth ESC/POS printer (58 or 80 mm, chosen once per phone).
+  Other devices use Print / Share.
+
+Android build note: this machine's newest Android Studio ("Android
+Studio 2") bundles Java 25, which Gradle 8.14 can't run on. Build with
+Java 21, e.g. `flutter config --jdk-dir="/Applications/Android
+Studio.app/Contents/jbr/Contents/Home"`, or upgrade Gradle.

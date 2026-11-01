@@ -105,11 +105,15 @@ Future<void> signOutAndReturnToLogin(
   WidgetRef ref,
 ) async {
   await ref.read(authRepositoryProvider).signOut();
+  if (context.mounted) {
+    Navigator.of(
+      context,
+    ).pushNamedAndRemoveUntil(AppRoutes.login, (route) => false);
+    // Clear the signed-in state only once the organization's screens are
+    // gone; clearing it first makes them rebuild with no organization.
+    await WidgetsBinding.instance.endOfFrame;
+  }
   ref.read(authStateProvider.notifier).state = null;
   ref.read(currentOrganizationProvider.notifier).state = null;
   ref.invalidate(myMembershipsProvider);
-  if (!context.mounted) return;
-  Navigator.of(
-    context,
-  ).pushNamedAndRemoveUntil(AppRoutes.login, (route) => false);
 }

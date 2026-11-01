@@ -2,9 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../../core/theme/app_colors.dart';
-import '../../../../core/theme/app_spacing.dart';
 import '../../../../core/utils/date_utils.dart';
 import '../../../../core/widgets/app_stat_tile.dart';
+import '../../../../core/widgets/app_stat_tile_grid.dart';
 import '../../data/models/stock_batch.dart';
 import '../../data/models/stock_item.dart';
 import '../../data/providers/inventory_providers.dart';
@@ -18,6 +18,8 @@ class InventorySummaryStrip extends ConsumerWidget {
   const InventorySummaryStrip({super.key, required this.items});
 
   final List<StockItem> items;
+
+  static const double _maxTileWidth = 280;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -35,16 +37,9 @@ class InventorySummaryStrip extends ConsumerWidget {
             .length ??
         0;
 
-    return GridView(
-      shrinkWrap: true,
-      physics: const NeverScrollableScrollPhysics(),
-      gridDelegate: const SliverGridDelegateWithMaxCrossAxisExtent(
-        maxCrossAxisExtent: 280,
-        mainAxisSpacing: AppSpacing.md,
-        crossAxisSpacing: AppSpacing.md,
-        mainAxisExtent: 76,
-      ),
-      children: [
+    return AppStatTileGrid(
+      maxTileWidth: _maxTileWidth,
+      tiles: [
         AppStatTile(
           icon: Icons.remove_circle_outline,
           label: 'Out of stock',

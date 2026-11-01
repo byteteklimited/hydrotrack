@@ -73,12 +73,15 @@ class InventoryItemTile extends StatelessWidget {
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                Text(
-                  'Reorder at ${formatQuantity(item.reorderLevel, item.unit)}',
-                  style: theme.textTheme.bodySmall?.copyWith(
-                    color: AppColors.textSecondary,
+                Expanded(
+                  child: Text(
+                    'Reorder at ${formatQuantity(item.reorderLevel, item.unit)}',
+                    style: theme.textTheme.bodySmall?.copyWith(
+                      color: AppColors.textSecondary,
+                    ),
                   ),
                 ),
+                const SizedBox(width: AppSpacing.md),
                 AppStatusTag(
                   label: _statusLabel[status]!,
                   color: status.color ?? AppColors.textSecondary,

@@ -10,6 +10,7 @@ import '../../../../core/widgets/app_modal.dart';
 import '../../../../core/widgets/app_navigation_shell.dart';
 import '../../../../core/widgets/app_stat_strip.dart';
 import '../../../../core/widgets/app_stat_tile.dart';
+import '../../../../core/widgets/app_stat_tile_grid.dart';
 import '../../../../core/utils/formatters.dart';
 import '../../../auth/data/models/staff_user.dart';
 import '../../../auth/data/providers/auth_providers.dart';
@@ -34,6 +35,8 @@ const double _contentCap = 1280;
 /// last payment, low stock (if any), then a daily activity feed.
 class DashboardScreen extends ConsumerWidget {
   const DashboardScreen({super.key});
+
+  static const double _maxStatTileWidth = 320;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -117,17 +120,9 @@ class DashboardScreen extends ConsumerWidget {
                     ],
                   ),
                   const SizedBox(height: AppSpacing.md),
-                  GridView(
-                    shrinkWrap: true,
-                    physics: const NeverScrollableScrollPhysics(),
-                    gridDelegate:
-                        const SliverGridDelegateWithMaxCrossAxisExtent(
-                          maxCrossAxisExtent: 320,
-                          mainAxisSpacing: AppSpacing.md,
-                          crossAxisSpacing: AppSpacing.md,
-                          mainAxisExtent: 76,
-                        ),
-                    children: [
+                  AppStatTileGrid(
+                    maxTileWidth: _maxStatTileWidth,
+                    tiles: [
                       AppStatTile(
                         icon: Icons.groups_outlined,
                         label: 'Total customers',

@@ -75,31 +75,44 @@ class _AppBootstrapState extends State<_AppBootstrap> {
       future: _connect,
       builder: (context, snapshot) {
         if (snapshot.connectionState != ConnectionState.done) {
-          return const MaterialApp(
-            debugShowCheckedModeBanner: false,
-            home: Scaffold(body: AppLoading()),
-          );
+          return const _StatusApp(body: AppLoading());
         }
         if (snapshot.hasError) {
           final isMissingConfig =
               snapshot.error is MissingSupabaseConfigException;
-          return MaterialApp(
-            debugShowCheckedModeBanner: false,
-            theme: AppTheme.light,
-            home: Scaffold(
-              body: AppErrorState(
-                message: isMissingConfig
-                    ? '${snapshot.error}'
-                    : "Couldn't connect to HydroTrack. Check your internet "
-                          'connection and try again.',
-                retryLabel: isMissingConfig ? 'Check again' : 'Try again',
-                onRetry: _retry,
-              ),
+          return _StatusApp(
+            body: AppErrorState(
+              message: isMissingConfig
+                  ? '${snapshot.error}'
+                  : "Couldn't connect to HydroTrack. Check your internet "
+                        'connection and try again.',
+              retryLabel: isMissingConfig ? 'Check again' : 'Try again',
+              onRetry: _retry,
             ),
           );
         }
         return const HydroTrackApp();
       },
+    );
+  }
+}
+
+/// The one-screen app shown while connecting or after a failed connection.
+/// Ignores the browser's URL (e.g. `#/home` after a reload): this app has
+/// no routes, so it would only warn about it.
+class _StatusApp extends StatelessWidget {
+  const _StatusApp({required this.body});
+
+  final Widget body;
+
+  @override
+  Widget build(BuildContext context) {
+    return MaterialApp(
+      debugShowCheckedModeBanner: false,
+      theme: AppTheme.light,
+      onGenerateInitialRoutes: (_) => [
+        MaterialPageRoute<void>(builder: (_) => Scaffold(body: body)),
+      ],
     );
   }
 }
@@ -114,7 +127,15 @@ class HydroTrackApp extends StatelessWidget {
       title: 'HydroTrack',
       debugShowCheckedModeBanner: false,
       theme: AppTheme.light,
-      initialRoute: AppRoutes.splash,
+      // Always start at the splash screen, whatever the browser's URL says
+      // (a reload on `#/home` would otherwise open Home before the session
+      // and organization are restored).
+      onGenerateInitialRoutes: (_) => [
+        MaterialPageRoute<void>(
+          settings: const RouteSettings(name: AppRoutes.splash),
+          builder: (_) => const SplashScreen(),
+        ),
+      ],
       routes: {
         AppRoutes.splash: (context) => const SplashScreen(),
         AppRoutes.login: (context) => const LoginScreen(),

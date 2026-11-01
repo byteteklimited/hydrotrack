@@ -233,27 +233,25 @@ class _ExpandedInventoryBody extends ConsumerWidget {
             const _NeverStockedBanner(),
           ],
           const SizedBox(height: AppSpacing.lg),
-          IntrinsicHeight(
-            child: Row(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Expanded(
-                  child: _CategoryColumn(
-                    heading: 'Raw materials',
-                    items: rawMaterials,
-                    onItemTap: onItemTap,
-                  ),
+          Row(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Expanded(
+                child: _CategoryColumn(
+                  heading: 'Raw materials',
+                  items: rawMaterials,
+                  onItemTap: onItemTap,
                 ),
-                const SizedBox(width: AppSpacing.lg),
-                Expanded(
-                  child: _CategoryColumn(
-                    heading: 'Finished goods',
-                    items: finishedGoods,
-                    onItemTap: onItemTap,
-                  ),
+              ),
+              const SizedBox(width: AppSpacing.lg),
+              Expanded(
+                child: _CategoryColumn(
+                  heading: 'Finished goods',
+                  items: finishedGoods,
+                  onItemTap: onItemTap,
                 ),
-              ],
-            ),
+              ),
+            ],
           ),
         ],
       ),

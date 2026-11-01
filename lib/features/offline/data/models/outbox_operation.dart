@@ -17,7 +17,9 @@ enum OperationType {
   diesel('diesel', 'Diesel'),
   maintenanceDone('maintenance_done', 'Maintenance done'),
   breakdown('breakdown', 'Breakdown'),
-  breakdownEnd('breakdown_end', 'Machine fixed');
+  breakdownEnd('breakdown_end', 'Machine fixed'),
+  attendance('attendance', 'Attendance'),
+  bagCounts('bag_counts', 'Bag counts');
 
   const OperationType(this.dbValue, this.label);
 

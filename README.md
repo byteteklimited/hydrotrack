@@ -28,7 +28,7 @@ start if that file still holds placeholders.
   owners (throwaway account).
 - `./supabase/tests/run_linked.sh` — database suites (pgTAP: isolation,
   debt reminders, offline sync, products and prices, PIN reset, cash
-  counts, purchases and costs, alerts, subscriptions, quality, machines)
+  counts, purchases and costs, alerts, subscriptions, quality, machines, payroll)
   against the linked hydrotrack project. Runs in one transaction and rolls
   back; nothing persists. With Docker: `supabase test db --linked`.
 - `python3 -I supabase/tests/api_isolation_test.py` — the same boundaries
@@ -204,3 +204,18 @@ Studio.app/Contents/jbr/Contents/Home"`, or upgrade Gradle.
      per 100 bags and diesel cost per bag.
    - Diesel, maintenance done and breakdowns work offline; this month's
      figures need internet.
+3. **Staff and payroll** (More → Workers & pay):
+   - **Workers**: packers, loaders, security without the app, and app
+     staff (linked to their account). Each is paid a monthly salary, a
+     daily wage, or per bag. Only owners and admins see rates, advances
+     and payroll; pay never goes onto offline devices.
+   - **Attendance** (present / half day / absent) and **bag counts** per
+     per-bag worker, by day — managers and store keepers; work offline.
+   - **Advances** (owners/admins): paid out as wages when given, taken
+     off the next payroll.
+   - **Monthly payroll** (owners/admins): Prepare works out each person's
+     pay — monthly salary less salary ÷ working days (Mon–Sat) per day
+     marked absent (half for a half day); daily wage × days present;
+     rate × bags — less advances, plus any adjustment (with a reason).
+     "Pay everyone" records each net amount as a wages expense (cash or
+     transfer) and closes the month. Payslips as PDF (Share).

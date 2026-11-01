@@ -79,6 +79,10 @@ class LocalBookkeeping {
         _breakdown();
       case OperationType.breakdownEnd:
         _breakdownEnd();
+      case OperationType.attendance:
+        _daily('attendance', 'status', 'marked_by', 'marked_at');
+      case OperationType.bagCounts:
+        _daily('bag_counts', 'bags', 'entered_by', 'entered_at');
     }
   }
 
@@ -611,6 +615,31 @@ class LocalBookkeeping {
           'checked_by': _op.actorId,
           'checked_at': _at,
           'profiles': _recorder,
+          'local_op_id': _op.opId,
+        });
+    }
+  }
+
+  /// Attendance or bag counts: one row per worker per day; entering a
+  /// day again replaces it, as on the server.
+  void _daily(String table, String field, String byColumn, String atColumn) {
+    final date = _p['date'] as String;
+    final rows = _snapshot.rows(table);
+    for (final item in _p['entries'] as List) {
+      final entry = Map<String, dynamic>.from(item as Map);
+      rows
+        ..removeWhere(
+          (row) =>
+              row['date'] == date && row['worker_id'] == entry['worker_id'],
+        )
+        ..add({
+          'id': _childId(),
+          'tenant_id': _tenantId,
+          'worker_id': entry['worker_id'],
+          'date': date,
+          field: entry[field],
+          byColumn: _op.actorId,
+          atColumn: _at,
           'local_op_id': _op.opId,
         });
     }

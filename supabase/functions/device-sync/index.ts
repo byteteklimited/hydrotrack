@@ -14,8 +14,9 @@
 //        checklist, machines and their maintenance tasks, open breakdowns,
 //        and the last 90 days of sales, payments, cash, expenses,
 //        production, stock movements, load-outs, water tests, sanitation
-//        checks, maintenance done, breakdowns and diesel, in the same
-//        shape the app's own queries return.
+//        checks, maintenance done, breakdowns, diesel, attendance and bag
+//        counts (workers, never pay), in the same shape the app's own
+//        queries return.
 //   {"action": "push", "device_key": "...", "operations": [...]}
 //     -> applies queued records in order (apply_device_operation) and
 //        returns each one's result. Stops at the first error that isn't
@@ -152,6 +153,13 @@ async function pull(admin: SupabaseClient, deviceKey: string, tenantId: string) 
     diesel_logs: (a, b) =>
       t("diesel_logs", "*, profiles!recorded_by(full_name)")
         .gte("date", sinceDate).order("id").range(a, b),
+    // Workers but never pay: rates, advances and payroll stay off devices
+    // (anyone in the organization can sign in on one).
+    workers: (a, b) => t("workers").order("id").range(a, b),
+    attendance: (a, b) =>
+      t("attendance").gte("date", sinceDate).order("id").range(a, b),
+    bag_counts: (a, b) =>
+      t("bag_counts").gte("date", sinceDate).order("id").range(a, b),
   };
 
   const names = Object.keys(tables);

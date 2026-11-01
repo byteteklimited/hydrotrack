@@ -303,5 +303,12 @@ supabase/
          4 new offline record types. Machines section + Home card; shared
          AppFormDialog/AppDateTimeField; formatPlain in core.
          Tests: machines.test.sql (31), 306 Flutter tests.
-      3. [ ] Staff and payroll
+      3. [x] Staff and payroll (0027): workers (+ private worker_rates),
+         attendance and bag_counts (supervisors; offline record types),
+         salary_advances, payrolls/payroll_lines (prepare keeps
+         adjustments; pay posts wages via post_wages, marks advances,
+         closes the month; refused while a line is below zero). Pay data
+         admin-only by RLS and never pulled to devices. Workers & pay
+         section; shared AppMonthSwitcher; payslip PDF.
+         Tests: payroll.test.sql (32), 314 Flutter tests.
       4. [ ] Forecasting (stock run-out)  5. [ ] Factories and depots

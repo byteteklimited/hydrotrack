@@ -108,10 +108,14 @@ class _AppNavigationShellState extends ConsumerState<AppNavigationShell> {
   }
 
   void _showMoreSheet(BuildContext context, List<AppSection> overflow) {
+    // Grows to fit every row (Flutter's default caps a sheet at ~56% of
+    // the window) and scrolls when the window is too short for them all.
     showModalBottomSheet(
       context: context,
+      isScrollControlled: true,
+      useSafeArea: true,
       builder: (sheetContext) => SafeArea(
-        child: Padding(
+        child: SingleChildScrollView(
           padding: const EdgeInsets.all(AppSpacing.lg),
           child: AppCard(
             child: Column(

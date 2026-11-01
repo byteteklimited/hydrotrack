@@ -311,4 +311,10 @@ supabase/
          admin-only by RLS and never pulled to devices. Workers & pay
          section; shared AppMonthSwitcher; payslip PDF.
          Tests: payroll.test.sql (32), 314 Flutter tests.
-      4. [ ] Forecasting (stock run-out)  5. [ ] Factories and depots
+      4. [x] Forecasting (0028): stock_runout(item) (30-day use of
+         stock_out + production_use, averaged over ≤30 days since first
+         movement), stock_forecast RPC, weekly 'stock_runout' alert under
+         7 days unless already low. App: StockForecast (+ identical local
+         compute offline), days left on inventory tiles and item page.
+         Tests: forecast.test.sql (8), 316 Flutter tests.
+      5. [ ] Factories and depots

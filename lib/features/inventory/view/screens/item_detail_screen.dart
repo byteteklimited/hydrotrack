@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../widgets/inventory_item_tile.dart';
+import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_spacing.dart';
 import '../../../../core/utils/action_error.dart';
 import '../../../../core/utils/formatters.dart';
@@ -94,6 +96,9 @@ class _ItemDetailBody extends ConsumerWidget {
     final movementsAsync = ref.watch(itemMovementsProvider(item.id));
     final batchesAsync = ref.watch(itemBatchesProvider(item.id));
     final role = ref.watch(authStateProvider)?.role;
+    final forecast = ref.watch(
+      stockForecastProvider.select((value) => value.valueOrNull?[item.id]),
+    );
     final canManage = role?.canManage ?? false;
 
     return Scaffold(
@@ -152,6 +157,19 @@ class _ItemDetailBody extends ConsumerWidget {
                           value: '${item.reorderLevel} ${item.unit}',
                         ),
                       ),
+                      if (forecast?.daysLeft != null)
+                        Expanded(
+                          child: AppStat(
+                            label:
+                                'Lasts (uses ${formatPlain(num.parse(forecast!.perDay!.toStringAsFixed(1)))} '
+                                '${item.unit} a day)',
+                            value:
+                                InventoryItemTile.daysLeftText(forecast) ?? '',
+                            valueColor: forecast.runningOut
+                                ? AppColors.warningFg
+                                : null,
+                          ),
+                        ),
                     ],
                   ),
                 ),

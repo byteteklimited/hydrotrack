@@ -3,9 +3,11 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../../core/utils/action_controller.dart';
 import '../../../offline/data/providers/offline_providers.dart';
 import '../../../organizations/data/providers/organization_providers.dart';
+import '../models/stock_forecast.dart';
 import '../models/stock_item.dart';
 import '../repositories/inventory_repository.dart';
 import '../repositories/offline_inventory_repository.dart';
+import '../repositories/stock_forecast_repository.dart';
 
 /// The active [InventoryRepository] implementation.
 final inventoryRepositoryProvider = Provider<InventoryRepository>((ref) {
@@ -141,3 +143,28 @@ final stockActionControllerProvider =
     StateNotifierProvider<StockActionController, AsyncValue<void>>(
       (ref) => StockActionController(ref),
     );
+
+final stockForecastRepositoryProvider = Provider<StockForecastRepository>((
+  ref,
+) {
+  final remote = SupabaseStockForecastRepository(
+    ref.watch(currentTenantIdProvider),
+  );
+  final offline = ref.watch(offlineContextProvider);
+  return offline == null
+      ? remote
+      : OfflineStockForecastRepository(remote, offline);
+});
+
+/// When each item runs out (item id → forecast); refreshed whenever stock
+/// changes. Empty when it can't be loaded — the lists just don't show it.
+final stockForecastProvider = FutureProvider<Map<String, StockForecast>>((
+  ref,
+) async {
+  ref.watch(stockItemsProvider);
+  try {
+    return await ref.watch(stockForecastRepositoryProvider).fetchForecast();
+  } catch (_) {
+    return const {};
+  }
+});

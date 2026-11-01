@@ -28,7 +28,7 @@ start if that file still holds placeholders.
   owners (throwaway account).
 - `./supabase/tests/run_linked.sh` — database suites (pgTAP: isolation,
   debt reminders, offline sync, products and prices, PIN reset, cash
-  counts, purchases and costs, alerts, subscriptions, quality, machines, payroll)
+  counts, purchases and costs, alerts, subscriptions, quality, machines, payroll, forecast)
   against the linked hydrotrack project. Runs in one transaction and rolls
   back; nothing persists. With Docker: `supabase test db --linked`.
 - `python3 -I supabase/tests/api_isolation_test.py` — the same boundaries
@@ -219,3 +219,11 @@ Studio.app/Contents/jbr/Contents/Home"`, or upgrade Gradle.
      rate × bags — less advances, plus any adjustment (with a reason).
      "Pay everyone" records each net amount as a wages expense (cash or
      transfer) and closes the month. Payslips as PDF (Share).
+4. **Forecasting — when stock runs out** (Inventory): every item shows
+   "about N days left" at the last 30 days' rate (sales, load-outs and
+   production use; stock counts left out; newer items averaged over the
+   days since their first movement), in amber under a week, with the
+   daily rate on the item's page. The owner is alerted once a week per
+   item when it will run out within 7 days (items already at their
+   reorder level get the low-stock alert instead). Works offline from the
+   device's own copy.

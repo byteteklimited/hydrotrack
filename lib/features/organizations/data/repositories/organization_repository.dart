@@ -1,6 +1,9 @@
+import 'dart:typed_data';
+
 import 'package:supabase_flutter/supabase_flutter.dart';
 
 import '../models/bank_details.dart';
+import '../models/business_profile.dart';
 import '../models/membership.dart';
 import '../models/organization.dart';
 
@@ -19,18 +22,31 @@ abstract class OrganizationRepository {
   /// person's phone or email. Returns the organization's id.
   Future<String> joinWithCode(String code);
 
-  /// Renames an organization. Owner/Admin only (enforced by RLS).
-  Future<Organization> renameOrganization({
-    required String organizationId,
-    required String name,
-  });
-
   /// Sets (or, with null, clears) the bank details printed in SMS debt
   /// reminders. Owner/Admin only (enforced by RLS).
   Future<Organization> updateBankDetails({
     required String organizationId,
     required BankDetails? details,
   });
+
+  /// Name and business profile (Owner/Admin, enforced by RLS).
+  Future<Organization> updateProfile({
+    required String organizationId,
+    required String name,
+    required BusinessProfile profile,
+  });
+
+  /// Uploads a logo (PNG/JPEG/WebP, under 5 MB) and links it.
+  Future<Organization> uploadLogo({
+    required String organizationId,
+    required Uint8List bytes,
+    required String extension,
+  });
+
+  Future<Organization> removeLogo(String organizationId);
+
+  /// The logo's bytes, for showing it and putting it on PDFs.
+  Future<Uint8List> downloadLogo(String path);
 
   /// The organization the person last worked in, if any — reopened
   /// automatically on their next sign-in, on any device.
@@ -48,7 +64,9 @@ class SupabaseOrganizationRepository implements OrganizationRepository {
 
   static const _lastOrganizationKey = 'last_tenant_id';
   static const _organizationColumns =
-      'id, name, logo_path, bank_name, bank_account_number, bank_account_name';
+      'id, name, logo_path, bank_name, bank_account_number, bank_account_name, '
+      'address, phone, email, rc_number, nafdac_number';
+  static const _bucket = 'tenant-files';
   static const _selectMembership =
       'role, is_active, user_id, tenants($_organizationColumns), '
       'profiles!user_id(full_name, phone, email)';
@@ -88,20 +106,6 @@ class SupabaseOrganizationRepository implements OrganizationRepository {
   }
 
   @override
-  Future<Organization> renameOrganization({
-    required String organizationId,
-    required String name,
-  }) async {
-    final row = await _client
-        .from('tenants')
-        .update({'name': name})
-        .eq('id', organizationId)
-        .select(_organizationColumns)
-        .single();
-    return Organization.fromJson(row);
-  }
-
-  @override
   Future<Organization> updateBankDetails({
     required String organizationId,
     required BankDetails? details,
@@ -109,6 +113,73 @@ class SupabaseOrganizationRepository implements OrganizationRepository {
     final row = await _client
         .from('tenants')
         .update(BankDetails.toTenantJson(details))
+        .eq('id', organizationId)
+        .select(_organizationColumns)
+        .single();
+    return Organization.fromJson(row);
+  }
+
+  @override
+  Future<Organization> updateProfile({
+    required String organizationId,
+    required String name,
+    required BusinessProfile profile,
+  }) => _update(organizationId, {'name': name, ...profile.toTenantJson()});
+
+  @override
+  Future<Organization> uploadLogo({
+    required String organizationId,
+    required Uint8List bytes,
+    required String extension,
+  }) async {
+    final type = extension == 'jpg' ? 'jpeg' : extension;
+    final path =
+        '$organizationId/logo-${DateTime.now().millisecondsSinceEpoch}.$extension';
+    await _client.storage
+        .from(_bucket)
+        .uploadBinary(
+          path,
+          bytes,
+          fileOptions: FileOptions(contentType: 'image/$type'),
+        );
+    final previous = await _logoPath(organizationId);
+    final updated = await _update(organizationId, {'logo_path': path});
+    if (previous != null) {
+      await _client.storage.from(_bucket).remove([previous]);
+    }
+    return updated;
+  }
+
+  @override
+  Future<Organization> removeLogo(String organizationId) async {
+    final previous = await _logoPath(organizationId);
+    final updated = await _update(organizationId, {'logo_path': null});
+    if (previous != null) {
+      await _client.storage.from(_bucket).remove([previous]);
+    }
+    return updated;
+  }
+
+  @override
+  Future<Uint8List> downloadLogo(String path) =>
+      _client.storage.from(_bucket).download(path);
+
+  Future<String?> _logoPath(String organizationId) async {
+    final row = await _client
+        .from('tenants')
+        .select('logo_path')
+        .eq('id', organizationId)
+        .single();
+    return row['logo_path'] as String?;
+  }
+
+  Future<Organization> _update(
+    String organizationId,
+    Map<String, dynamic> values,
+  ) async {
+    final row = await _client
+        .from('tenants')
+        .update(values)
         .eq('id', organizationId)
         .select(_organizationColumns)
         .single();

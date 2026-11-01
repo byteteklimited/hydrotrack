@@ -66,7 +66,10 @@ async function pull(admin: SupabaseClient, deviceKey: string, tenantId: string) 
     lastCount,
   ] = await Promise.all([
     admin.from("tenants")
-      .select("id, name, logo_path, bank_name, bank_account_number, bank_account_name")
+      .select(
+        "id, name, logo_path, bank_name, bank_account_number, bank_account_name, " +
+          "address, phone, email, rc_number, nafdac_number",
+      )
       .eq("id", tenantId).single(),
     admin.rpc("device_members", { p_device_key: deviceKey }),
     admin.rpc("device_finance_position", { p_device_key: deviceKey }),

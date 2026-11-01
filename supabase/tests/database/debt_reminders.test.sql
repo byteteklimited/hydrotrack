@@ -139,6 +139,11 @@ begin
     'Hello Musa, this is Sunny Water. Your outstanding balance is NGN1,500.50. '
       || 'Please make a payment soon. Thank you.',
     'Without bank details it still asks for payment; kobo shown only when present');
+  return next is(
+    public.debt_reminder_message('Sunny Water', 'Musa', 500, null, null, null, '08031234567'),
+    'Hello Musa, this is Sunny Water. Your outstanding balance is NGN500. '
+      || 'Please make a payment soon. Questions? Call 08031234567. Thank you.',
+    'The business phone, when set, is given for questions');
   return next ok(
     public.debt_reminder_message('Sunny Water', 'Musa', 1234567, 'GTBank', '0123456789', 'Sunny Water Ltd')
       !~ '[^\x20-\x7E]',

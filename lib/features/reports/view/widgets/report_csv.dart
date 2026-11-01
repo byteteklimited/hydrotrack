@@ -4,6 +4,7 @@ import 'dart:typed_data';
 import 'package:intl/intl.dart';
 
 import '../../../../core/utils/formatters.dart';
+import '../../../organizations/data/models/business_header.dart';
 import '../../../sales/data/models/sale.dart';
 import '../../data/models/report_summary.dart';
 import 'report_comparison_line.dart';
@@ -27,11 +28,12 @@ String _row(List<String> fields) => fields.map(_field).join(',');
 /// otherwise guesses the wrong encoding for a plain UTF-8 file.
 Uint8List buildReportCsv(
   ReportSummary summary, {
-  required String businessName,
+  required BusinessHeader header,
 }) {
   final comparisonLabel = summary.period.comparisonLabel;
   final lines = <String>[
-    _row(['$businessName — Report']),
+    _row(['${header.name} — Report']),
+    for (final line in header.lines) _row([line]),
     _row(['Period', summary.period.label]),
     _row(['Generated', DateFormat.yMMMd().add_jm().format(DateTime.now())]),
     '',

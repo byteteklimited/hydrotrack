@@ -12,6 +12,7 @@ import '../../../../core/widgets/app_error_state.dart';
 import '../../../../core/widgets/app_loading.dart';
 import '../../../auth/data/models/staff_user.dart';
 import '../../../auth/data/providers/auth_providers.dart';
+import '../../../organizations/data/models/business_header.dart';
 import '../../../organizations/data/providers/organization_providers.dart';
 import '../../data/models/sale.dart';
 import '../../data/providers/sales_providers.dart';
@@ -68,8 +69,8 @@ class _ReceiptBody extends ConsumerStatefulWidget {
 class _ReceiptBodyState extends ConsumerState<_ReceiptBody> {
   Sale get sale => widget.sale;
 
-  /// Receipts carry the organization's own business name.
-  String get _businessName => ref.read(currentOrganizationProvider)?.name ?? '';
+  /// Receipts carry the organization's own logo, name and profile.
+  Future<BusinessHeader> get _header => ref.read(businessHeaderProvider.future);
 
   bool _isPrinting = false;
   bool _isSharing = false;
@@ -77,7 +78,7 @@ class _ReceiptBodyState extends ConsumerState<_ReceiptBody> {
   Future<void> _print() async {
     setState(() => _isPrinting = true);
     try {
-      final doc = await buildReceiptPdf(sale, businessName: _businessName);
+      final doc = await buildReceiptPdf(sale, header: await _header);
       await Printing.layoutPdf(onLayout: (format) => doc.save());
     } finally {
       if (mounted) setState(() => _isPrinting = false);
@@ -87,7 +88,7 @@ class _ReceiptBodyState extends ConsumerState<_ReceiptBody> {
   Future<void> _share() async {
     setState(() => _isSharing = true);
     try {
-      final doc = await buildReceiptPdf(sale, businessName: _businessName);
+      final doc = await buildReceiptPdf(sale, header: await _header);
       await Printing.sharePdf(
         bytes: await doc.save(),
         filename:
@@ -169,6 +170,18 @@ class _ReceiptBodyState extends ConsumerState<_ReceiptBody> {
                   ref.watch(currentOrganizationProvider)?.name ?? '',
                   style: theme.textTheme.titleLarge,
                 ),
+                for (final line
+                    in ref
+                            .watch(currentOrganizationProvider)
+                            ?.profile
+                            .headerLines ??
+                        const <String>[])
+                  Text(
+                    line,
+                    style: theme.textTheme.bodySmall?.copyWith(
+                      color: theme.colorScheme.onSurfaceVariant,
+                    ),
+                  ),
                 const SizedBox(height: AppSpacing.xs),
                 Text(
                   DateFormat.yMMMd().add_jm().format(sale.dateTime),

@@ -2,7 +2,9 @@ import 'package:intl/intl.dart';
 import 'package:pdf/pdf.dart';
 import 'package:pdf/widgets.dart' as pw;
 
+import '../../../../core/utils/pdf_business_header.dart';
 import '../../../../core/utils/pdf_formatters.dart';
+import '../../../organizations/data/models/business_header.dart';
 import '../../data/models/sale.dart';
 
 /// Builds a one-page receipt PDF for [sale] — same content and order as
@@ -11,7 +13,7 @@ import '../../data/models/sale.dart';
 /// thermal/till-roll printer, not just A4.
 Future<pw.Document> buildReceiptPdf(
   Sale sale, {
-  required String businessName,
+  required BusinessHeader header,
 }) async {
   final doc = pw.Document();
 
@@ -26,10 +28,7 @@ Future<pw.Document> buildReceiptPdf(
         return pw.Column(
           crossAxisAlignment: pw.CrossAxisAlignment.start,
           children: [
-            pw.Text(
-              businessName,
-              style: pw.TextStyle(fontSize: 16, fontWeight: pw.FontWeight.bold),
-            ),
+            pdfBusinessHeader(header, nameSize: 16),
             pw.SizedBox(height: 4),
             pw.Text(
               DateFormat.yMMMd().add_jm().format(sale.dateTime),

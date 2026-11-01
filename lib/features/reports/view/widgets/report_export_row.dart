@@ -6,6 +6,7 @@ import 'package:printing/printing.dart';
 import '../../../../core/theme/app_spacing.dart';
 import '../../../../core/utils/action_error.dart';
 import '../../../../core/widgets/app_button.dart';
+import '../../../organizations/data/models/business_header.dart';
 import '../../../organizations/data/providers/organization_providers.dart';
 import '../../data/models/report_summary.dart';
 import 'report_csv.dart';
@@ -29,18 +30,15 @@ class _ReportExportRowState extends ConsumerState<ReportExportRow> {
   bool _isExportingPdf = false;
   bool _isExportingCsv = false;
 
-  /// Exports carry the organization's own business name.
-  String get _businessName => ref.read(currentOrganizationProvider)?.name ?? '';
+  /// Exports carry the organization's own logo, name and profile.
+  Future<BusinessHeader> get _header => ref.read(businessHeaderProvider.future);
 
   String get _fileNameDate => DateTime.now().toIso8601String().split('T').first;
 
   Future<void> _exportPdf() async {
     setState(() => _isExportingPdf = true);
     try {
-      final doc = await buildReportPdf(
-        widget.summary,
-        businessName: _businessName,
-      );
+      final doc = await buildReportPdf(widget.summary, header: await _header);
       await Printing.sharePdf(
         bytes: await doc.save(),
         filename: 'hydrotrack-report-$_fileNameDate.pdf',
@@ -60,7 +58,7 @@ class _ReportExportRowState extends ConsumerState<ReportExportRow> {
   Future<void> _exportCsv() async {
     setState(() => _isExportingCsv = true);
     try {
-      final bytes = buildReportCsv(widget.summary, businessName: _businessName);
+      final bytes = buildReportCsv(widget.summary, header: await _header);
       await FileSaver.instance.saveFile(
         name: 'hydrotrack-report-$_fileNameDate',
         bytes: bytes,

@@ -1,3 +1,5 @@
+import 'dart:typed_data';
+
 import 'package:flutter/widgets.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
@@ -5,6 +7,8 @@ import '../../../../core/constants/app_routes.dart';
 import '../../../../core/utils/action_controller.dart';
 import '../../../auth/data/providers/auth_providers.dart';
 import '../models/bank_details.dart';
+import '../models/business_header.dart';
+import '../models/business_profile.dart';
 import '../models/membership.dart';
 import '../models/organization.dart';
 import '../repositories/organization_repository.dart';
@@ -66,17 +70,53 @@ class OrganizationActionController extends ActionController {
     });
   }
 
-  Future<Organization?> rename({
+  /// Saves the business name and profile.
+  Future<Organization?> saveProfile({
     required String organizationId,
     required String name,
+    required BusinessProfile profile,
   }) {
-    return guard(() async {
-      final renamed = await _ref
+    return _updating(
+      () => _ref
           .read(organizationRepositoryProvider)
-          .renameOrganization(organizationId: organizationId, name: name);
-      _ref.read(currentOrganizationProvider.notifier).state = renamed;
+          .updateProfile(
+            organizationId: organizationId,
+            name: name,
+            profile: profile,
+          ),
+    );
+  }
+
+  Future<Organization?> uploadLogo({
+    required String organizationId,
+    required Uint8List bytes,
+    required String extension,
+  }) {
+    return _updating(
+      () => _ref
+          .read(organizationRepositoryProvider)
+          .uploadLogo(
+            organizationId: organizationId,
+            bytes: bytes,
+            extension: extension,
+          ),
+    );
+  }
+
+  Future<Organization?> removeLogo(String organizationId) {
+    return _updating(
+      () =>
+          _ref.read(organizationRepositoryProvider).removeLogo(organizationId),
+    );
+  }
+
+  /// Runs an update and makes its result the current organization.
+  Future<Organization?> _updating(Future<Organization> Function() update) {
+    return guard(() async {
+      final updated = await update();
+      _ref.read(currentOrganizationProvider.notifier).state = updated;
       _ref.invalidate(myMembershipsProvider);
-      return renamed;
+      return updated;
     });
   }
 
@@ -86,14 +126,11 @@ class OrganizationActionController extends ActionController {
     required String organizationId,
     required BankDetails? details,
   }) {
-    return guard(() async {
-      final updated = await _ref
+    return _updating(
+      () => _ref
           .read(organizationRepositoryProvider)
-          .updateBankDetails(organizationId: organizationId, details: details);
-      _ref.read(currentOrganizationProvider.notifier).state = updated;
-      _ref.invalidate(myMembershipsProvider);
-      return updated;
-    });
+          .updateBankDetails(organizationId: organizationId, details: details),
+    );
   }
 }
 
@@ -157,3 +194,29 @@ void switchOrganization(BuildContext context, WidgetRef ref) {
     context,
   ).pushNamedAndRemoveUntil(AppRoutes.organizations, (route) => false);
 }
+
+/// The current organization's logo, or null when there's none (or it
+/// can't be loaded, e.g. offline).
+final organizationLogoProvider = FutureProvider<Uint8List?>((ref) async {
+  final path = ref.watch(
+    currentOrganizationProvider.select(
+      (organization) => organization?.logoPath,
+    ),
+  );
+  if (path == null) return null;
+  try {
+    return await ref.read(organizationRepositoryProvider).downloadLogo(path);
+  } catch (_) {
+    return null;
+  }
+});
+
+/// What receipts and report exports print at the top.
+final businessHeaderProvider = FutureProvider<BusinessHeader>((ref) async {
+  final organization = ref.watch(currentOrganizationProvider);
+  return BusinessHeader(
+    name: organization?.name ?? '',
+    lines: organization?.profile.headerLines ?? const [],
+    logo: await ref.watch(organizationLogoProvider.future),
+  );
+});

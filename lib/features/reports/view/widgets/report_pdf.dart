@@ -2,7 +2,9 @@ import 'package:intl/intl.dart';
 import 'package:pdf/pdf.dart';
 import 'package:pdf/widgets.dart' as pw;
 
+import '../../../../core/utils/pdf_business_header.dart';
 import '../../../../core/utils/pdf_formatters.dart';
+import '../../../organizations/data/models/business_header.dart';
 import '../../../sales/data/models/sale.dart';
 import '../../data/models/report_summary.dart';
 import 'report_comparison_line.dart';
@@ -13,7 +15,7 @@ import 'report_comparison_line.dart';
 /// plain A4 document rather than six separate cards.
 Future<pw.Document> buildReportPdf(
   ReportSummary summary, {
-  required String businessName,
+  required BusinessHeader header,
 }) async {
   final doc = pw.Document();
   final comparisonLabel = summary.period.comparisonLabel;
@@ -26,10 +28,7 @@ Future<pw.Document> buildReportPdf(
         return pw.Column(
           crossAxisAlignment: pw.CrossAxisAlignment.start,
           children: [
-            pw.Text(
-              businessName,
-              style: pw.TextStyle(fontSize: 20, fontWeight: pw.FontWeight.bold),
-            ),
+            pdfBusinessHeader(header, nameSize: 20),
             pw.SizedBox(height: 2),
             pw.Text(
               '${summary.period.label} report',

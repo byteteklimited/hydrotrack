@@ -21,8 +21,10 @@ start if that file still holds placeholders.
 - `flutter test` — models, formatters, validators, aggregation logic.
 - `python3 -I supabase/tests/device_sync_test.py` — live check of offline
   device sync (throwaway organization, always deleted).
+- `python3 -I supabase/tests/pin_reset_test.py` — live check of staff PIN
+  reset through the `reset-pin` Edge Function (throwaway accounts).
 - `./supabase/tests/run_linked.sh` — database suites (pgTAP: isolation,
-  debt reminders, offline sync)
+  debt reminders, offline sync, products and prices, PIN reset)
   against the linked hydrotrack project. Runs in one transaction and rolls
   back; nothing persists. With Docker: `supabase test db --linked`.
 - `python3 -I supabase/tests/api_isolation_test.py` — the same boundaries
@@ -83,3 +85,26 @@ Edge Function using its own device key.
 
 Server: `supabase/migrations/0015_offline_devices.sql`,
 `supabase/functions/device-sync` (deploy with `--no-verify-jwt`).
+
+## Products, accounts and setup
+
+- **Products & prices** (Owner/Admin, More → Products & prices): each
+  organization's own products, each with a unit, a walk-in and a
+  distributor price, and its own finished-goods stock. Sales fill in the
+  price for the customer type; only Owner/Admin/Manager can change it on a
+  sale (the line keeps the list price). Retire to hide a product from new
+  records; delete only if it was never used.
+- **Forgot PIN** (staff): Owner/Admin taps Reset PIN on the staff member
+  and shares the one-time code (2 days); the staff member enters it under
+  "Forgot your PIN?". Edge Function `reset-pin` (`--no-verify-jwt`).
+- **Forgot password** (owners/email accounts): emailed link, then "Set a
+  new password". Supabase's built-in email service is for testing only
+  (low hourly limit); set up custom SMTP under Authentication → Emails
+  before real customers rely on it.
+- **Business profile** (Organization → Business profile): address,
+  phone, email, CAC/RC and NAFDAC numbers, and logo; printed on receipts,
+  report exports and (phone) the reminder SMS.
+- **Lists** load the shown day/month or the last 30 days ("Show 30 more
+  days"); Home's all-time totals come from `organization_totals`.
+- **Setup checklist**: owners see "Finish setting up" on Home until the
+  business profile is complete (or they dismiss it).

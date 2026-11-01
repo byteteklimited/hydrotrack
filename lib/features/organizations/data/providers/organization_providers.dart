@@ -220,3 +220,35 @@ final businessHeaderProvider = FutureProvider<BusinessHeader>((ref) async {
     logo: await ref.watch(organizationLogoProvider.future),
   );
 });
+
+/// Whether the current person dismissed the current organization's setup
+/// checklist. Starts from their account; dismissing updates it.
+final setupChecklistDismissedProvider = StateProvider<bool>((ref) {
+  final organizationId = ref.watch(
+    currentOrganizationProvider.select((organization) => organization?.id),
+  );
+  if (organizationId == null) return true;
+  try {
+    return ref
+        .read(organizationRepositoryProvider)
+        .dismissedSetupChecklists()
+        .contains(organizationId);
+  } catch (_) {
+    return false;
+  }
+});
+
+/// Hides the setup checklist for the current organization (remembered on
+/// the person's account when online).
+Future<void> dismissSetupChecklist(WidgetRef ref) async {
+  final organizationId = ref.read(currentOrganizationProvider)?.id;
+  if (organizationId == null) return;
+  ref.read(setupChecklistDismissedProvider.notifier).state = true;
+  try {
+    await ref
+        .read(organizationRepositoryProvider)
+        .dismissSetupChecklist(organizationId);
+  } catch (_) {
+    // Offline: hidden for now; it may come back next time.
+  }
+}

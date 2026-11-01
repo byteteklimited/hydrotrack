@@ -224,6 +224,24 @@ supabase/
       Tests: offline_sync.test.sql (52), device_sync_test.py (8 live),
       29 new Flutter tests (246 total). Termii secrets left unset
       (reminders send nothing until configured).
-      Next agreed: Phase A (password/PIN reset, products & prices per
-      organization, full organization profile, paged lists, setup
-      checklist), then B, C, D.
+- [x] Phase A (2026-11-01), five parts, each committed:
+      1. Products & prices per organization (migration 0016): products
+         table (walk-in + distributor price, retire, delete if unused),
+         own finished-goods stock item each; enum product_type removed,
+         records point at product ids (legacy_key keeps old queued
+         offline records working); cashiers must sell at list price
+         (server-enforced), sale_lines.list_price kept. Products screen.
+      2. PIN reset by admin code (0017, `reset-pin` Edge Function) and
+         password reset by email (+ "Set a new password" screen).
+      3. Business profile (0018): address, phone, email, RC, NAFDAC,
+         logo upload (file_picker → tenant-files/<tenant>/logo-*.ext);
+         on receipts, report PDF/CSV, reminder SMS (phone).
+      4. Lists load by day/month/30-day window ("Show 30 more days");
+         organization_totals (0019) for Home's all-time figures;
+         removed the old demo network delays.
+      5. Setup checklist on Home (owner): one step, complete the
+         business profile; dismissal kept in auth user metadata.
+      Tests: pgTAP 326 assertions across 5 suites; live checks 22 + 9 +
+      7; 261 Flutter tests. Manual: custom SMTP before production.
+      Next: Phase B (end-of-day cash count, WhatsApp/SMS alerts,
+      purchases with costs, thermal printing), then C, D.

@@ -18,6 +18,7 @@ import '../../../debts/view/screens/debts_screen.dart';
 import '../../../offline/view/widgets/needs_checking_card.dart';
 import '../../../organizations/data/providers/organization_providers.dart';
 import '../../../organizations/view/widgets/account_menu_button.dart';
+import '../../../organizations/view/widgets/setup_checklist_card.dart';
 import '../../data/providers/dashboard_providers.dart';
 import '../widgets/dashboard_activity_card.dart';
 import '../widgets/dashboard_cash_flow_chart.dart';
@@ -89,6 +90,7 @@ class DashboardScreen extends ConsumerWidget {
                     ),
                   ],
                   const SizedBox(height: AppSpacing.lg),
+                  if (user?.role == StaffRole.owner) const SetupChecklistCard(),
                   if (user?.role.canManage ?? false) const NeedsCheckingCard(),
                   AppStatStrip(
                     items: [

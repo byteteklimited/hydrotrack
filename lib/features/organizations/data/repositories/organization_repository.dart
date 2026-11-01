@@ -52,6 +52,11 @@ abstract class OrganizationRepository {
   /// automatically on their next sign-in, on any device.
   String? lastOrganizationId();
   Future<void> rememberLastOrganization(String organizationId);
+
+  /// Organizations whose setup checklist this person dismissed (kept with
+  /// their account, like [lastOrganizationId]).
+  Set<String> dismissedSetupChecklists();
+  Future<void> dismissSetupChecklist(String organizationId);
 }
 
 /// Backed by `tenant_members`/`tenants` and the onboarding RPCs
@@ -63,6 +68,7 @@ class SupabaseOrganizationRepository implements OrganizationRepository {
   SupabaseClient get _client => Supabase.instance.client;
 
   static const _lastOrganizationKey = 'last_tenant_id';
+  static const _dismissedChecklistsKey = 'dismissed_setup_checklists';
   static const _organizationColumns =
       'id, name, logo_path, bank_name, bank_account_number, bank_account_name, '
       'address, phone, email, rc_number, nafdac_number';
@@ -197,6 +203,21 @@ class SupabaseOrganizationRepository implements OrganizationRepository {
     if (lastOrganizationId() == organizationId) return;
     await _client.auth.updateUser(
       UserAttributes(data: {_lastOrganizationKey: organizationId}),
+    );
+  }
+
+  @override
+  Set<String> dismissedSetupChecklists() {
+    final value =
+        _client.auth.currentUser?.userMetadata?[_dismissedChecklistsKey];
+    return value is List ? value.cast<String>().toSet() : {};
+  }
+
+  @override
+  Future<void> dismissSetupChecklist(String organizationId) async {
+    final dismissed = {...dismissedSetupChecklists(), organizationId};
+    await _client.auth.updateUser(
+      UserAttributes(data: {_dismissedChecklistsKey: dismissed.toList()}),
     );
   }
 }

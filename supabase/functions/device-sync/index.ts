@@ -64,6 +64,7 @@ async function pull(admin: SupabaseClient, deviceKey: string, tenantId: string) 
     members,
     financePosition,
     lastCount,
+    totals,
   ] = await Promise.all([
     admin.from("tenants")
       .select(
@@ -75,8 +76,9 @@ async function pull(admin: SupabaseClient, deviceKey: string, tenantId: string) 
     admin.rpc("device_finance_position", { p_device_key: deviceKey }),
     t("stock_movements", "at").eq("type", "adjustment")
       .order("at", { ascending: false }).limit(1),
+    admin.rpc("device_totals", { p_device_key: deviceKey }),
   ]);
-  for (const result of [organization, members, financePosition, lastCount]) {
+  for (const result of [organization, members, financePosition, lastCount, totals]) {
     if (result.error) throw new Error(result.error.message);
   }
 
@@ -130,6 +132,7 @@ async function pull(admin: SupabaseClient, deviceKey: string, tenantId: string) 
     organization: organization.data,
     members: members.data,
     finance_position: financePosition.data,
+    totals: totals.data,
     last_stock_count_at: (lastCount.data?.[0] as { at?: string } | undefined)?.at ?? null,
     tables: Object.fromEntries(names.map((name, i) => [name, results[i]])),
   };

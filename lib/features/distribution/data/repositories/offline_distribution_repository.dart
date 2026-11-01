@@ -1,4 +1,5 @@
 import '../../../../core/constants/payment_channel.dart';
+import '../../../../core/utils/date_utils.dart';
 import '../../../offline/data/models/outbox_operation.dart';
 import '../../../offline/data/services/offline_context.dart';
 import '../../../sales/data/models/sale.dart';
@@ -49,11 +50,19 @@ class OfflineDistributionRepository implements DistributionRepository {
   }
 
   @override
-  Future<List<LoadOut>> fetchLoadOuts() {
+  Future<List<LoadOut>> fetchLoadOuts({DateTime? from}) {
     return _offline.read(
-      remote: _remote.fetchLoadOuts,
+      remote: () => _remote.fetchLoadOuts(from: from),
       local: (snapshot) =>
-          snapshot.rows('load_outs').map(LoadOut.fromJson).toList()
+          snapshot
+              .rows('load_outs')
+              .map(LoadOut.fromJson)
+              .where(
+                (l) =>
+                    l.status == LoadOutStatus.onRoad ||
+                    isInRange(l.dateTime, from: from),
+              )
+              .toList()
             ..sort((a, b) => b.dateTime.compareTo(a.dateTime)),
     );
   }

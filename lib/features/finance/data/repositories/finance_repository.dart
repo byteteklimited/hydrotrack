@@ -1,5 +1,6 @@
 import 'package:supabase_flutter/supabase_flutter.dart';
 
+import '../../../../core/utils/query_range.dart';
 import '../models/cash_entry.dart';
 import '../models/finance_position.dart';
 
@@ -7,7 +8,8 @@ import '../models/finance_position.dart';
 /// write here automatically (see supabase/migrations/0006_business_rpcs.sql); Expenses will too once
 /// it's wired.
 abstract class FinanceRepository {
-  Future<List<CashEntry>> fetchEntries();
+  /// Most recent first. [from] inclusive, [to] exclusive.
+  Future<List<CashEntry>> fetchEntries({DateTime? from, DateTime? to});
 
   /// Running cash-in-hand and bank balance — the sum of every real entry
   /// by method. There's no fabricated opening balance; if the business
@@ -30,11 +32,12 @@ class SupabaseFinanceRepository implements FinanceRepository {
   static const _selectWithRecorder = '*, profiles!recorded_by(full_name)';
 
   @override
-  Future<List<CashEntry>> fetchEntries() async {
+  Future<List<CashEntry>> fetchEntries({DateTime? from, DateTime? to}) async {
     final rows = await _client
         .from('cash_entries')
         .select(_selectWithRecorder)
         .eq('tenant_id', _tenantId)
+        .inRange('date_time', from: from, to: to)
         .order('date_time', ascending: false);
     return (rows as List)
         .map((row) => CashEntry.fromJson(row as Map<String, dynamic>))

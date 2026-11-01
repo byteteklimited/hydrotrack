@@ -1,12 +1,14 @@
+import '../../../../core/utils/date_utils.dart';
+import '../../../debts/data/repositories/debts_repository.dart';
 import '../../../distribution/data/repositories/distribution_repository.dart';
 import '../../../finance/data/models/cash_entry.dart';
 import '../../../finance/data/repositories/finance_repository.dart';
 import '../../../inventory/data/models/stock_item.dart';
 import '../../../inventory/data/repositories/inventory_repository.dart';
 import '../../../production/data/repositories/production_repository.dart';
-import '../../../debts/data/repositories/debts_repository.dart';
 import '../../../sales/data/repositories/sales_repository.dart';
 import '../models/dashboard_snapshot.dart';
+import 'totals_repository.dart';
 
 /// Contract for fetching the dashboard snapshot.
 abstract class DashboardRepository {
@@ -26,7 +28,9 @@ class AggregatingDashboardRepository implements DashboardRepository {
     required InventoryRepository inventory,
     required SalesRepository sales,
     required DistributionRepository distribution,
+    required TotalsRepository totals,
   }) : _production = production,
+       _totals = totals,
        _finance = finance,
        _debts = debts,
        _inventory = inventory,
@@ -39,22 +43,25 @@ class AggregatingDashboardRepository implements DashboardRepository {
   final InventoryRepository _inventory;
   final SalesRepository _sales;
   final DistributionRepository _distribution;
+  final TotalsRepository _totals;
 
-  static const _networkDelay = Duration(milliseconds: 600);
+  /// Home's charts and "latest" lines only look back this far.
+  static const _lookBack = Duration(days: 7);
 
   @override
   Future<DashboardSnapshot> fetchToday() async {
-    await Future.delayed(_networkDelay);
     final today = DateTime.now();
+    final since = dateOnly(today).subtract(_lookBack);
     bool isToday(DateTime dt) =>
         dt.year == today.year && dt.month == today.month && dt.day == today.day;
 
-    final runs = await _production.fetchRuns();
-    final cashEntries = await _finance.fetchEntries();
+    final runs = await _production.fetchRuns(from: since);
+    final cashEntries = await _finance.fetchEntries(from: since);
     final customers = await _debts.fetchCustomers();
     final items = await _inventory.fetchItems();
-    final sales = await _sales.fetchSales();
-    final loadOuts = await _distribution.fetchLoadOuts();
+    final sales = await _sales.fetchSales(from: since);
+    final loadOuts = await _distribution.fetchLoadOuts(from: since);
+    final totals = await _totals.fetchTotals();
     final drivers = await _distribution.fetchDrivers();
     final vehicles = await _distribution.fetchVehicles();
     final lastPayment = await _debts.fetchMostRecentPayment();
@@ -71,13 +78,8 @@ class AggregatingDashboardRepository implements DashboardRepository {
     final moneyOutside = owing.fold<num>(0, (sum, c) => sum + c.balance);
     final overdueCustomerCount = owing.where((c) => c.isOverdue).length;
 
-    final totalBagsProduced = runs.fold<int>(
-      0,
-      (sum, r) => sum + r.quantityProduced,
-    );
-    final totalRevenue = sales
-        .where((s) => !s.isVoided)
-        .fold<num>(0, (sum, s) => sum + s.total);
+    final totalBagsProduced = totals.totalBagsProduced;
+    final totalRevenue = totals.totalRevenue;
     final totalCustomers = customers.length;
 
     bool isSameDate(DateTime a, DateTime b) =>

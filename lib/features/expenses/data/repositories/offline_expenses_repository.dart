@@ -1,3 +1,4 @@
+import '../../../../core/utils/date_utils.dart';
 import '../../../offline/data/models/outbox_operation.dart';
 import '../../../offline/data/services/offline_context.dart';
 import '../models/expense.dart';
@@ -12,11 +13,15 @@ class OfflineExpensesRepository implements ExpensesRepository {
   final OfflineContext _offline;
 
   @override
-  Future<List<Expense>> fetchExpenses() {
+  Future<List<Expense>> fetchExpenses({DateTime? from, DateTime? to}) {
     return _offline.read(
-      remote: _remote.fetchExpenses,
+      remote: () => _remote.fetchExpenses(from: from, to: to),
       local: (snapshot) =>
-          snapshot.rows('expenses').map(Expense.fromJson).toList()
+          snapshot
+              .rows('expenses')
+              .map(Expense.fromJson)
+              .where((e) => isInRange(e.date, from: from, to: to))
+              .toList()
             ..sort((a, b) => b.date.compareTo(a.date)),
     );
   }

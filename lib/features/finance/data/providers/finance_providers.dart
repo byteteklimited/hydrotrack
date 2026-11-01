@@ -16,9 +16,20 @@ final financeRepositoryProvider = Provider<FinanceRepository>((ref) {
   return offline == null ? remote : OfflineFinanceRepository(remote, offline);
 });
 
-/// All cash entries, most recent first.
-final cashEntriesProvider = FutureProvider<List<CashEntry>>((ref) {
-  return ref.watch(financeRepositoryProvider).fetchEntries();
+/// Cash entries on the selected day plus today's (for today's totals),
+/// most recent first. Only those days are loaded.
+final cashEntriesProvider = FutureProvider<List<CashEntry>>((ref) async {
+  final repository = ref.watch(financeRepositoryProvider);
+  final days = {
+    ref.watch(selectedFinanceDayProvider),
+    dateOnly(DateTime.now()),
+  };
+  final perDay = await Future.wait([
+    for (final day in days)
+      repository.fetchEntries(from: day, to: nextDay(day)),
+  ]);
+  return perDay.expand((entries) => entries).toList()
+    ..sort((a, b) => b.dateTime.compareTo(a.dateTime));
 });
 
 /// Running cash-in-hand and bank balance.

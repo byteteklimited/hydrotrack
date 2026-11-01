@@ -43,3 +43,24 @@ String formatRelativeTime(DateTime dateTime) {
   }
   return DateFormat('d MMM yyyy').format(dateTime);
 }
+
+/// True when [moment] is on or after [from] and before [to] (either may be
+/// open-ended). For filtering the device's own data like the server does.
+bool isInRange(DateTime moment, {DateTime? from, DateTime? to}) =>
+    (from == null || !moment.isBefore(from)) &&
+    (to == null || moment.isBefore(to));
+
+/// The start of the day after [day].
+DateTime nextDay(DateTime day) => DateTime(day.year, day.month, day.day + 1);
+
+/// Lists with a "Show earlier" button load this window of history.
+class HistoryWindow {
+  HistoryWindow._();
+
+  static const initialDays = 30;
+  static const stepDays = 30;
+
+  /// The first day shown when [days] days are loaded.
+  static DateTime since(int days) =>
+      dateOnly(DateTime.now()).subtract(Duration(days: days - 1));
+}

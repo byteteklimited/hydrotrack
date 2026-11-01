@@ -17,9 +17,21 @@ final salesRepositoryProvider = Provider<SalesRepository>((ref) {
   return offline == null ? remote : OfflineSalesRepository(remote, offline);
 });
 
-/// All sales, most recent first.
-final salesProvider = FutureProvider<List<Sale>>((ref) {
-  return ref.watch(salesRepositoryProvider).fetchSales();
+/// Sales on the selected day plus today's (for today's totals), most
+/// recent first. Only those days are loaded, never the whole history.
+final salesProvider = FutureProvider<List<Sale>>((ref) async {
+  final repository = ref.watch(salesRepositoryProvider);
+  final days = {ref.watch(selectedSalesDayProvider), dateOnly(DateTime.now())};
+  final perDay = await Future.wait([
+    for (final day in days) repository.fetchSales(from: day, to: nextDay(day)),
+  ]);
+  return perDay.expand((sales) => sales).toList()
+    ..sort((a, b) => b.dateTime.compareTo(a.dateTime));
+});
+
+/// One sale, wherever it is in the history (receipts).
+final saleProvider = FutureProvider.family<Sale, String>((ref, id) {
+  return ref.watch(salesRepositoryProvider).fetchSale(id);
 });
 
 /// Distributor directory (from Debts' `customers` table) for the
@@ -96,6 +108,7 @@ class RecordSaleController extends ActionController {
           .read(salesRepositoryProvider)
           .recordSale(sale, paidChannel: paidChannel);
       _ref.invalidate(salesProvider);
+      _ref.invalidate(saleProvider);
       // A sale now deducts the matching finished-goods item server-side
       // (supabase/migrations/0006_business_rpcs.sql) — invalidate so Inventory doesn't keep showing
       // the pre-sale quantity until something else happens to refetch it.
@@ -126,6 +139,7 @@ class VoidSaleController extends ActionController {
           .read(salesRepositoryProvider)
           .voidSale(saleId: saleId, reason: reason);
       _ref.invalidate(salesProvider);
+      _ref.invalidate(saleProvider);
       // Stock comes back on a void — same staleness fix every other
       // stock-affecting action here already applies.
       _ref.invalidate(stockItemsProvider);

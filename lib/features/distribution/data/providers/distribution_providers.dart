@@ -2,6 +2,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../../core/constants/payment_channel.dart';
 import '../../../../core/utils/action_controller.dart';
+import '../../../../core/utils/date_utils.dart';
 import '../../../inventory/data/providers/inventory_providers.dart';
 import '../../../offline/data/providers/offline_providers.dart';
 import '../../../organizations/data/providers/organization_providers.dart';
@@ -32,9 +33,18 @@ final vehiclesProvider = FutureProvider<List<Vehicle>>((ref) {
   return ref.watch(distributionRepositoryProvider).fetchVehicles();
 });
 
-/// All load-outs, most recent first.
+/// How many days back the trip list shows ("Show earlier" adds more).
+final loadOutHistoryDaysProvider = StateProvider<int>(
+  (ref) => HistoryWindow.initialDays,
+);
+
+/// Trips still on the road plus those in the history window, most recent
+/// first.
 final loadOutsProvider = FutureProvider<List<LoadOut>>((ref) {
-  return ref.watch(distributionRepositoryProvider).fetchLoadOuts();
+  final days = ref.watch(loadOutHistoryDaysProvider);
+  return ref
+      .watch(distributionRepositoryProvider)
+      .fetchLoadOuts(from: HistoryWindow.since(days));
 });
 
 /// Drives "New load-out", "Settle trip", "Add driver", and "Add

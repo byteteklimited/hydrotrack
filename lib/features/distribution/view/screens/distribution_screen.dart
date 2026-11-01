@@ -8,6 +8,7 @@ import '../../../../core/widgets/app_empty_state.dart';
 import '../../../../core/widgets/app_error_state.dart';
 import '../../../../core/widgets/app_loading.dart';
 import '../../../../core/widgets/app_modal.dart';
+import '../../../../core/widgets/show_earlier_button.dart';
 import '../../data/models/load_out.dart';
 import '../../data/providers/distribution_providers.dart';
 import '../widgets/on_road_load_out_card.dart';
@@ -120,6 +121,12 @@ class DistributionScreen extends ConsumerWidget {
                         const SizedBox(height: AppSpacing.md),
                       ],
                     ],
+                    ShowEarlierButton(
+                      days: ref.watch(loadOutHistoryDaysProvider),
+                      onPressed: () =>
+                          ref.read(loadOutHistoryDaysProvider.notifier).state +=
+                              HistoryWindow.stepDays,
+                    ),
                   ],
                 ),
               );

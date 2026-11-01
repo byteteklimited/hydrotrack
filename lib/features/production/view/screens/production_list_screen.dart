@@ -9,6 +9,7 @@ import '../../../../core/widgets/app_empty_state.dart';
 import '../../../../core/widgets/app_error_state.dart';
 import '../../../../core/widgets/app_loading.dart';
 import '../../../../core/widgets/app_modal.dart';
+import '../../../../core/widgets/show_earlier_button.dart';
 import '../../../auth/data/models/staff_user.dart';
 import '../../../auth/data/providers/auth_providers.dart';
 import '../../data/models/production_run.dart';
@@ -138,6 +139,14 @@ class ProductionListScreen extends ConsumerWidget {
                           ),
                           const SizedBox(height: AppSpacing.md),
                         ],
+                        ShowEarlierButton(
+                          days: ref.watch(productionHistoryDaysProvider),
+                          onPressed: () =>
+                              ref
+                                  .read(productionHistoryDaysProvider.notifier)
+                                  .state += HistoryWindow
+                                  .stepDays,
+                        ),
                       ],
                     ),
                   );

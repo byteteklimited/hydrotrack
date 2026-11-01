@@ -1,11 +1,13 @@
 import 'package:supabase_flutter/supabase_flutter.dart';
 
+import '../../../../core/utils/query_range.dart';
 import '../../../../core/utils/rpc_params.dart';
 import '../models/production_run.dart';
 
 /// Contract for reading, recording, and correcting production runs.
 abstract class ProductionRepository {
-  Future<List<ProductionRun>> fetchRuns();
+  /// Most recent first. [from] inclusive, [to] exclusive (run dates).
+  Future<List<ProductionRun>> fetchRuns({DateTime? from, DateTime? to});
 
   /// [expiryDate] is optional and only matters when [run.product] has a
   /// matching finished-goods catalog item — it becomes that output
@@ -40,11 +42,12 @@ class SupabaseProductionRepository implements ProductionRepository {
       '*, products(name, unit), profiles!recorded_by(full_name)';
 
   @override
-  Future<List<ProductionRun>> fetchRuns() async {
+  Future<List<ProductionRun>> fetchRuns({DateTime? from, DateTime? to}) async {
     final rows = await _client
         .from('production_runs')
         .select(_selectWithRecorder)
         .eq('tenant_id', _tenantId)
+        .inRange('date', from: from, to: to, dateOnly: true)
         .order('recorded_at', ascending: false);
     return (rows as List)
         .map((row) => ProductionRun.fromJson(row as Map<String, dynamic>))

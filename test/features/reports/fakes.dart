@@ -26,6 +26,9 @@ import 'package:hydrotrack/features/production/data/models/production_run.dart';
 import 'package:hydrotrack/features/production/data/repositories/production_repository.dart';
 import 'package:hydrotrack/features/sales/data/models/sale.dart';
 import 'package:hydrotrack/features/sales/data/repositories/sales_repository.dart';
+import 'package:hydrotrack/core/utils/date_utils.dart';
+import 'package:hydrotrack/features/reports/data/models/organization_totals.dart';
+import 'package:hydrotrack/features/reports/data/repositories/totals_repository.dart';
 
 Never _unused() => throw UnimplementedError('not needed by this test');
 
@@ -34,7 +37,8 @@ class FakeProductionRepository implements ProductionRepository {
   final List<ProductionRun> runs;
 
   @override
-  Future<List<ProductionRun>> fetchRuns() async => runs;
+  Future<List<ProductionRun>> fetchRuns({DateTime? from, DateTime? to}) async =>
+      runs.where((r) => isInRange(r.date, from: from, to: to)).toList();
 
   @override
   Future<ProductionRun> recordRun(ProductionRun run, {DateTime? expiryDate}) =>
@@ -51,7 +55,11 @@ class FakeSalesRepository implements SalesRepository {
   final List<Sale> sales;
 
   @override
-  Future<List<Sale>> fetchSales() async => sales;
+  Future<List<Sale>> fetchSales({DateTime? from, DateTime? to}) async =>
+      sales.where((s) => isInRange(s.dateTime, from: from, to: to)).toList();
+  @override
+  Future<Sale> fetchSale(String id) async =>
+      sales.firstWhere((s) => s.id == id);
 
   @override
   Future<List<String>> fetchDistributorNames() => _unused();
@@ -69,7 +77,8 @@ class FakeFinanceRepository implements FinanceRepository {
   final FinancePosition position;
 
   @override
-  Future<List<CashEntry>> fetchEntries() async => entries;
+  Future<List<CashEntry>> fetchEntries({DateTime? from, DateTime? to}) async =>
+      entries.where((e) => isInRange(e.dateTime, from: from, to: to)).toList();
   @override
   Future<FinancePosition> fetchPosition() async => position;
 
@@ -174,7 +183,8 @@ class FakeExpensesRepository implements ExpensesRepository {
   final List<Expense> expenses;
 
   @override
-  Future<List<Expense>> fetchExpenses() async => expenses;
+  Future<List<Expense>> fetchExpenses({DateTime? from, DateTime? to}) async =>
+      expenses.where((e) => isInRange(e.date, from: from, to: to)).toList();
   @override
   Future<void> recordExpense(Expense expense) => _unused();
 }
@@ -190,7 +200,13 @@ class FakeDistributionRepository implements DistributionRepository {
   final List<Vehicle> vehicles;
 
   @override
-  Future<List<LoadOut>> fetchLoadOuts() async => loadOuts;
+  Future<List<LoadOut>> fetchLoadOuts({DateTime? from}) async => loadOuts
+      .where(
+        (l) =>
+            l.status == LoadOutStatus.onRoad ||
+            isInRange(l.dateTime, from: from),
+      )
+      .toList();
   @override
   Future<List<Driver>> fetchDrivers() async => drivers;
   @override
@@ -218,4 +234,17 @@ class FakeDistributionRepository implements DistributionRepository {
     PaymentMethod paymentMethod = PaymentMethod.cash,
     PaymentChannel? paidChannel,
   }) => _unused();
+}
+
+class FakeTotalsRepository implements TotalsRepository {
+  FakeTotalsRepository({this.totalBagsProduced = 0, this.totalRevenue = 0});
+
+  final int totalBagsProduced;
+  final num totalRevenue;
+
+  @override
+  Future<OrganizationTotals> fetchTotals() async => OrganizationTotals(
+    totalBagsProduced: totalBagsProduced,
+    totalRevenue: totalRevenue,
+  );
 }

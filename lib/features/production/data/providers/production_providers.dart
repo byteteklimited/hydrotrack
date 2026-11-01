@@ -20,9 +20,18 @@ final productionRepositoryProvider = Provider<ProductionRepository>((ref) {
       : OfflineProductionRepository(remote, offline);
 });
 
-/// All production runs, most recent first.
+/// How many days back the production list shows ("Show earlier" adds
+/// more).
+final productionHistoryDaysProvider = StateProvider<int>(
+  (ref) => HistoryWindow.initialDays,
+);
+
+/// Production runs in the history window, most recent first.
 final productionRunsProvider = FutureProvider<List<ProductionRun>>((ref) {
-  return ref.watch(productionRepositoryProvider).fetchRuns();
+  final days = ref.watch(productionHistoryDaysProvider);
+  return ref
+      .watch(productionRepositoryProvider)
+      .fetchRuns(from: HistoryWindow.since(days));
 });
 
 /// Today's bags produced, bags wasted, and wastage as a percentage of

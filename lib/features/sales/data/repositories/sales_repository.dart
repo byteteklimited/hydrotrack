@@ -1,12 +1,16 @@
 import 'package:supabase_flutter/supabase_flutter.dart';
 
 import '../../../../core/constants/payment_channel.dart';
+import '../../../../core/utils/query_range.dart';
 import '../../../../core/utils/rpc_params.dart';
 import '../models/sale.dart';
 
 /// Contract for reading and recording sales.
 abstract class SalesRepository {
-  Future<List<Sale>> fetchSales();
+  /// Most recent first. [from] inclusive, [to] exclusive.
+  Future<List<Sale>> fetchSales({DateTime? from, DateTime? to});
+
+  Future<Sale> fetchSale(String id);
   Future<List<String>> fetchDistributorNames();
 
   /// [paidChannel] is only meaningful (and required, enforced server-
@@ -39,15 +43,27 @@ class SupabaseSalesRepository implements SalesRepository {
       'voided_by_profile:profiles!voided_by(full_name)';
 
   @override
-  Future<List<Sale>> fetchSales() async {
+  Future<List<Sale>> fetchSales({DateTime? from, DateTime? to}) async {
     final rows = await _client
         .from('sales')
         .select(_selectFull)
         .eq('tenant_id', _tenantId)
+        .inRange('date_time', from: from, to: to)
         .order('date_time', ascending: false);
     return (rows as List)
         .map((row) => Sale.fromJson(row as Map<String, dynamic>))
         .toList();
+  }
+
+  @override
+  Future<Sale> fetchSale(String id) async {
+    final row = await _client
+        .from('sales')
+        .select(_selectFull)
+        .eq('tenant_id', _tenantId)
+        .eq('id', id)
+        .single();
+    return Sale.fromJson(row);
   }
 
   @override

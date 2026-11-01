@@ -37,20 +37,17 @@ class ReceiptScreen extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final salesAsync = ref.watch(salesProvider);
+    final saleAsync = ref.watch(saleProvider(saleId));
 
-    return salesAsync.when(
-      data: (sales) {
-        final sale = sales.firstWhere((s) => s.id == saleId);
-        return _ReceiptBody(sale: sale);
-      },
+    return saleAsync.when(
+      data: (sale) => _ReceiptBody(sale: sale),
       loading: () => const Scaffold(body: AppLoading()),
       error: (error, stackTrace) => Scaffold(
         appBar: AppBar(),
         body: AppErrorState(
           message:
               "Couldn't load this receipt. Check your connection and try again.",
-          onRetry: () => ref.invalidate(salesProvider),
+          onRetry: () => ref.invalidate(saleProvider(saleId)),
         ),
       ),
     );

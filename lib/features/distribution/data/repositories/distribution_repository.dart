@@ -14,7 +14,10 @@ abstract class DistributionRepository {
   Future<List<Vehicle>> fetchVehicles();
   Future<Driver> createDriver({required String name, required String phone});
   Future<Vehicle> createVehicle({required String name});
-  Future<List<LoadOut>> fetchLoadOuts();
+
+  /// Trips still on the road, plus those loaded on or after [from] (all
+  /// when null). Most recent first.
+  Future<List<LoadOut>> fetchLoadOuts({DateTime? from});
   Future<LoadOut> recordLoadOut(LoadOut loadOut);
 
   /// Bags sold during the trip only create a real [Sale] (visible in
@@ -101,12 +104,17 @@ class SupabaseDistributionRepository implements DistributionRepository {
   }
 
   @override
-  Future<List<LoadOut>> fetchLoadOuts() async {
-    final rows = await _client
+  Future<List<LoadOut>> fetchLoadOuts({DateTime? from}) async {
+    var query = _client
         .from('load_outs')
         .select(_selectLoadOut)
-        .eq('tenant_id', _tenantId)
-        .order('date_time', ascending: false);
+        .eq('tenant_id', _tenantId);
+    if (from != null) {
+      query = query.or(
+        'status.eq.on_road,date_time.gte.${from.toUtc().toIso8601String()}',
+      );
+    }
+    final rows = await query.order('date_time', ascending: false);
     return (rows as List)
         .map((row) => LoadOut.fromJson(row as Map<String, dynamic>))
         .toList();

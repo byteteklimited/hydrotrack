@@ -1,4 +1,5 @@
 import '../../../../core/constants/payment_channel.dart';
+import '../../../../core/utils/date_utils.dart';
 import '../../../offline/data/models/outbox_operation.dart';
 import '../../../offline/data/services/offline_context.dart';
 import '../models/sale.dart';
@@ -14,12 +15,24 @@ class OfflineSalesRepository implements SalesRepository {
   final OfflineContext _offline;
 
   @override
-  Future<List<Sale>> fetchSales() {
+  Future<List<Sale>> fetchSales({DateTime? from, DateTime? to}) {
     return _offline.read(
-      remote: _remote.fetchSales,
+      remote: () => _remote.fetchSales(from: from, to: to),
       local: (snapshot) =>
-          snapshot.rows('sales').map(Sale.fromJson).toList()
+          snapshot
+              .rows('sales')
+              .map(Sale.fromJson)
+              .where((s) => isInRange(s.dateTime, from: from, to: to))
+              .toList()
             ..sort((a, b) => b.dateTime.compareTo(a.dateTime)),
+    );
+  }
+
+  @override
+  Future<Sale> fetchSale(String id) {
+    return _offline.read(
+      remote: () => _remote.fetchSale(id),
+      local: (snapshot) => Sale.fromJson(snapshot.row('sales', id)!),
     );
   }
 

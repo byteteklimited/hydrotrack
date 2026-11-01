@@ -18,6 +18,8 @@ class OfflineSnapshot {
     required this.tables,
     required this.cashInHand,
     required this.bankBalance,
+    this.totalBagsProduced = 0,
+    this.totalRevenue = 0,
     this.lastStockCountAt,
   });
 
@@ -30,6 +32,10 @@ class OfflineSnapshot {
   final Map<String, List<Map<String, dynamic>>> tables;
   num cashInHand;
   num bankBalance;
+
+  /// All-time, from the server, plus records made here since.
+  int totalBagsProduced;
+  num totalRevenue;
   DateTime? lastStockCountAt;
 
   List<Map<String, dynamic>> rows(String table) =>
@@ -74,6 +80,10 @@ class OfflineSnapshot {
       },
       cashInHand: position['cash_in_hand'] as num,
       bankBalance: position['bank_balance'] as num,
+      totalBagsProduced:
+          ((json['totals'] as Map?)?['total_bags_produced'] as num?)?.toInt() ??
+          0,
+      totalRevenue: (json['totals'] as Map?)?['total_revenue'] as num? ?? 0,
       lastStockCountAt: json['last_stock_count_at'] == null
           ? null
           : DateTime.parse(json['last_stock_count_at'] as String),
@@ -92,6 +102,10 @@ class OfflineSnapshot {
     'finance_position': {
       'cash_in_hand': cashInHand,
       'bank_balance': bankBalance,
+    },
+    'totals': {
+      'total_bags_produced': totalBagsProduced,
+      'total_revenue': totalRevenue,
     },
     'last_stock_count_at': lastStockCountAt?.toUtc().toIso8601String(),
   };

@@ -81,6 +81,7 @@ class LocalBookkeeping {
     required String? paidChannel,
     String noteSuffix = '',
   }) {
+    _snapshot.totalRevenue += total;
     _snapshot.rows('sales').add({
       'id': id,
       'tenant_id': _tenantId,
@@ -244,6 +245,7 @@ class LocalBookkeeping {
       }
     }
 
+    _snapshot.totalBagsProduced += produced;
     final finished = _finishedItem(product);
     if (finished != null && produced > 0) {
       _addStock(

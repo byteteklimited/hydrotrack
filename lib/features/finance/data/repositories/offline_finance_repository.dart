@@ -1,3 +1,4 @@
+import '../../../../core/utils/date_utils.dart';
 import '../../../offline/data/services/offline_context.dart';
 import '../models/cash_entry.dart';
 import '../models/finance_position.dart';
@@ -13,11 +14,15 @@ class OfflineFinanceRepository implements FinanceRepository {
   final OfflineContext _offline;
 
   @override
-  Future<List<CashEntry>> fetchEntries() {
+  Future<List<CashEntry>> fetchEntries({DateTime? from, DateTime? to}) {
     return _offline.read(
-      remote: _remote.fetchEntries,
+      remote: () => _remote.fetchEntries(from: from, to: to),
       local: (snapshot) =>
-          snapshot.rows('cash_entries').map(CashEntry.fromJson).toList()
+          snapshot
+              .rows('cash_entries')
+              .map(CashEntry.fromJson)
+              .where((e) => isInRange(e.dateTime, from: from, to: to))
+              .toList()
             ..sort((a, b) => b.dateTime.compareTo(a.dateTime)),
     );
   }

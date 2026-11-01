@@ -14,9 +14,13 @@ final expensesRepositoryProvider = Provider<ExpensesRepository>((ref) {
   return offline == null ? remote : OfflineExpensesRepository(remote, offline);
 });
 
-/// All expenses, most recent first.
+/// Expenses in the selected month, most recent first. Only that month is
+/// loaded.
 final expensesProvider = FutureProvider<List<Expense>>((ref) {
-  return ref.watch(expensesRepositoryProvider).fetchExpenses();
+  final month = ref.watch(selectedExpenseMonthProvider);
+  return ref
+      .watch(expensesRepositoryProvider)
+      .fetchExpenses(from: month, to: DateTime(month.year, month.month + 1));
 });
 
 /// The month currently shown, as its first day. Defaults to the current

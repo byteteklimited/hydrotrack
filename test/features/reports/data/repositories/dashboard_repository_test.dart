@@ -76,6 +76,7 @@ void main() {
     List<CashEntry> cashEntries = const [],
     List<Customer> customers = const [],
     List<Sale> sales = const [],
+    FakeTotalsRepository? totals,
   }) {
     return AggregatingDashboardRepository(
       production: FakeProductionRepository(runs),
@@ -87,6 +88,7 @@ void main() {
       inventory: FakeInventoryRepository(const []),
       sales: FakeSalesRepository(sales),
       distribution: FakeDistributionRepository(),
+      totals: totals ?? FakeTotalsRepository(),
     );
   }
 
@@ -98,12 +100,17 @@ void main() {
           _run(date: today, quantityProduced: 200),
           _run(date: yesterday, quantityProduced: 999),
         ],
+        totals: FakeTotalsRepository(totalBagsProduced: 25000),
       );
 
       final snapshot = await repo.fetchToday();
 
       expect(snapshot.bagsProducedToday, 500);
-      expect(snapshot.totalBagsProduced, 1499);
+      expect(
+        snapshot.totalBagsProduced,
+        25000,
+        reason: 'all-time totals come from the server, not the loaded window',
+      );
     });
   });
 
@@ -159,19 +166,17 @@ void main() {
     });
   });
 
-  group('AggregatingDashboardRepository — invariant #11: voiding a sale drops '
-      'it out of totalRevenue', () {
-    test('a voided sale contributes nothing to totalRevenue', () async {
+  group('AggregatingDashboardRepository — totalRevenue', () {
+    test('is the server\'s all-time figure (voided sales are excluded '
+        'there: products.test.sql)', () async {
       final repo = build(
-        sales: [
-          _sale(dateTime: today, total: 8000),
-          _sale(dateTime: today, total: 70000, voided: true),
-        ],
+        sales: [_sale(dateTime: today, total: 8000)],
+        totals: FakeTotalsRepository(totalRevenue: 1250000),
       );
 
       final snapshot = await repo.fetchToday();
 
-      expect(snapshot.totalRevenue, 8000);
+      expect(snapshot.totalRevenue, 1250000);
     });
   });
 }

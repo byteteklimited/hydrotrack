@@ -1,11 +1,13 @@
 import 'package:supabase_flutter/supabase_flutter.dart';
 
+import '../../../../core/utils/query_range.dart';
 import '../../../../core/utils/rpc_params.dart';
 import '../models/expense.dart';
 
 /// Contract for reading and recording expenses.
 abstract class ExpensesRepository {
-  Future<List<Expense>> fetchExpenses();
+  /// Most recent first, by expense date. [from] inclusive, [to] exclusive.
+  Future<List<Expense>> fetchExpenses({DateTime? from, DateTime? to});
   Future<void> recordExpense(Expense expense);
 }
 
@@ -24,11 +26,12 @@ class SupabaseExpensesRepository implements ExpensesRepository {
   static const _selectWithRecorder = '*, profiles!recorded_by(full_name)';
 
   @override
-  Future<List<Expense>> fetchExpenses() async {
+  Future<List<Expense>> fetchExpenses({DateTime? from, DateTime? to}) async {
     final rows = await _client
         .from('expenses')
         .select(_selectWithRecorder)
         .eq('tenant_id', _tenantId)
+        .inRange('date', from: from, to: to, dateOnly: true)
         .order('date', ascending: false);
     return (rows as List)
         .map((row) => Expense.fromJson(row as Map<String, dynamic>))

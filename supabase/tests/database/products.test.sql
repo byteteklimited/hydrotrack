@@ -210,6 +210,27 @@ begin
 end;
 $$;
 
+create function tests.test_05_all_time_totals() returns setof text language plpgsql as $$
+declare
+  v_voided uuid;
+begin
+  perform tests.seed();
+  perform tests.as_user('alice');
+  perform tests.sell(tests.id('sachet'), 400);
+  v_voided := tests.sell(tests.id('sachet'), 400);
+  perform public.void_sale(tests.id('a'), v_voided, 'Entered twice');
+  perform public.record_production_run(tests.id('a'), current_date, 'morning', 'M1', 'Musa',
+    tests.id('sachet'), 250, 5);
+  return next is(public.organization_totals(tests.id('a')),
+    '{"total_bags_produced": 250, "total_revenue": 400}'::jsonb,
+    'Home''s all-time totals: bags produced, and revenue without voided sales');
+
+  perform tests.as_user('bob');
+  return next throws_ok(format('select public.organization_totals(%L)', tests.id('a')), '42501', null,
+    'Another organization can''t read them');
+end;
+$$;
+
 grant execute on all functions in schema tests to authenticated, anon;
 
 select * from runtests('tests'::name);

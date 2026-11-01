@@ -1,3 +1,4 @@
+import '../../../../core/utils/date_utils.dart';
 import '../../../offline/data/models/outbox_operation.dart';
 import '../../../offline/data/services/offline_context.dart';
 import '../models/production_run.dart';
@@ -15,11 +16,15 @@ class OfflineProductionRepository implements ProductionRepository {
       "This run hasn't reached the server yet. Try again once it has synced.";
 
   @override
-  Future<List<ProductionRun>> fetchRuns() {
+  Future<List<ProductionRun>> fetchRuns({DateTime? from, DateTime? to}) {
     return _offline.read(
-      remote: _remote.fetchRuns,
+      remote: () => _remote.fetchRuns(from: from, to: to),
       local: (snapshot) =>
-          snapshot.rows('production_runs').map(ProductionRun.fromJson).toList()
+          snapshot
+              .rows('production_runs')
+              .map(ProductionRun.fromJson)
+              .where((r) => isInRange(r.date, from: from, to: to))
+              .toList()
             ..sort((a, b) => b.recordedAt.compareTo(a.recordedAt)),
     );
   }

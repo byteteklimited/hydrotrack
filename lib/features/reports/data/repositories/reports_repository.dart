@@ -53,20 +53,20 @@ class AggregatingReportsRepository implements ReportsRepository {
   final InventoryRepository _inventory;
   final ExpensesRepository _expenses;
 
-  static const _networkDelay = Duration(milliseconds: 700);
-
   @override
   Future<ReportSummary> fetchSummary(ReportPeriod period) async {
-    await Future.delayed(_networkDelay);
     final previous = period.previous;
+    // Everything from the start of the comparison period on: closing
+    // cash is worked back from today's position through later entries.
+    final from = previous.start;
 
-    final runs = await _production.fetchRuns();
-    final sales = await _sales.fetchSales();
-    final cashEntries = await _finance.fetchEntries();
+    final runs = await _production.fetchRuns(from: from);
+    final sales = await _sales.fetchSales(from: from);
+    final cashEntries = await _finance.fetchEntries(from: from);
     final cashPosition = await _finance.fetchPosition();
     final customers = await _debts.fetchCustomers();
     final stockItems = await _inventory.fetchItems();
-    final expenses = await _expenses.fetchExpenses();
+    final expenses = await _expenses.fetchExpenses(from: from);
 
     final salesSection = _buildSales(sales, period, previous);
 

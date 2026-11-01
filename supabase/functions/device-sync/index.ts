@@ -28,6 +28,8 @@ const MAX_OPERATIONS_PER_PUSH = 100;
 
 // Each record's product name and unit, as the app's own queries embed it.
 const PRODUCT = "products(name, unit)";
+const CASH_COUNT =
+  "*, cashier:profiles!cashier_id(full_name), confirmer:profiles!confirmed_by(full_name)";
 
 function json(body: unknown, status = 200): Response {
   return new Response(JSON.stringify(body), {
@@ -121,6 +123,8 @@ async function pull(admin: SupabaseClient, deviceKey: string, tenantId: string) 
       t("load_outs", `*, ${PRODUCT}`).or(`status.eq.on_road,date_time.gte.${sinceTime}`)
         .order("id").range(a, b),
     sync_flags: (a, b) => t("sync_flags").is("checked_at", null).order("id").range(a, b),
+    cash_counts: (a, b) =>
+      t("cash_counts", CASH_COUNT).gte("counted_at", sinceTime).order("id").range(a, b),
   };
 
   const names = Object.keys(tables);

@@ -1,3 +1,4 @@
+import '../../../finance/data/repositories/cash_count_repository.dart';
 import '../models/offline_snapshot.dart';
 import '../models/outbox_operation.dart';
 
@@ -62,6 +63,8 @@ class LocalBookkeeping {
         _loadOut();
       case OperationType.driverReturn:
         _driverReturn();
+      case OperationType.cashCount:
+        _cashCount();
     }
   }
 
@@ -380,6 +383,27 @@ class LocalBookkeeping {
     }
   }
 
+  void _cashCount() {
+    final expected = localExpectedCash(_snapshot, _op.actorId, _op.recordedAt);
+    _snapshot.rows('cash_counts').add({
+      'id': _op.opId,
+      'tenant_id': _tenantId,
+      'cashier_id': _op.actorId,
+      'period_start': expected.since.toUtc().toIso8601String(),
+      'counted_at': _at,
+      'cash_in': expected.cashIn,
+      'cash_out': expected.cashOut,
+      'expected': expected.expected,
+      'counted': _p['counted'],
+      'note': _p['note'],
+      'confirmed_at': null,
+      'confirmed_by': null,
+      'cashier': _recorder,
+      'confirmer': null,
+      'local_op_id': _op.opId,
+    });
+  }
+
   // ---------------------------------------------------------------------
   // Shared pieces
   // ---------------------------------------------------------------------
@@ -549,6 +573,7 @@ class LocalBookkeeping {
       'note': note,
       'sale_id': saleId,
       'recorded_by': _op.actorId,
+      'created_at': _at,
       'profiles': _recorder,
       'local_op_id': _op.opId,
     });

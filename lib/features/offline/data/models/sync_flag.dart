@@ -33,7 +33,8 @@ class SyncFlag {
 enum SyncFlagKind {
   shortStock('short_stock', 'Sold with stock short'),
   shortRawMaterial('short_raw_material', 'Produced with raw material short'),
-  overCreditLimit('over_credit_limit', 'Over credit limit');
+  overCreditLimit('over_credit_limit', 'Over credit limit'),
+  cashShort('cash_short', 'Cash count short');
 
   const SyncFlagKind(this.dbValue, this.label);
 

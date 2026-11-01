@@ -10,7 +10,8 @@ enum OperationType {
   stockIn('stock_in', 'Stock in'),
   stockCount('stock_count', 'Stock count'),
   loadOut('load_out', 'Load-out'),
-  driverReturn('driver_return', 'Driver return');
+  driverReturn('driver_return', 'Driver return'),
+  cashCount('cash_count', 'Cash count');
 
   const OperationType(this.dbValue, this.label);
 

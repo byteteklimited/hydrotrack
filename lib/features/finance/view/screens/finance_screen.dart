@@ -8,6 +8,7 @@ import '../../../../core/widgets/app_error_state.dart';
 import '../../../../core/widgets/app_loading.dart';
 import '../../../../core/widgets/app_modal.dart';
 import '../../data/providers/finance_providers.dart';
+import '../widgets/cash_counts_card.dart';
 import '../widgets/cash_ledger_section.dart';
 import '../widgets/finance_day_switcher.dart';
 import '../widgets/finance_filter_chips.dart';
@@ -76,7 +77,9 @@ class FinanceScreen extends ConsumerWidget {
                   AsyncData(:final value) => FinanceFlowCard(totals: value),
                   _ => const SizedBox.shrink(),
                 },
-                const SizedBox(height: AppSpacing.lg),
+                const SizedBox(height: AppSpacing.md),
+                const CashCountsCard(),
+                const SizedBox(height: AppSpacing.sm),
                 const FinanceDaySwitcher(),
                 const SizedBox(height: AppSpacing.sm),
                 const FinanceFilterChips(),

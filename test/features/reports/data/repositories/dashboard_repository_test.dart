@@ -9,6 +9,8 @@ import 'package:hydrotrack/features/sales/data/models/sale_line.dart';
 
 import '../../fakes.dart';
 
+import '../../../../helpers/test_products.dart';
+
 ProductionRun _run({required DateTime date, required int quantityProduced}) =>
     ProductionRun(
       id: 'run-${date.toIso8601String()}-$quantityProduced',
@@ -16,7 +18,7 @@ ProductionRun _run({required DateTime date, required int quantityProduced}) =>
       shift: ProductionShift.morning,
       machine: 'Machine 1',
       operatorName: 'Operator',
-      product: ProductType.sachet50cl,
+      product: sachet50cl,
       quantityProduced: quantityProduced,
       wastage: 0,
       recordedBy: 'Tester',
@@ -54,9 +56,7 @@ Sale _sale({
   id: 'sale-${dateTime.toIso8601String()}-$total',
   dateTime: dateTime,
   customerType: CustomerType.walkIn,
-  lines: [
-    SaleLine(product: ProductType.sachet50cl, quantity: 1, unitPrice: total),
-  ],
+  lines: [SaleLine(product: sachet50cl, quantity: 1, unitPrice: total)],
   total: total,
   amountPaid: total,
   paymentMethod: PaymentMethod.cash,

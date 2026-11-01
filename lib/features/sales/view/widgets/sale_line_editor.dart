@@ -1,27 +1,31 @@
 import 'package:flutter/material.dart';
 
-import '../../../../core/constants/product_catalog.dart';
+import '../../../products/data/models/product.dart';
 import '../../../../core/theme/app_spacing.dart';
 import '../../../../core/widgets/app_dropdown_field.dart';
 import '../../../../core/widgets/app_text_field.dart';
 
 /// One editable line in the record-sale form: product, quantity, and unit
-/// price (prefilled from the catalog, editable). [onRemove] is null when
-/// this is the only remaining line.
+/// price (filled in from the product's price; editable only when
+/// [priceEditable]). [onRemove] is null when this is the only line.
 class SaleLineEditor extends StatelessWidget {
   const SaleLineEditor({
     super.key,
     required this.product,
+    required this.products,
     required this.quantityController,
     required this.unitPriceController,
     required this.onProductChanged,
+    required this.priceEditable,
     this.onRemove,
   });
 
-  final ProductType product;
+  final Product? product;
+  final List<Product> products;
+  final bool priceEditable;
   final TextEditingController quantityController;
   final TextEditingController unitPriceController;
-  final ValueChanged<ProductType> onProductChanged;
+  final ValueChanged<Product> onProductChanged;
   final VoidCallback? onRemove;
 
   @override
@@ -32,11 +36,11 @@ class SaleLineEditor extends StatelessWidget {
         Row(
           children: [
             Expanded(
-              child: AppDropdownField<ProductType>(
+              child: AppDropdownField<Product?>(
                 label: 'Product',
                 value: product,
-                items: ProductType.values,
-                itemLabel: (item) => item.label,
+                items: products,
+                itemLabel: (item) => item?.label ?? '',
                 onChanged: (value) => onProductChanged(value!),
               ),
             ),
@@ -53,7 +57,7 @@ class SaleLineEditor extends StatelessWidget {
           children: [
             Expanded(
               child: AppTextField.quantity(
-                label: 'Quantity (bags)',
+                label: 'Quantity (${product?.unit ?? 'bags'})',
                 controller: quantityController,
                 validator: (value) => (value == null || value.isEmpty)
                     ? 'Enter a quantity.'
@@ -65,6 +69,7 @@ class SaleLineEditor extends StatelessWidget {
               child: AppTextField.naira(
                 label: 'Unit price',
                 controller: unitPriceController,
+                enabled: priceEditable,
                 validator: (value) => (value == null || value.isEmpty)
                     ? 'Enter a unit price.'
                     : null,

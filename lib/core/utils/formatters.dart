@@ -73,3 +73,7 @@ class ThousandsInputFormatter extends TextInputFormatter {
     );
   }
 }
+
+/// Strips the thousands-grouping `AppTextField.naira` adds live, so the
+/// typed amount can be read back as a number.
+num parseNairaText(String text) => num.tryParse(text.replaceAll(',', '')) ?? 0;

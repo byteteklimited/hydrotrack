@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 
-import '../../../../core/constants/product_catalog.dart';
+import '../../../products/data/models/product.dart';
 import '../../../../core/theme/app_spacing.dart';
 import '../../../../core/utils/formatters.dart';
 import '../../../../core/widgets/app_dropdown_field.dart';
@@ -19,12 +19,16 @@ class SaleLineTableRow extends StatelessWidget {
   const SaleLineTableRow({
     super.key,
     required this.line,
+    required this.products,
     required this.onProductChanged,
+    required this.priceEditable,
     this.onRemove,
   });
 
   final SaleLineFormData line;
-  final ValueChanged<ProductType> onProductChanged;
+  final List<Product> products;
+  final bool priceEditable;
+  final ValueChanged<Product> onProductChanged;
   final VoidCallback? onRemove;
 
   @override
@@ -38,11 +42,11 @@ class SaleLineTableRow extends StatelessWidget {
         children: [
           Expanded(
             flex: 3,
-            child: AppDropdownField<ProductType>(
+            child: AppDropdownField<Product?>(
               label: 'Product',
               value: line.product,
-              items: ProductType.values,
-              itemLabel: (item) => item.label,
+              items: products,
+              itemLabel: (item) => item?.label ?? '',
               onChanged: (value) => onProductChanged(value!),
             ),
           ),
@@ -50,7 +54,7 @@ class SaleLineTableRow extends StatelessWidget {
           Expanded(
             flex: 2,
             child: AppTextField.quantity(
-              label: 'Quantity (bags)',
+              label: 'Quantity (${line.product?.unit ?? 'bags'})',
               controller: line.quantityController,
               validator: (value) =>
                   (value == null || value.isEmpty) ? 'Enter a quantity.' : null,
@@ -62,6 +66,7 @@ class SaleLineTableRow extends StatelessWidget {
             child: AppTextField.naira(
               label: 'Unit price',
               controller: line.unitPriceController,
+              enabled: priceEditable,
               validator: (value) => (value == null || value.isEmpty)
                   ? 'Enter a unit price.'
                   : null,

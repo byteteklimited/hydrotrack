@@ -79,7 +79,7 @@ class ManageRecipesScreen extends ConsumerWidget {
             );
           }
 
-          final grouped = <ProductType, List<ProductionRecipe>>{};
+          final grouped = <Product, List<ProductionRecipe>>{};
           for (final line in recipes) {
             grouped.putIfAbsent(line.product, () => []).add(line);
           }

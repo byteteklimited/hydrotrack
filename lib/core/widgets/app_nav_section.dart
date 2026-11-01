@@ -15,6 +15,7 @@ enum AppSection {
   expenses,
   reports,
   staff,
+  products,
   organization,
 }
 
@@ -31,6 +32,7 @@ extension AppSectionMeta on AppSection {
     AppSection.expenses => 'Expenses',
     AppSection.reports => 'Reports',
     AppSection.staff => 'Staff',
+    AppSection.products => 'Products & prices',
     AppSection.organization => 'Organization',
   };
 
@@ -46,6 +48,7 @@ extension AppSectionMeta on AppSection {
     AppSection.expenses => Icons.payments_outlined,
     AppSection.reports => Icons.bar_chart_outlined,
     AppSection.staff => Icons.badge_outlined,
+    AppSection.products => Icons.sell_outlined,
     AppSection.organization => Icons.business_outlined,
   };
 }
@@ -92,7 +95,11 @@ class RoleNavConfig {
       ),
       StaffRole.owner || StaffRole.admin => const RoleNavConfig(
         primary: _managementPrimary,
-        overflow: [..._managementOverflow, AppSection.organization],
+        overflow: [
+          ..._managementOverflow,
+          AppSection.products,
+          AppSection.organization,
+        ],
       ),
       StaffRole.manager => const RoleNavConfig(
         primary: _managementPrimary,

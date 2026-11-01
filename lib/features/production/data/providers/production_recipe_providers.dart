@@ -33,7 +33,7 @@ class RecipeActionController extends ActionController {
   final Ref _ref;
 
   Future<bool> saveLine({
-    required ProductType product,
+    required Product product,
     required String rawMaterialItemId,
     required double quantityUsed,
     required int perBags,

@@ -1,6 +1,8 @@
 import 'package:flutter_test/flutter_test.dart';
 import 'package:hydrotrack/features/inventory/data/models/stock_item.dart';
 
+import '../../../../helpers/test_products.dart';
+
 StockItem _buildItem({int quantityOnHand = 50, int reorderLevel = 20}) {
   return StockItem(
     id: 'si1',
@@ -35,10 +37,10 @@ void main() {
         'reorder_level': 200,
       });
       expect(item.category, StockCategory.finishedGoods);
-      expect(item.productType, isNull);
+      expect(item.product, isNull);
     });
 
-    test('round-trips a non-null productType', () {
+    test('round-trips a linked product', () {
       final item = StockItem(
         id: 'si2',
         name: 'Sachet bags (finished)',
@@ -46,10 +48,10 @@ void main() {
         unit: 'bags',
         quantityOnHand: 1000,
         reorderLevel: 200,
-        productType: ProductType.sachet50cl,
+        product: sachet50cl,
       );
       final roundTripped = StockItem.fromJson(item.toJson());
-      expect(roundTripped.productType, ProductType.sachet50cl);
+      expect(roundTripped.product, sachet50cl);
     });
   });
 
@@ -93,12 +95,12 @@ void main() {
   });
 
   group('displayName', () {
-    test('falls back to the free-text name when there is no productType', () {
+    test('falls back to the free-text name when there is no product', () {
       final item = _buildItem();
       expect(item.displayName, item.name);
     });
 
-    test('prefers the catalog label when a productType is linked', () {
+    test("prefers the product name when it is a product's stock", () {
       final item = StockItem(
         id: 'si2',
         name: 'Sachet bags (finished)',
@@ -106,9 +108,9 @@ void main() {
         unit: 'bags',
         quantityOnHand: 1000,
         reorderLevel: 200,
-        productType: ProductType.sachet50cl,
+        product: sachet50cl,
       );
-      expect(item.displayName, ProductType.sachet50cl.label);
+      expect(item.displayName, sachet50cl.label);
       expect(item.displayName, isNot(item.name));
     });
   });

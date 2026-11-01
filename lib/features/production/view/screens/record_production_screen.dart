@@ -14,6 +14,7 @@ import '../../../../core/widgets/app_text_field.dart';
 import '../../../../core/widgets/responsive_center.dart';
 import '../../../auth/data/providers/auth_providers.dart';
 import '../../../inventory/data/providers/inventory_providers.dart';
+import '../../../products/data/providers/products_providers.dart';
 import '../../data/models/production_run.dart';
 import '../../data/providers/production_providers.dart';
 import '../../data/providers/production_recipe_providers.dart';
@@ -50,8 +51,21 @@ class _RecordProductionScreenState
       widget.existingRun?.shift ?? ProductionShift.morning;
   late String _machine =
       widget.existingRun?.machine ?? ProductionMachines.all.first;
-  late ProductType _product =
-      widget.existingRun?.product ?? ProductType.sachet50cl;
+
+  /// Null until chosen: the first active product is used.
+  late Product? _chosenProduct = widget.existingRun?.product;
+
+  /// What can be picked: active products, plus the run's own product if
+  /// it has since been retired.
+  List<Product> _productChoices(WidgetRef ref) {
+    final active =
+        ref.watch(activeProductsProvider).valueOrNull ?? const <Product>[];
+    final own = widget.existingRun?.product;
+    return [if (own != null && !active.contains(own)) own, ...active];
+  }
+
+  Product? _product(WidgetRef ref) =>
+      _chosenProduct ?? _productChoices(ref).firstOrNull;
 
   // Not prefilled when editing — a run's output batch is looked up by
   // product, not stored on the run itself, and re-deriving it here
@@ -101,8 +115,9 @@ class _RecordProductionScreenState
         ? 0
         : existing.quantityProduced + existing.wastage;
 
+    final product = _product(ref);
     final shortages = <String>[];
-    for (final recipe in recipes.where((r) => r.product == _product)) {
+    for (final recipe in recipes.where((r) => r.product == product)) {
       final needed = (recipe.quantityPerBag * totalUnits).round();
       if (needed <= 0) continue;
 
@@ -110,7 +125,7 @@ class _RecordProductionScreenState
           .where((i) => i.id == recipe.rawMaterialItemId)
           .firstOrNull;
       var available = item?.quantityOnHand ?? 0;
-      if (existing != null && existing.product == _product) {
+      if (existing != null && existing.product == product) {
         available += (recipe.quantityPerBag * originalTotalUnits).round();
       }
 
@@ -140,13 +155,15 @@ class _RecordProductionScreenState
     final existing = widget.existingRun;
     final user = ref.read(authStateProvider);
     final quantity = int.parse(_quantityController.text);
+    final product = _product(ref);
+    if (product == null) return;
     final run = ProductionRun(
       id: existing?.id ?? 'run-${DateTime.now().microsecondsSinceEpoch}',
       date: _date,
       shift: _shift,
       machine: _machine,
       operatorName: _operatorController.text.trim(),
-      product: _product,
+      product: product,
       quantityProduced: quantity,
       wastage: int.parse(_wastageController.text),
       recordedBy: existing?.recordedBy ?? user?.fullName ?? 'Unknown',
@@ -198,7 +215,7 @@ class _RecordProductionScreenState
         ref
             .watch(stockItemsProvider)
             .valueOrNull
-            ?.any((item) => item.productType == _product) ??
+            ?.any((item) => item.product == _product(ref)) ??
         false;
     final shortages = _rawMaterialShortages(ref);
 
@@ -224,12 +241,12 @@ class _RecordProductionScreenState
         itemLabel: (machine) => machine,
         onChanged: (value) => setState(() => _machine = value!),
       ),
-      AppDropdownField<ProductType>(
+      AppDropdownField<Product?>(
         label: 'Product',
-        value: _product,
-        items: ProductType.values,
-        itemLabel: (product) => product.label,
-        onChanged: (value) => setState(() => _product = value!),
+        value: _product(ref),
+        items: _productChoices(ref),
+        itemLabel: (product) => product?.label ?? '',
+        onChanged: (value) => setState(() => _chosenProduct = value),
       ),
       AppTextField(
         label: 'Operator',

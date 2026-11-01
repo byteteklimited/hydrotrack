@@ -38,14 +38,13 @@ abstract class InventoryRepository {
     required String note,
   });
 
-  /// Adds a new item to the catalog. Admin/Manager only (enforced by
-  /// RLS). Always starts at zero — no fabricated stock history.
+  /// Adds a raw material. Admin/Manager only (enforced by RLS). Always
+  /// starts at zero — no fabricated stock history. Finished goods come
+  /// with their product (Products).
   Future<StockItem> createItem({
     required String name,
-    required StockCategory category,
     required String unit,
     required int reorderLevel,
-    ProductType? productType,
   });
 
   /// Corrects a catalog entry's name/unit/reorder level. Admin/Manager
@@ -84,12 +83,13 @@ class SupabaseInventoryRepository implements InventoryRepository {
   SupabaseClient get _client => Supabase.instance.client;
 
   static const _selectWithRecorder = '*, profiles!by_whom(full_name)';
+  static const _selectItem = '*, products(name, unit)';
 
   @override
   Future<List<StockItem>> fetchItems() async {
     final rows = await _client
         .from('stock_items')
-        .select()
+        .select(_selectItem)
         .eq('tenant_id', _tenantId)
         .order('name');
     return (rows as List)
@@ -190,23 +190,20 @@ class SupabaseInventoryRepository implements InventoryRepository {
   @override
   Future<StockItem> createItem({
     required String name,
-    required StockCategory category,
     required String unit,
     required int reorderLevel,
-    ProductType? productType,
   }) async {
     final row = await _client
         .from('stock_items')
         .insert({
           'tenant_id': _tenantId,
           'name': name,
-          'category': stockCategoryToDb(category),
+          'category': stockCategoryToDb(StockCategory.rawMaterial),
           'unit': unit,
           'quantity_on_hand': 0,
           'reorder_level': reorderLevel,
-          'product_type': productType?.name,
         })
-        .select()
+        .select(_selectItem)
         .single();
     return StockItem.fromJson(row);
   }

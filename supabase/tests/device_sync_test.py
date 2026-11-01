@@ -35,7 +35,7 @@ def main():
                                 {"p_tenant_id": tenant["id"], "p_name": "Test tablet"})
         t.check(status == 200 and len(device["key"]) == 64, "Owner sets up a device and gets its key once")
 
-        _, items = t.http("GET", f"/rest/v1/stock_items?select=id&tenant_id=eq.{tenant['id']}&product_type=eq.sachet50cl", owner)
+        _, items = t.http("GET", f"/rest/v1/stock_items?select=id&tenant_id=eq.{tenant['id']}&name=eq.50cl%20Sachet", owner)
         t.http("POST", "/rest/v1/rpc/add_stock", owner, {
             "p_tenant_id": tenant["id"], "p_item_id": items[0]["id"], "p_quantity": 100,
             "p_note": "Opening", "p_expiry_date": None})
@@ -46,6 +46,9 @@ def main():
         t.check(len(data["members"]) == 1 and data["members"][0]["role"] == "owner",
                 "with the staff list")
         t.check(len(data["tables"]["stock_items"]) == 4, "and its stock items")
+        t.check(len(data["tables"]["products"]) == 4
+                and all(i["products"]["name"] for i in data["tables"]["stock_items"]),
+                "and its products, with each stock item's product name")
 
         op = {"op_id": str(uuid.uuid4()), "type": "sale", "actor_id": user_id,
               "recorded_at": "2026-10-30T09:15:00+01:00",

@@ -1,16 +1,15 @@
 import 'package:flutter_test/flutter_test.dart';
-import 'package:hydrotrack/core/constants/product_catalog.dart';
 import 'package:hydrotrack/features/sales/data/models/sale.dart';
 import 'package:hydrotrack/features/sales/data/models/sale_line.dart';
+
+import '../../../../helpers/test_products.dart';
 
 Sale _buildSale({required num total, required num amountPaid}) {
   return Sale(
     id: 's1',
     dateTime: DateTime(2026, 3, 5),
     customerType: CustomerType.walkIn,
-    lines: const [
-      SaleLine(product: ProductType.sachet50cl, quantity: 10, unitPrice: 400),
-    ],
+    lines: const [SaleLine(product: sachet50cl, quantity: 10, unitPrice: 400)],
     total: total,
     amountPaid: amountPaid,
     paymentMethod: PaymentMethod.cash,
@@ -42,7 +41,7 @@ void main() {
           'customer_type': 'distributor',
           'customer_name': 'Blessing Stores',
           'sale_lines': [
-            {'product': 'sachet50cl', 'quantity': 40, 'unit_price': 400},
+            {...sachet50cl.toRecordJson(), 'quantity': 40, 'unit_price': 400},
           ],
           'total': 16000,
           'amount_paid': 16000,
@@ -120,11 +119,7 @@ void main() {
         dateTime: DateTime(2026, 3, 5, 9, 14),
         customerType: CustomerType.walkIn,
         lines: const [
-          SaleLine(
-            product: ProductType.sachet50cl,
-            quantity: 10,
-            unitPrice: 400,
-          ),
+          SaleLine(product: sachet50cl, quantity: 10, unitPrice: 400),
         ],
         total: 4000,
         amountPaid: 4000,
@@ -143,16 +138,8 @@ void main() {
         dateTime: DateTime(2026, 3, 5),
         customerType: CustomerType.walkIn,
         lines: const [
-          SaleLine(
-            product: ProductType.sachet50cl,
-            quantity: 10,
-            unitPrice: 400,
-          ),
-          SaleLine(
-            product: ProductType.bottle75cl,
-            quantity: 5,
-            unitPrice: 150,
-          ),
+          SaleLine(product: sachet50cl, quantity: 10, unitPrice: 400),
+          SaleLine(product: bottle75cl, quantity: 5, unitPrice: 150),
         ],
         total: 4750,
         amountPaid: 4750,

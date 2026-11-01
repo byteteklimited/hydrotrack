@@ -155,10 +155,8 @@ class FakeInventoryRepository implements InventoryRepository {
   @override
   Future<StockItem> createItem({
     required String name,
-    required StockCategory category,
     required String unit,
     required int reorderLevel,
-    ProductType? productType,
   }) => _unused();
   @override
   Future<StockItem> updateItemDetails({

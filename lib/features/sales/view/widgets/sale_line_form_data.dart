@@ -1,11 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 
-import '../../../../core/constants/product_catalog.dart';
-
-/// Strips the thousands-grouping `AppTextField.naira` adds live, so the
-/// typed amount can be read back as a number.
-num parseNairaText(String text) => num.tryParse(text.replaceAll(',', '')) ?? 0;
+import '../../../../core/utils/formatters.dart';
+import '../../../products/data/models/product.dart';
 
 /// One editable product line's live form state in "Record sale" — holds
 /// its own controllers so the quantity/price fields keep focus and
@@ -14,17 +11,26 @@ num parseNairaText(String text) => num.tryParse(text.replaceAll(',', '')) ?? 0;
 /// so both render the exact same underlying state.
 class SaleLineFormData {
   SaleLineFormData()
-    : product = ProductType.sachet50cl,
-      quantityController = TextEditingController(),
-      unitPriceController = TextEditingController(
-        text: NumberFormat.decimalPattern(
-          'en_NG',
-        ).format(ProductType.sachet50cl.defaultUnitPrice),
-      );
+    : quantityController = TextEditingController(),
+      unitPriceController = TextEditingController();
 
-  ProductType product;
+  /// Null until the organization's products have loaded.
+  Product? product;
+
+  /// The product's price for this customer type, which [unitPriceController]
+  /// starts at (only managers may change it).
+  num listPrice = 0;
   final TextEditingController quantityController;
   final TextEditingController unitPriceController;
+
+  /// Picks [newProduct] and fills in its price for the customer type.
+  void choose(Product newProduct, {required bool distributor}) {
+    product = newProduct;
+    listPrice = newProduct.priceFor(distributor: distributor);
+    unitPriceController.text = NumberFormat.decimalPattern(
+      'en_NG',
+    ).format(listPrice);
+  }
 
   num get lineTotal =>
       (int.tryParse(quantityController.text) ?? 0) *

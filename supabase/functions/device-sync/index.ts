@@ -9,7 +9,7 @@
 // Actions:
 //   {"action": "pull", "device_key": "..."}
 //     -> the organization's data for offline use: staff (with offline
-//        sign-in checks), stock, customers, drivers, vehicles, recipes,
+//        sign-in checks), products, stock, customers, drivers, vehicles, recipes,
 //        open flags, and the last 90 days of sales, payments, cash,
 //        expenses, production, stock movements and load-outs, in the same
 //        shape the app's own queries return.
@@ -25,6 +25,9 @@ import { corsHeaders, handleCorsPreflight } from "../_shared/cors.ts";
 const HISTORY_DAYS = 90;
 const PAGE_SIZE = 1000; // PostgREST's maximum rows per request
 const MAX_OPERATIONS_PER_PUSH = 100;
+
+// Each record's product name and unit, as the app's own queries embed it.
+const PRODUCT = "products(name, unit)";
 
 function json(body: unknown, status = 200): Response {
   return new Response(JSON.stringify(body), {
@@ -75,13 +78,16 @@ async function pull(admin: SupabaseClient, deviceKey: string, tenantId: string) 
   }
 
   const tables: Record<string, Query> = {
-    stock_items: (a, b) => t("stock_items").order("id").range(a, b),
+    products: (a, b) => t("products").order("id").range(a, b),
+    stock_items: (a, b) =>
+      t("stock_items", `*, ${PRODUCT}`).order("id").range(a, b),
     stock_batches: (a, b) =>
       t("stock_batches")
         .or(`quantity_remaining.gt.0,received_at.gte.${sinceTime}`)
         .order("id").range(a, b),
     production_recipes: (a, b) =>
-      t("production_recipes", "*, stock_items(name, unit)").order("id").range(a, b),
+      t("production_recipes", `*, stock_items(name, unit), ${PRODUCT}`)
+        .order("id").range(a, b),
     customers: (a, b) => t("customers").order("id").range(a, b),
     ledger_entries: (a, b) =>
       t("ledger_entries", "*, customers(name)").gte("date", sinceDate)
@@ -89,7 +95,7 @@ async function pull(admin: SupabaseClient, deviceKey: string, tenantId: string) 
     sales: (a, b) =>
       t(
         "sales",
-        "*, sale_lines(*), profiles!recorded_by(full_name), " +
+        `*, sale_lines(*, ${PRODUCT}), profiles!recorded_by(full_name), ` +
           "voided_by_profile:profiles!voided_by(full_name)",
       ).gte("date_time", sinceTime).order("id").range(a, b),
     cash_entries: (a, b) =>
@@ -99,7 +105,7 @@ async function pull(admin: SupabaseClient, deviceKey: string, tenantId: string) 
       t("expenses", "*, profiles!recorded_by(full_name)")
         .gte("date", sinceDate).order("id").range(a, b),
     production_runs: (a, b) =>
-      t("production_runs", "*, profiles!recorded_by(full_name)")
+      t("production_runs", `*, ${PRODUCT}, profiles!recorded_by(full_name)`)
         .gte("recorded_at", sinceTime).order("id").range(a, b),
     stock_movements: (a, b) =>
       t("stock_movements", "*, profiles!by_whom(full_name)")
@@ -107,7 +113,7 @@ async function pull(admin: SupabaseClient, deviceKey: string, tenantId: string) 
     drivers: (a, b) => t("drivers").order("id").range(a, b),
     vehicles: (a, b) => t("vehicles").order("id").range(a, b),
     load_outs: (a, b) =>
-      t("load_outs").or(`status.eq.on_road,date_time.gte.${sinceTime}`)
+      t("load_outs", `*, ${PRODUCT}`).or(`status.eq.on_road,date_time.gte.${sinceTime}`)
         .order("id").range(a, b),
     sync_flags: (a, b) => t("sync_flags").is("checked_at", null).order("id").range(a, b),
   };

@@ -2,7 +2,6 @@ import 'package:intl/intl.dart';
 import 'package:pdf/pdf.dart';
 import 'package:pdf/widgets.dart' as pw;
 
-import '../../../../core/constants/product_catalog.dart';
 import '../../../../core/utils/pdf_formatters.dart';
 import '../../data/models/sale.dart';
 

@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 
-import '../../../../core/constants/product_catalog.dart';
+import '../../../products/data/models/product.dart';
 import '../../../../core/theme/app_breakpoints.dart';
 import '../../../../core/theme/app_spacing.dart';
 import '../../../../core/widgets/app_button.dart';
@@ -17,14 +17,21 @@ class SaleLinesSection extends StatelessWidget {
   const SaleLinesSection({
     super.key,
     required this.lines,
+    required this.products,
+    required this.priceEditable,
     required this.onProductChanged,
     required this.onRemove,
     required this.onAddLine,
   });
 
   final List<SaleLineFormData> lines;
-  final void Function(SaleLineFormData line, ProductType product)
-  onProductChanged;
+
+  /// Products that can be sold (retired ones aren't offered).
+  final List<Product> products;
+
+  /// Only Owner/Admin/Manager may sell at a different price.
+  final bool priceEditable;
+  final void Function(SaleLineFormData line, Product product) onProductChanged;
   final void Function(SaleLineFormData line) onRemove;
   final VoidCallback onAddLine;
 
@@ -42,6 +49,8 @@ class SaleLinesSection extends StatelessWidget {
             if (isWide)
               SaleLineTable(
                 lines: lines,
+                products: products,
+                priceEditable: priceEditable,
                 onProductChanged: onProductChanged,
                 onRemove: onRemove,
               )
@@ -49,6 +58,8 @@ class SaleLinesSection extends StatelessWidget {
               for (final line in lines) ...[
                 SaleLineEditor(
                   product: line.product,
+                  products: products,
+                  priceEditable: priceEditable,
                   quantityController: line.quantityController,
                   unitPriceController: line.unitPriceController,
                   onProductChanged: (product) =>

@@ -85,21 +85,13 @@ class StockActionController extends ActionController {
 
   Future<StockItem?> createItem({
     required String name,
-    required StockCategory category,
     required String unit,
     required int reorderLevel,
-    ProductType? productType,
   }) {
     return guard(() async {
       final created = await _ref
           .read(inventoryRepositoryProvider)
-          .createItem(
-            name: name,
-            category: category,
-            unit: unit,
-            reorderLevel: reorderLevel,
-            productType: productType,
-          );
+          .createItem(name: name, unit: unit, reorderLevel: reorderLevel);
       _ref.invalidate(stockItemsProvider);
       return created;
     });

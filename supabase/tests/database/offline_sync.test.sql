@@ -26,6 +26,13 @@ language sql stable as $$ select id from tests.fx where key = p_key $$;
 create function tests.note(p_key text) returns text
 language sql stable as $$ select note from tests.fx where key = p_key $$;
 
+-- A tenant's product by its old enum name (the 4 starter products keep
+-- it as legacy_key). Security definer so it works whatever role is active.
+create function tests.product(p_tenant uuid, p_key text) returns uuid
+language sql stable security definer as $$
+  select id from public.products where tenant_id = p_tenant and legacy_key = p_key
+$$;
+
 create function tests.create_user(p_key text, p_name text, p_email text)
 returns uuid language plpgsql as $$
 declare
@@ -91,18 +98,18 @@ begin
 
   perform tests.as_user('alice');
   perform public.add_stock(v_a,
-    (select id from public.stock_items where tenant_id = v_a and product_type = 'sachet50cl'), 100, 'Opening');
+    (select id from public.stock_items where tenant_id = v_a and product_id = tests.product(v_a, 'sachet50cl')), 100, 'Opening');
   insert into public.stock_items (tenant_id, name, category, unit)
   values (v_a, 'Nylon roll', 'raw_material', 'rolls') returning id into v_nylon;
   perform public.add_stock(v_a, v_nylon, 10, 'Delivery');
-  insert into public.production_recipes (tenant_id, product, raw_material_item_id, quantity_used, per_bags)
-  values (v_a, 'sachet50cl', v_nylon, 1, 100);
+  insert into public.production_recipes (tenant_id, product_id, raw_material_item_id, quantity_used, per_bags)
+  values (v_a, tests.product(v_a, 'sachet50cl'), v_nylon, 1, 100);
   v_device := public.register_device(v_a, 'Front desk phone');
   perform tests.as_owner_db();
 
   insert into tests.fx (key, id) values
     ('nylon', v_nylon),
-    ('sachet', (select id from public.stock_items where tenant_id = v_a and product_type = 'sachet50cl'));
+    ('sachet', (select id from public.stock_items where tenant_id = v_a and product_id = tests.product(v_a, 'sachet50cl')));
   insert into tests.fx (key, id, note) values ('device', (v_device ->> 'id')::uuid, v_device ->> 'key');
 
   insert into public.customers (tenant_id, name, phone, area, credit_limit)

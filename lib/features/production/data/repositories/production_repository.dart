@@ -36,7 +36,8 @@ class SupabaseProductionRepository implements ProductionRepository {
 
   SupabaseClient get _client => Supabase.instance.client;
 
-  static const _selectWithRecorder = '*, profiles!recorded_by(full_name)';
+  static const _selectWithRecorder =
+      '*, products(name, unit), profiles!recorded_by(full_name)';
 
   @override
   Future<List<ProductionRun>> fetchRuns() async {
@@ -60,7 +61,7 @@ class SupabaseProductionRepository implements ProductionRepository {
     'shift': run.shift.name,
     'machine': run.machine,
     'operator_name': run.operatorName,
-    'product': run.product.name,
+    'product_id': run.product.id,
     'quantity_produced': run.quantityProduced,
     'wastage': run.wastage,
     'expiry_date': expiryDate == null ? null : dateParam(expiryDate),
@@ -99,7 +100,7 @@ class SupabaseProductionRepository implements ProductionRepository {
         'p_shift': run.shift.name,
         'p_machine': run.machine,
         'p_operator_name': run.operatorName,
-        'p_product': run.product.name,
+        'p_product_id': run.product.id,
         'p_quantity_produced': run.quantityProduced,
         'p_wastage': run.wastage,
         'p_expiry_date': expiryDate?.toIso8601String().split('T').first,

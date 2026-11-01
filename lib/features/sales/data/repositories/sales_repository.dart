@@ -35,7 +35,7 @@ class SupabaseSalesRepository implements SalesRepository {
   SupabaseClient get _client => Supabase.instance.client;
 
   static const _selectFull =
-      '*, sale_lines(*), profiles!recorded_by(full_name), '
+      '*, sale_lines(*, products(name, unit)), profiles!recorded_by(full_name), '
       'voided_by_profile:profiles!voided_by(full_name)';
 
   @override
@@ -78,9 +78,10 @@ class SupabaseSalesRepository implements SalesRepository {
       'lines': [
         for (final line in sale.lines)
           {
-            'product': line.product.name,
+            'product_id': line.product.id,
             'quantity': line.quantity,
             'unit_price': line.unitPrice,
+            'list_price': line.listPrice ?? line.unitPrice,
           },
       ],
       'paid_channel': paidChannel?.name,

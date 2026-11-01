@@ -10,6 +10,7 @@ import '../../../../core/widgets/app_text_field.dart';
 import '../../../../core/widgets/responsive_center.dart';
 import '../../../inventory/data/models/stock_item.dart';
 import '../../../inventory/data/providers/inventory_providers.dart';
+import '../../../products/data/providers/products_providers.dart';
 import '../../data/models/production_recipe.dart';
 import '../../data/providers/production_recipe_providers.dart';
 
@@ -37,7 +38,7 @@ class _AddRecipeLineScreenState extends ConsumerState<AddRecipeLineScreen> {
     text: widget.existingLine?.perBags.toString(),
   );
 
-  late ProductType? _product = widget.existingLine?.product;
+  late Product? _product = widget.existingLine?.product;
   late String? _rawMaterialItemId = widget.existingLine?.rawMaterialItemId;
 
   bool get _isEditing => widget.existingLine != null;
@@ -79,6 +80,8 @@ class _AddRecipeLineScreenState extends ConsumerState<AddRecipeLineScreen> {
   @override
   Widget build(BuildContext context) {
     final isSaving = ref.watch(recipeActionControllerProvider).isLoading;
+    final products =
+        ref.watch(activeProductsProvider).valueOrNull ?? const <Product>[];
     final rawMaterials =
         ref
             .watch(stockItemsProvider)
@@ -100,11 +103,11 @@ class _AddRecipeLineScreenState extends ConsumerState<AddRecipeLineScreen> {
           enabled: false,
         )
       else
-        AppDropdownField<ProductType?>(
+        AppDropdownField<Product?>(
           label: 'Product',
           value: _product,
-          items: [null, ...ProductType.values],
-          itemLabel: (type) => type?.label ?? 'Select a product',
+          items: [null, ...products],
+          itemLabel: (product) => product?.label ?? 'Select a product',
           onChanged: (value) => setState(() => _product = value),
         ),
       if (_isEditing)

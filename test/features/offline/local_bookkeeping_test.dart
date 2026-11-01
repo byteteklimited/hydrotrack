@@ -88,7 +88,7 @@ void main() {
         'shift': 'morning',
         'machine': 'Machine 1',
         'operator_name': 'Musa',
-        'product': 'sachet50cl',
+        'product_id': sachetProductId,
         'quantity_produced': 480,
         'wastage': 20,
         'expiry_date': null,
@@ -134,7 +134,8 @@ void main() {
     expect(s.lastStockCountAt, DateTime.utc(2026, 11, 1, 9, 30));
   });
 
-  test('a load-out and its driver return, both offline', () {
+  test('a load-out and its driver return, both offline (a record queued '
+      'before products were per organization still matches)', () {
     final s = sampleSnapshot();
     LocalBookkeeping.apply(
       s,

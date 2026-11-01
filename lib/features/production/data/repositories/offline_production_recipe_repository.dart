@@ -25,7 +25,7 @@ class OfflineProductionRecipeRepository implements ProductionRecipeRepository {
 
   @override
   Future<void> saveLine({
-    required ProductType product,
+    required Product product,
     required String rawMaterialItemId,
     required double quantityUsed,
     required int perBags,

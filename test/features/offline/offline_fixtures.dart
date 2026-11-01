@@ -8,6 +8,7 @@ import 'package:hydrotrack/features/offline/data/repositories/device_sync_api.da
 
 const tenantId = 'tenant-1';
 const sachetId = 'item-sachet';
+const sachetProductId = 'product-sachet';
 const nylonId = 'item-nylon';
 const musaId = 'customer-musa';
 const cashierId = 'user-cashier';
@@ -47,6 +48,19 @@ OfflineSnapshot sampleSnapshot({OfflineCredential? cashierCredential}) {
     'finance_position': {'cash_in_hand': 50000, 'bank_balance': 20000},
     'last_stock_count_at': null,
     'tables': {
+      'products': [
+        {
+          'id': sachetProductId,
+          'tenant_id': tenantId,
+          'name': '50cl Sachet',
+          'unit': 'bags',
+          'walk_in_price': 400,
+          'distributor_price': 380,
+          'sort_order': 1,
+          'archived_at': null,
+          'legacy_key': 'sachet50cl',
+        },
+      ],
       'stock_items': [
         {
           'id': sachetId,
@@ -56,7 +70,8 @@ OfflineSnapshot sampleSnapshot({OfflineCredential? cashierCredential}) {
           'unit': 'bags',
           'quantity_on_hand': 100,
           'reorder_level': 10,
-          'product_type': 'sachet50cl',
+          'product_id': sachetProductId,
+          'products': {'name': '50cl Sachet', 'unit': 'bags'},
         },
         {
           'id': nylonId,
@@ -66,7 +81,7 @@ OfflineSnapshot sampleSnapshot({OfflineCredential? cashierCredential}) {
           'unit': 'rolls',
           'quantity_on_hand': 10,
           'reorder_level': 2,
-          'product_type': null,
+          'product_id': null,
         },
       ],
       'stock_batches': [
@@ -78,7 +93,7 @@ OfflineSnapshot sampleSnapshot({OfflineCredential? cashierCredential}) {
         {
           'id': 'recipe-1',
           'tenant_id': tenantId,
-          'product': 'sachet50cl',
+          'product_id': sachetProductId,
           'raw_material_item_id': nylonId,
           'quantity_used': 1,
           'per_bags': 100,
@@ -144,7 +159,12 @@ Map<String, dynamic> salePayload({
     'payment_method': credit > 0 ? 'credit' : paymentMethod,
     'balance': credit,
     'lines': [
-      {'product': 'sachet50cl', 'quantity': bags, 'unit_price': 400},
+      {
+        'product_id': sachetProductId,
+        'quantity': bags,
+        'unit_price': 400,
+        'list_price': 400,
+      },
     ],
     'paid_channel': null,
   };

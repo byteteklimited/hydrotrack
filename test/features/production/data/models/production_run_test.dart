@@ -1,6 +1,8 @@
 import 'package:flutter_test/flutter_test.dart';
 import 'package:hydrotrack/features/production/data/models/production_run.dart';
 
+import '../../../../helpers/test_products.dart';
+
 void main() {
   group('ProductionRun JSON', () {
     test('fromJson reads the joined profiles.full_name as recordedBy', () {
@@ -10,7 +12,7 @@ void main() {
         'shift': 'morning',
         'machine': 'Machine 2',
         'operator_name': 'Amina Yusuf',
-        'product': 'sachet50cl',
+        ...sachet50cl.toRecordJson(),
         'quantity_produced': 1200,
         'wastage': 20,
         'profiles': {'full_name': 'Amina Yusuf'},
@@ -29,7 +31,7 @@ void main() {
         'shift': 'afternoon',
         'machine': 'Machine 1',
         'operator_name': 'Someone',
-        'product': 'bottle75cl',
+        ...bottle75cl.toRecordJson(),
         'quantity_produced': 500,
         'wastage': 0,
         'profiles': null,
@@ -45,7 +47,7 @@ void main() {
         shift: ProductionShift.morning,
         machine: 'Machine 2',
         operatorName: 'Amina Yusuf',
-        product: ProductType.sachet50cl,
+        product: sachet50cl,
         quantityProduced: 1200,
         wastage: 20,
         recordedBy: 'Amina Yusuf',
@@ -67,7 +69,7 @@ void main() {
         shift: ProductionShift.morning,
         machine: 'Machine 1',
         operatorName: 'Amina Yusuf',
-        product: ProductType.sachet50cl,
+        product: sachet50cl,
         quantityProduced: quantityProduced,
         wastage: wastage,
         recordedBy: 'Amina Yusuf',

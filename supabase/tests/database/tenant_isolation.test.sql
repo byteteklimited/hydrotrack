@@ -30,6 +30,13 @@ grant select, insert on tests.fx to authenticated, anon;
 create function tests.id(p_key text) returns uuid
 language sql stable as $$ select id from tests.fx where key = p_key $$;
 
+-- A tenant's product by its old enum name (the 4 starter products keep
+-- it as legacy_key). Security definer so it works whatever role is active.
+create function tests.product(p_tenant uuid, p_key text) returns uuid
+language sql stable security definer as $$
+  select id from public.products where tenant_id = p_tenant and legacy_key = p_key
+$$;
+
 create function tests.code(p_key text) returns text
 language sql stable as $$ select code from tests.fx where key = p_key $$;
 
@@ -82,7 +89,7 @@ create function tests.tenant_relations() returns text[] language sql immutable a
     'stock_movements', 'sales', 'sale_lines', 'customers', 'ledger_entries',
     'cash_entries', 'expenses', 'drivers', 'vehicles', 'load_outs',
     'staff_audit_log', 'tenant_members', 'tenant_invitations', 'audit_trail',
-    'tenants'
+    'tenants', 'products'
   ];
 $$;
 
@@ -138,15 +145,15 @@ declare
 begin
   perform tests.as_user(p_owner);
   v_tenant := (public.create_tenant(p_name)).id;
-  v_sachet := (select id from public.stock_items where tenant_id = v_tenant and product_type = 'sachet50cl');
+  v_sachet := (select id from public.stock_items where tenant_id = v_tenant and product_id = tests.product(v_tenant, 'sachet50cl'));
 
   insert into public.stock_items (tenant_id, name, category, unit)
   values (v_tenant, 'Nylon roll', 'raw_material', 'rolls') returning id into v_nylon;
   perform public.add_stock(v_tenant, v_nylon, 50, 'Delivery');
   perform public.add_stock(v_tenant, v_sachet, 500, 'Opening stock');
-  insert into public.production_recipes (tenant_id, product, raw_material_item_id, quantity_used, per_bags)
-  values (v_tenant, 'sachet50cl', v_nylon, 1, 100) returning id into v_recipe;
-  v_run := public.record_production_run(v_tenant, current_date, 'morning', 'Machine 1', 'Musa', 'sachet50cl', 200, 5);
+  insert into public.production_recipes (tenant_id, product_id, raw_material_item_id, quantity_used, per_bags)
+  values (v_tenant, tests.product(v_tenant, 'sachet50cl'), v_nylon, 1, 100) returning id into v_recipe;
+  v_run := public.record_production_run(v_tenant, current_date, 'morning', 'Machine 1', 'Musa', tests.product(v_tenant, 'sachet50cl'), 200, 5);
 
   insert into public.customers (tenant_id, name, phone, area, credit_limit)
   values (v_tenant, p_prefix || ' Distributor', '08011112222', 'Kano', 100000) returning id into v_customer;
@@ -157,7 +164,7 @@ begin
 
   insert into public.drivers (tenant_id, name, phone) values (v_tenant, 'Yakubu', '08099998888') returning id into v_driver;
   insert into public.vehicles (tenant_id, name) values (v_tenant, 'Hilux') returning id into v_vehicle;
-  v_load_out := public.record_load_out(v_tenant, v_driver, v_vehicle, 'sachet50cl', 20, null);
+  v_load_out := public.record_load_out(v_tenant, v_driver, v_vehicle, tests.product(v_tenant, 'sachet50cl'), 20, null);
 
   v_invite := public.create_invitation(v_tenant, 'Pending Person', '08077776666', null, 'cashier');
 
@@ -318,8 +325,8 @@ begin
     b, tests.id('alice')),
     '42501', null, 'Alice cannot post a cash entry to Tenant B');
   return next throws_ok(format(
-    'insert into public.production_recipes (tenant_id, product, raw_material_item_id, quantity_used, per_bags) values (%L, ''bottle75cl'', %L, 1, 1)',
-    b, tests.id('b_nylon')),
+    'insert into public.production_recipes (tenant_id, product_id, raw_material_item_id, quantity_used, per_bags) values (%L, %L, %L, 1, 1)',
+    b, tests.product(b, 'bottle75cl'), tests.id('b_nylon')),
     '42501', null, 'Alice cannot add a recipe to Tenant B');
   return next throws_ok(
     'insert into public.tenants (name, slug) values (''Forged'', ''forged'')',
@@ -337,11 +344,11 @@ declare
 begin
   perform tests.as_user('alice');
   return next throws_ok(format(
-    'insert into public.production_recipes (tenant_id, product, raw_material_item_id, quantity_used, per_bags) values (%L, ''bottle75cl'', %L, 1, 1)',
-    a, tests.id('b_nylon')),
+    'insert into public.production_recipes (tenant_id, product_id, raw_material_item_id, quantity_used, per_bags) values (%L, %L, %L, 1, 1)',
+    a, tests.product(a, 'bottle75cl'), tests.id('b_nylon')),
     '23503', null, 'A Tenant A recipe cannot use a Tenant B material (composite FK)');
   return next throws_ok(format(
-    'select public.record_load_out(%L, %L, %L, ''sachet50cl'', 5, null)', a, tests.id('b_driver'), tests.id('b_vehicle')),
+    'select public.record_load_out(%L, %L, %L, %L, 5, null)', a, tests.id('b_driver'), tests.id('b_vehicle'), tests.product(a, 'sachet50cl')),
     '23503', null, 'A Tenant A load-out cannot use Tenant B''s driver and vehicle');
   return next throws_ok(format(
     'insert into public.cash_entries (tenant_id, direction, source, amount, method, recorded_by) values (%L, ''money_in'', ''other'', 1, ''cash'', %L)',
@@ -391,8 +398,8 @@ begin
     format('select public.adjust_stock_count(%L, %L, 0, ''x'')', b, tests.id('b_sachet')),
     format('select public.update_stock_item_details(%L, %L, ''x'', ''x'', 0)', b, tests.id('b_sachet')),
     format('select public.delete_stock_item(%L, %L)', b, tests.id('b_nylon')),
-    format('select public.record_production_run(%L, current_date, ''morning'', ''M'', ''O'', ''sachet50cl'', 1, 0)', b),
-    format('select public.update_production_run(%L, %L, current_date, ''morning'', ''M'', ''O'', ''sachet50cl'', 1, 0)', b, tests.id('b_run')),
+    format('select public.record_production_run(%L, current_date, ''morning'', ''M'', ''O'', %L, 1, 0)', b, tests.product(b, 'sachet50cl')),
+    format('select public.update_production_run(%L, %L, current_date, ''morning'', ''M'', ''O'', %L, 1, 0)', b, tests.id('b_run'), tests.product(b, 'sachet50cl')),
     format('select public.delete_production_run(%L, %L)', b, tests.id('b_run')),
     format('select public.record_sale(%L, ''walk_in'', null, 400, 400, ''cash'', 0, ''[{"product": "sachet50cl", "quantity": 1, "unit_price": 400}]'')', b),
     format('select public.void_sale(%L, %L, ''x'')', b, tests.id('b_sale')),
@@ -401,7 +408,7 @@ begin
     format('select public.add_opening_balance(%L, %L, 1, ''x'')', b, tests.id('b_customer')),
     format('select public.write_off_debt(%L, %L, 1, ''x'')', b, tests.id('b_customer')),
     format('select public.record_expense(%L, current_date, ''other'', ''x'', 1, ''cash'')', b),
-    format('select public.record_load_out(%L, %L, %L, ''sachet50cl'', 1, null)', b, tests.id('b_driver'), tests.id('b_vehicle')),
+    format('select public.record_load_out(%L, %L, %L, %L, 1, null)', b, tests.id('b_driver'), tests.id('b_vehicle'), tests.product(b, 'sachet50cl')),
     format('select public.settle_load_out(%L, %L, 0, 20, 0, 0, null)', b, tests.id('b_load_out')),
     format('select public.create_invitation(%L, ''x'', ''08000000000'', null, ''admin'')', b),
     format('select public.revoke_invitation(%L, %L)', b, tests.id('b_invite')),
@@ -635,7 +642,7 @@ begin
   foreach f in array array[
     'public.consume_stock_fifo(uuid, uuid, integer, movement_type, text, uuid, uuid, uuid)',
     'public.add_stock_batch(uuid, uuid, integer, date, movement_type, text, uuid, uuid, uuid)',
-    'public.finished_item_for(uuid, product_type)',
+    'public.finished_item_for(uuid, uuid)',
     'public.post_sale_side_effects(uuid, uuid, sales_customer_type, text, numeric, sales_payment_method, numeric, payment_channel, text)',
     'public.require_tenant_role(uuid, staff_role[], text)',
     'public.peek_invitation(text)',
@@ -672,7 +679,7 @@ begin
   c := (public.create_tenant('Dave''s Water')).id;
   return next is((select role::text from public.tenant_members where tenant_id = c and user_id = tests.id('dave')),
     'owner', 'The creator becomes the owner');
-  return next is((select count(*) from public.stock_items where tenant_id = c and product_type is not null),
+  return next is((select count(*) from public.stock_items where tenant_id = c and product_id is not null),
     4::bigint, 'It starts with one finished-goods item per product');
   return next is(tests.visible('stock_items', tests.id('a_tenant')), 0::bigint,
     'Creating an organization grants nothing in others');

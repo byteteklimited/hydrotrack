@@ -1,6 +1,6 @@
-import '../../../../core/constants/product_catalog.dart';
+import '../../../products/data/models/product.dart';
 
-export '../../../../core/constants/product_catalog.dart';
+export '../../../products/data/models/product.dart';
 
 /// One raw-material line in a product's bill of materials: "[quantityUsed]
 /// [rawMaterialUnit] of [rawMaterialName] makes [perBags] bags of
@@ -18,7 +18,7 @@ class ProductionRecipe {
   });
 
   final String id;
-  final ProductType product;
+  final Product product;
   final String rawMaterialItemId;
   final String rawMaterialName;
   final String rawMaterialUnit;
@@ -36,7 +36,7 @@ class ProductionRecipe {
     final item = json['stock_items'] as Map<String, dynamic>?;
     return ProductionRecipe(
       id: json['id'] as String,
-      product: ProductType.values.byName(json['product'] as String),
+      product: Product.fromRecord(json),
       rawMaterialItemId: json['raw_material_item_id'] as String,
       rawMaterialName: item?['name'] as String? ?? 'Unknown material',
       rawMaterialUnit: item?['unit'] as String? ?? '',

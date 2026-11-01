@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 
-import '../../../../core/constants/product_catalog.dart';
+import '../../../products/data/models/product.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_spacing.dart';
 import '../../../../core/widgets/app_card.dart';
@@ -47,13 +47,16 @@ class SaleLineTable extends StatelessWidget {
   const SaleLineTable({
     super.key,
     required this.lines,
+    required this.products,
+    required this.priceEditable,
     required this.onProductChanged,
     required this.onRemove,
   });
 
   final List<SaleLineFormData> lines;
-  final void Function(SaleLineFormData line, ProductType product)
-  onProductChanged;
+  final List<Product> products;
+  final bool priceEditable;
+  final void Function(SaleLineFormData line, Product product) onProductChanged;
   final void Function(SaleLineFormData line) onRemove;
 
   @override
@@ -68,6 +71,8 @@ class SaleLineTable extends StatelessWidget {
           for (var i = 0; i < lines.length; i++) ...[
             SaleLineTableRow(
               line: lines[i],
+              products: products,
+              priceEditable: priceEditable,
               onProductChanged: (product) =>
                   onProductChanged(lines[i], product),
               onRemove: canRemove ? () => onRemove(lines[i]) : null,

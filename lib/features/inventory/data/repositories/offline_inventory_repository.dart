@@ -106,18 +106,14 @@ class OfflineInventoryRepository implements InventoryRepository {
   @override
   Future<StockItem> createItem({
     required String name,
-    required StockCategory category,
     required String unit,
     required int reorderLevel,
-    ProductType? productType,
   }) {
     return _offline.online(
       () => _remote.createItem(
         name: name,
-        category: category,
         unit: unit,
         reorderLevel: reorderLevel,
-        productType: productType,
       ),
     );
   }

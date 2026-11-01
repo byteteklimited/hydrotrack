@@ -101,9 +101,10 @@ class LocalBookkeeping {
             'id': _childId(),
             'tenant_id': _tenantId,
             'sale_id': id,
-            'product': line['product'],
+            ..._productFields(_productId(line)),
             'quantity': line['quantity'],
             'unit_price': line['unit_price'],
+            'list_price': line['list_price'],
           },
       ],
       'profiles': _recorder,
@@ -112,7 +113,7 @@ class LocalBookkeeping {
     });
 
     for (final line in lines) {
-      final item = _finishedItem(line['product'] as String);
+      final item = _finishedItem(_productId(line));
       if (item != null) {
         _takeStock(
           item,
@@ -202,7 +203,7 @@ class LocalBookkeeping {
   }
 
   void _productionRun() {
-    final product = _p['product'] as String;
+    final product = _productId(_p);
     final produced = _p['quantity_produced'] as int;
     final bags = produced + (_p['wastage'] as int);
     _snapshot.rows('production_runs').add({
@@ -212,7 +213,7 @@ class LocalBookkeeping {
       'shift': _p['shift'],
       'machine': _p['machine'],
       'operator_name': _p['operator_name'],
-      'product': product,
+      ..._productFields(product),
       'quantity_produced': produced,
       'wastage': _p['wastage'],
       'recorded_by': _op.actorId,
@@ -222,7 +223,7 @@ class LocalBookkeeping {
     });
 
     for (final recipe in _snapshot.rows('production_recipes')) {
-      if (recipe['product'] != product) continue;
+      if (recipe['product_id'] != product) continue;
       final need =
           ((recipe['quantity_used'] as num) *
                   bags /
@@ -298,7 +299,7 @@ class LocalBookkeeping {
   }
 
   void _loadOut() {
-    final product = _p['product'] as String;
+    final product = _productId(_p);
     final bags = _p['bags_loaded'] as int;
     _snapshot.rows('load_outs').add({
       'id': _op.opId,
@@ -306,7 +307,7 @@ class LocalBookkeeping {
       'date_time': _at,
       'driver_id': _p['driver_id'],
       'vehicle_id': _p['vehicle_id'],
-      'product': product,
+      ..._productFields(product),
       'bags_loaded': bags,
       'status': 'on_road',
       'note': _p['note'],
@@ -341,7 +342,7 @@ class LocalBookkeeping {
       ..['settled_at'] = _at
       ..['discrepancy_note'] = _p['discrepancy_note'];
 
-    final product = loadOut['product'] as String;
+    final product = loadOut['product_id'] as String;
     final item = _finishedItem(product);
     if (item != null && returned > 0) {
       _addStock(item, returned, 'stock_in', 'Returned from load-out — unsold');
@@ -369,7 +370,7 @@ class LocalBookkeeping {
         'id': _childId(),
         'tenant_id': _tenantId,
         'sale_id': saleId,
-        'product': product,
+        ..._productFields(product),
         'quantity': sold,
         'unit_price': unitPrice,
       });
@@ -381,9 +382,31 @@ class LocalBookkeeping {
   // Shared pieces
   // ---------------------------------------------------------------------
 
-  Map<String, dynamic>? _finishedItem(String product) {
+  /// The product a record names: its `product_id`, or — for records
+  /// queued before products were per organization — its old product key.
+  String _productId(Map<String, dynamic> record) {
+    final id = record['product_id'] as String?;
+    if (id != null) return id;
+    for (final product in _snapshot.rows('products')) {
+      if (product['legacy_key'] == record['product']) {
+        return product['id'] as String;
+      }
+    }
+    return record['product'] as String? ?? '';
+  }
+
+  /// `product_id` plus the embedded name/unit, as the app's queries return.
+  Map<String, dynamic> _productFields(String productId) {
+    final product = _snapshot.row('products', productId);
+    return {
+      'product_id': productId,
+      'products': {'name': product?['name'], 'unit': product?['unit']},
+    };
+  }
+
+  Map<String, dynamic>? _finishedItem(String productId) {
     for (final item in _snapshot.rows('stock_items')) {
-      if (item['product_type'] == product) return item;
+      if (item['product_id'] == productId) return item;
     }
     return null;
   }

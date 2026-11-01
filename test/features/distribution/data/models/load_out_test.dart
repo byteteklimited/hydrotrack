@@ -1,6 +1,7 @@
 import 'package:flutter_test/flutter_test.dart';
-import 'package:hydrotrack/core/constants/product_catalog.dart';
 import 'package:hydrotrack/features/distribution/data/models/load_out.dart';
+
+import '../../../../helpers/test_products.dart';
 
 LoadOut _buildLoadOut({
   LoadOutStatus status = LoadOutStatus.onRoad,
@@ -11,7 +12,7 @@ LoadOut _buildLoadOut({
     dateTime: DateTime(2026, 3, 5, 7),
     driverId: 'd1',
     vehicleId: 'v1',
-    product: ProductType.sachet50cl,
+    product: sachet50cl,
     bagsLoaded: bagsLoaded,
     status: status,
   );
@@ -39,7 +40,7 @@ void main() {
           'date_time': '2026-03-05T07:00:00.000Z',
           'driver_id': 'd1',
           'vehicle_id': 'v1',
-          'product': 'sachet50cl',
+          ...sachet50cl.toRecordJson(),
           'bags_loaded': 100,
           'status': 'settled',
           'note': null,
@@ -64,7 +65,7 @@ void main() {
         'date_time': '2026-03-05T07:00:00.000Z',
         'driver_id': 'd1',
         'vehicle_id': 'v1',
-        'product': 'sachet50cl',
+        ...sachet50cl.toRecordJson(),
         'bags_loaded': 100,
         'status': 'on_road',
         'note': null,

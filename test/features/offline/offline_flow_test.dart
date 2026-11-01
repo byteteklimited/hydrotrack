@@ -144,7 +144,12 @@ void main() {
         'payment_method': 'cash',
         'balance': 0,
         'sale_lines': [
-          {'product': 'sachet50cl', 'quantity': 10, 'unit_price': 400},
+          {
+            'product_id': sachetProductId,
+            'products': {'name': '50cl Sachet', 'unit': 'bags'},
+            'quantity': 10,
+            'unit_price': 400,
+          },
         ],
       });
       final saved = await sales.recordSale(sale);

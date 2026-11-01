@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-import '../../../../core/constants/product_catalog.dart';
 import '../../../../core/theme/app_spacing.dart';
 import '../../../../core/utils/action_error.dart';
 import '../../../../core/widgets/app_button.dart';
@@ -12,6 +11,8 @@ import '../../../../core/widgets/app_loading.dart';
 import '../../../../core/widgets/app_modal.dart';
 import '../../../../core/widgets/app_text_field.dart';
 import '../../../../core/widgets/responsive_center.dart';
+import '../../../products/data/models/product.dart';
+import '../../../products/data/providers/products_providers.dart';
 import '../../data/models/driver.dart';
 import '../../data/models/load_out.dart';
 import '../../data/models/vehicle.dart';
@@ -35,7 +36,9 @@ class _NewLoadOutScreenState extends ConsumerState<NewLoadOutScreen> {
 
   Driver? _driver;
   Vehicle? _vehicle;
-  ProductType _product = ProductType.sachet50cl;
+
+  /// Null until chosen: the first active product is used.
+  Product? _product;
 
   @override
   void initState() {
@@ -58,13 +61,16 @@ class _NewLoadOutScreenState extends ConsumerState<NewLoadOutScreen> {
 
     final driver = _driver ?? defaultDriver;
     final vehicle = _vehicle ?? defaultVehicle;
+    final product =
+        _product ?? ref.read(activeProductsProvider).valueOrNull?.firstOrNull;
+    if (product == null) return;
 
     final loadOut = LoadOut(
       id: 'lo-${DateTime.now().microsecondsSinceEpoch}',
       dateTime: DateTime.now(),
       driverId: driver.id,
       vehicleId: vehicle.id,
-      product: _product,
+      product: product,
       bagsLoaded: int.parse(_bagsController.text),
       status: LoadOutStatus.onRoad,
       note: _noteController.text.trim().isEmpty
@@ -87,6 +93,8 @@ class _NewLoadOutScreenState extends ConsumerState<NewLoadOutScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final products =
+        ref.watch(activeProductsProvider).valueOrNull ?? const <Product>[];
     final driversAsync = ref.watch(driversProvider);
     final vehiclesAsync = ref.watch(vehiclesProvider);
     final isSaving = ref.watch(distributionActionControllerProvider).isLoading;
@@ -169,12 +177,12 @@ class _NewLoadOutScreenState extends ConsumerState<NewLoadOutScreen> {
                     ),
                   ],
                 ),
-                AppDropdownField<ProductType>(
+                AppDropdownField<Product?>(
                   label: 'Product',
-                  value: _product,
-                  items: ProductType.values,
-                  itemLabel: (product) => product.label,
-                  onChanged: (product) => setState(() => _product = product!),
+                  value: _product ?? products.firstOrNull,
+                  items: products,
+                  itemLabel: (product) => product?.label ?? '',
+                  onChanged: (product) => setState(() => _product = product),
                 ),
                 AppTextField.quantity(
                   label: 'Bags loaded',
@@ -206,7 +214,7 @@ class _NewLoadOutScreenState extends ConsumerState<NewLoadOutScreen> {
                                 Align(
                                   alignment: Alignment.centerLeft,
                                   child: Text(
-                                    'This will move $bags ${_product.label} bags out of finished goods.',
+                                    'This will move $bags ${(_product ?? products.firstOrNull)?.label ?? ''} bags out of finished goods.',
                                     style: Theme.of(context)
                                         .textTheme
                                         .bodyMedium

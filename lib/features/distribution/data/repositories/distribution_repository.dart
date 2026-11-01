@@ -51,6 +51,8 @@ class SupabaseDistributionRepository implements DistributionRepository {
 
   SupabaseClient get _client => Supabase.instance.client;
 
+  static const _selectLoadOut = '*, products(name, unit)';
+
   @override
   Future<List<Driver>> fetchDrivers() async {
     final rows = await _client
@@ -102,7 +104,7 @@ class SupabaseDistributionRepository implements DistributionRepository {
   Future<List<LoadOut>> fetchLoadOuts() async {
     final rows = await _client
         .from('load_outs')
-        .select()
+        .select(_selectLoadOut)
         .eq('tenant_id', _tenantId)
         .order('date_time', ascending: false);
     return (rows as List)
@@ -115,7 +117,7 @@ class SupabaseDistributionRepository implements DistributionRepository {
   static Map<String, dynamic> recordLoadOutPayload(LoadOut loadOut) => {
     'driver_id': loadOut.driverId,
     'vehicle_id': loadOut.vehicleId,
-    'product': loadOut.product.name,
+    'product_id': loadOut.product.id,
     'bags_loaded': loadOut.bagsLoaded,
     'note': loadOut.note,
   };
@@ -159,7 +161,7 @@ class SupabaseDistributionRepository implements DistributionRepository {
 
     final row = await _client
         .from('load_outs')
-        .select()
+        .select(_selectLoadOut)
         .eq('tenant_id', _tenantId)
         .eq('id', loadOutId)
         .single();
@@ -181,7 +183,7 @@ class SupabaseDistributionRepository implements DistributionRepository {
     PaymentMethod paymentMethod = PaymentMethod.cash,
     PaymentChannel? paidChannel,
   }) async {
-    final row = await _client.rpc(
+    await _client.rpc(
       'settle_load_out',
       params: rpcParams(_tenantId, {
         'load_out_id': loadOutId,
@@ -200,6 +202,12 @@ class SupabaseDistributionRepository implements DistributionRepository {
         ),
       }),
     );
-    return LoadOut.fromJson(row as Map<String, dynamic>);
+    final row = await _client
+        .from('load_outs')
+        .select(_selectLoadOut)
+        .eq('tenant_id', _tenantId)
+        .eq('id', loadOutId)
+        .single();
+    return LoadOut.fromJson(row);
   }
 }

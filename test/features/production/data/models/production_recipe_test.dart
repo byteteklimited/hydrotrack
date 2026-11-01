@@ -1,12 +1,14 @@
 import 'package:flutter_test/flutter_test.dart';
 import 'package:hydrotrack/features/production/data/models/production_recipe.dart';
 
+import '../../../../helpers/test_products.dart';
+
 void main() {
   group('ProductionRecipe JSON', () {
     test('fromJson reads the joined stock_items name/unit', () {
       final recipe = ProductionRecipe.fromJson({
         'id': 'rec1',
-        'product': 'sachet50cl',
+        ...sachet50cl.toRecordJson(),
         'raw_material_item_id': 'si1',
         'quantity_used': 1,
         'per_bags': 1000,
@@ -14,13 +16,13 @@ void main() {
       });
       expect(recipe.rawMaterialName, 'Nylon rolls');
       expect(recipe.rawMaterialUnit, 'rolls');
-      expect(recipe.product, ProductType.sachet50cl);
+      expect(recipe.product, sachet50cl);
     });
 
     test('fromJson falls back when stock_items is missing', () {
       final recipe = ProductionRecipe.fromJson({
         'id': 'rec1',
-        'product': 'sachet50cl',
+        ...sachet50cl.toRecordJson(),
         'raw_material_item_id': 'si1',
         'quantity_used': 1,
         'per_bags': 1000,
@@ -34,7 +36,7 @@ void main() {
     test('divides quantityUsed by perBags', () {
       final recipe = ProductionRecipe(
         id: 'rec1',
-        product: ProductType.sachet50cl,
+        product: sachet50cl,
         rawMaterialItemId: 'si1',
         rawMaterialName: 'Nylon rolls',
         rawMaterialUnit: 'rolls',
@@ -47,7 +49,7 @@ void main() {
     test('scales correctly for a fractional quantityUsed', () {
       final recipe = ProductionRecipe(
         id: 'rec2',
-        product: ProductType.sachet50cl,
+        product: sachet50cl,
         rawMaterialItemId: 'si2',
         rawMaterialName: 'Treatment chemical',
         rawMaterialUnit: 'litres',

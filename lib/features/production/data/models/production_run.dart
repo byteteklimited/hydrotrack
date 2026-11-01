@@ -1,6 +1,6 @@
-import '../../../../core/constants/product_catalog.dart';
+import '../../../products/data/models/product.dart';
 
-export '../../../../core/constants/product_catalog.dart';
+export '../../../products/data/models/product.dart';
 
 /// A production shift. This factory runs two: Morning and Afternoon.
 enum ProductionShift { morning, afternoon }
@@ -41,7 +41,7 @@ class ProductionRun {
   final ProductionShift shift;
   final String machine;
   final String operatorName;
-  final ProductType product;
+  final Product product;
   final int quantityProduced;
   final int wastage;
   final String recordedBy;
@@ -64,7 +64,7 @@ class ProductionRun {
     shift: ProductionShift.values.byName(json['shift'] as String),
     machine: json['machine'] as String,
     operatorName: json['operator_name'] as String,
-    product: ProductType.values.byName(json['product'] as String),
+    product: Product.fromRecord(json),
     quantityProduced: json['quantity_produced'] as int,
     wastage: json['wastage'] as int,
     recordedBy:
@@ -79,7 +79,7 @@ class ProductionRun {
     'shift': shift.name,
     'machine': machine,
     'operator_name': operatorName,
-    'product': product.name,
+    ...product.toRecordJson(),
     'quantity_produced': quantityProduced,
     'wastage': wastage,
     'recorded_by': recordedBy,

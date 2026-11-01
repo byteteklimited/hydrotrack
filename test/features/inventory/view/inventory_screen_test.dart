@@ -7,11 +7,13 @@ import 'package:hydrotrack/features/inventory/data/models/stock_item.dart';
 import 'package:hydrotrack/features/inventory/data/providers/inventory_providers.dart';
 import 'package:hydrotrack/features/inventory/view/screens/inventory_screen.dart';
 
+import '../../../helpers/test_products.dart';
+
 StockItem _item(
   String id,
   StockCategory category, {
   int quantity = 0,
-  ProductType? product,
+  Product? product,
 }) {
   return StockItem(
     id: id,
@@ -20,14 +22,14 @@ StockItem _item(
     unit: 'bags',
     quantityOnHand: quantity,
     reorderLevel: 10,
-    productType: product,
+    product: product,
   );
 }
 
 /// A brand-new organization: no raw materials, the four starter
 /// products all at zero.
 final _newOrganization = [
-  for (final product in ProductType.values)
+  for (final product in starterProducts)
     _item(product.name, StockCategory.finishedGoods, product: product),
 ];
 
@@ -40,13 +42,13 @@ final _stocked = [
     'sachet',
     StockCategory.finishedGoods,
     quantity: 300,
-    product: ProductType.sachet50cl,
+    product: sachet50cl,
   ),
   _item(
     'bottle',
     StockCategory.finishedGoods,
     quantity: 5,
-    product: ProductType.bottle75cl,
+    product: bottle75cl,
   ),
 ];
 

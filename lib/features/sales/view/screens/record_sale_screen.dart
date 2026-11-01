@@ -3,7 +3,6 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/intl.dart';
 
 import '../../../../core/constants/payment_channel.dart';
-import '../../../../core/constants/product_catalog.dart';
 import '../../../../core/theme/app_spacing.dart';
 import '../../../../core/utils/action_error.dart';
 import '../../../../core/utils/formatters.dart';
@@ -11,8 +10,10 @@ import '../../../../core/widgets/app_button.dart';
 import '../../../../core/widgets/app_inline_alert.dart';
 import '../../../../core/widgets/app_stat.dart';
 import '../../../../core/widgets/responsive_center.dart';
+import '../../../auth/data/models/staff_user.dart';
 import '../../../auth/data/providers/auth_providers.dart';
 import '../../../inventory/data/providers/inventory_providers.dart';
+import '../../../products/data/providers/products_providers.dart';
 import '../../data/models/sale.dart';
 import '../../data/models/sale_line.dart';
 import '../../data/providers/sales_providers.dart';
@@ -40,6 +41,8 @@ class _RecordSaleScreenState extends ConsumerState<RecordSaleScreen> {
   PaymentMethod _paymentMethod = PaymentMethod.cash;
   PaymentChannel _paidChannel = PaymentChannel.cash;
 
+  bool get _isDistributor => _customerType == CustomerType.distributor;
+
   @override
   void initState() {
     super.initState();
@@ -48,6 +51,16 @@ class _RecordSaleScreenState extends ConsumerState<RecordSaleScreen> {
       line.quantityController.addListener(_recompute);
       line.unitPriceController.addListener(_recompute);
     }
+    // Lines start on the first product once the products have loaded.
+    ref.listenManual(activeProductsProvider, (previous, next) {
+      final first = next.valueOrNull?.firstOrNull;
+      if (first == null) return;
+      setState(() {
+        for (final line in _lines.where((line) => line.product == null)) {
+          line.choose(first, distributor: _isDistributor);
+        }
+      });
+    }, fireImmediately: true);
   }
 
   @override
@@ -78,6 +91,8 @@ class _RecordSaleScreenState extends ConsumerState<RecordSaleScreen> {
 
   void _addLine() {
     final line = SaleLineFormData();
+    final first = ref.read(activeProductsProvider).valueOrNull?.firstOrNull;
+    if (first != null) line.choose(first, distributor: _isDistributor);
     line.quantityController.addListener(_recompute);
     line.unitPriceController.addListener(_recompute);
     setState(() => _lines.add(line));
@@ -90,12 +105,19 @@ class _RecordSaleScreenState extends ConsumerState<RecordSaleScreen> {
     setState(() => _lines.remove(line));
   }
 
-  void _onLineProductChanged(SaleLineFormData line, ProductType product) {
+  void _onLineProductChanged(SaleLineFormData line, Product product) {
+    setState(() => line.choose(product, distributor: _isDistributor));
+  }
+
+  /// Walk-in and distributor prices differ: re-price every line.
+  void _onCustomerTypeChanged(CustomerType type) {
     setState(() {
-      line.product = product;
-      line.unitPriceController.text = NumberFormat.decimalPattern(
-        'en_NG',
-      ).format(product.defaultUnitPrice);
+      _customerType = type;
+      if (type == CustomerType.walkIn) _distributorName = null;
+      for (final line in _lines) {
+        final product = line.product;
+        if (product != null) line.choose(product, distributor: _isDistributor);
+      }
     });
   }
 
@@ -107,12 +129,13 @@ class _RecordSaleScreenState extends ConsumerState<RecordSaleScreen> {
   List<String> _stockShortages(WidgetRef ref) {
     final stockItems = ref.watch(stockItemsProvider).valueOrNull ?? [];
 
-    final neededByProduct = <ProductType, int>{};
+    final neededByProduct = <Product, int>{};
     for (final line in _lines) {
       final quantity = int.tryParse(line.quantityController.text) ?? 0;
-      if (quantity <= 0) continue;
+      final product = line.product;
+      if (quantity <= 0 || product == null) continue;
       neededByProduct.update(
-        line.product,
+        product,
         (existing) => existing + quantity,
         ifAbsent: () => quantity,
       );
@@ -120,13 +143,11 @@ class _RecordSaleScreenState extends ConsumerState<RecordSaleScreen> {
 
     final shortages = <String>[];
     for (final entry in neededByProduct.entries) {
-      final item = stockItems
-          .where((i) => i.productType == entry.key)
-          .firstOrNull;
+      final item = stockItems.where((i) => i.product == entry.key).firstOrNull;
       if (item == null) continue;
       if (item.quantityOnHand < entry.value) {
         shortages.add(
-          '${item.displayName}: need ${entry.value} bags, '
+          '${item.displayName}: need ${entry.value} ${entry.key.unit}, '
           'only ${item.quantityOnHand} available',
         );
       }
@@ -164,6 +185,7 @@ class _RecordSaleScreenState extends ConsumerState<RecordSaleScreen> {
       return;
     }
 
+    if (_lines.any((line) => line.product == null)) return;
     final user = ref.read(authStateProvider);
     final sale = Sale(
       id: 'sale-${DateTime.now().microsecondsSinceEpoch}',
@@ -175,9 +197,10 @@ class _RecordSaleScreenState extends ConsumerState<RecordSaleScreen> {
       lines: [
         for (final line in _lines)
           SaleLine(
-            product: line.product,
+            product: line.product!,
             quantity: int.parse(line.quantityController.text),
             unitPrice: parseNairaText(line.unitPriceController.text),
+            listPrice: line.listPrice,
           ),
       ],
       total: _total,
@@ -235,18 +258,19 @@ class _RecordSaleScreenState extends ConsumerState<RecordSaleScreen> {
                       SaleCustomerSection(
                         customerType: _customerType,
                         distributorName: _distributorName,
-                        onCustomerTypeChanged: (type) => setState(() {
-                          _customerType = type;
-                          if (type == CustomerType.walkIn) {
-                            _distributorName = null;
-                          }
-                        }),
+                        onCustomerTypeChanged: _onCustomerTypeChanged,
                         onDistributorSelected: (name) =>
                             setState(() => _distributorName = name),
                       ),
                       const SizedBox(height: AppSpacing.xl),
                       SaleLinesSection(
                         lines: _lines,
+                        products:
+                            ref.watch(activeProductsProvider).valueOrNull ??
+                            const [],
+                        priceEditable:
+                            ref.watch(authStateProvider)?.role.canManage ??
+                            false,
                         onProductChanged: _onLineProductChanged,
                         onRemove: _removeLine,
                         onAddLine: _addLine,

@@ -1,5 +1,5 @@
 import '../../../../core/constants/distribution_rates.dart';
-import '../../../../core/constants/product_catalog.dart';
+import '../../../products/data/models/product.dart';
 
 /// Whether a trip is still out or has been reconciled.
 enum LoadOutStatus { onRoad, settled }
@@ -44,7 +44,7 @@ class LoadOut {
   final DateTime dateTime;
   final String driverId;
   final String vehicleId;
-  final ProductType product;
+  final Product product;
   final int bagsLoaded;
   final LoadOutStatus status;
   final String? note;
@@ -70,7 +70,7 @@ class LoadOut {
     dateTime: DateTime.parse(json['date_time'] as String),
     driverId: json['driver_id'] as String,
     vehicleId: json['vehicle_id'] as String,
-    product: ProductType.values.byName(json['product'] as String),
+    product: Product.fromRecord(json),
     bagsLoaded: json['bags_loaded'] as int,
     status: loadOutStatusFromDb(json['status'] as String),
     note: json['note'] as String?,
@@ -90,7 +90,7 @@ class LoadOut {
     'date_time': dateTime.toIso8601String(),
     'driver_id': driverId,
     'vehicle_id': vehicleId,
-    'product': product.name,
+    ...product.toRecordJson(),
     'bags_loaded': bagsLoaded,
     'status': status.dbValue,
     'note': note,

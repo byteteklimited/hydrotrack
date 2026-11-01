@@ -4,7 +4,6 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../../core/theme/app_spacing.dart';
 import '../../../../core/utils/action_error.dart';
 import '../../../../core/widgets/app_button.dart';
-import '../../../../core/widgets/app_dropdown_field.dart';
 import '../../../../core/widgets/app_form_grid.dart';
 import '../../../../core/widgets/app_text_field.dart';
 import '../../../../core/widgets/responsive_center.dart';
@@ -38,11 +37,13 @@ class _AddStockItemScreenState extends ConsumerState<AddStockItemScreen> {
     text: widget.existingItem?.reorderLevel.toString(),
   );
 
-  late StockCategory _category =
+  late final StockCategory _category =
       widget.existingItem?.category ?? StockCategory.rawMaterial;
-  late ProductType? _productType = widget.existingItem?.productType;
 
   bool get _isEditing => widget.existingItem != null;
+
+  /// A product's own stock: its name and unit follow the product.
+  bool get _isProductStock => widget.existingItem?.product != null;
 
   @override
   void dispose() {
@@ -69,10 +70,8 @@ class _AddStockItemScreenState extends ConsumerState<AddStockItemScreen> {
           )
         : await controller.createItem(
             name: name,
-            category: _category,
             unit: unit,
             reorderLevel: reorderLevel,
-            productType: _productType,
           );
     if (!mounted) return;
 
@@ -91,52 +90,31 @@ class _AddStockItemScreenState extends ConsumerState<AddStockItemScreen> {
   Widget build(BuildContext context) {
     final isSaving = ref.watch(stockActionControllerProvider).isLoading;
 
-    // Each product type can only back one finished-goods item at a
-    // time — offer the ones nothing else already claims, plus whatever
-    // this item already has (irrelevant in practice since it's add-only,
-    // but keeps the dropdown correct if that ever changes).
-    final claimedTypes =
-        ref
-            .watch(stockItemsProvider)
-            .valueOrNull
-            ?.where((i) => i.id != widget.existingItem?.id)
-            .map((i) => i.productType)
-            .whereType<ProductType>()
-            .toSet() ??
-        const <ProductType>{};
-    final availableProductTypes = ProductType.values
-        .where((p) => !claimedTypes.contains(p))
-        .toList();
-
     final fields = <Widget>[
       AppTextField(
         label: 'Name',
         controller: _nameController,
+        enabled: !_isProductStock,
+        helperText: _isProductStock ? 'Change it under Products' : null,
         validator: (value) => (value == null || value.trim().isEmpty)
             ? "Enter the item's name."
             : null,
       ),
-      if (_isEditing)
-        AppTextField(
-          label: 'Category',
-          controller: TextEditingController(text: _category.label),
-          enabled: false,
-        )
-      else
-        AppDropdownField<StockCategory>(
-          label: 'Category',
-          value: _category,
-          items: StockCategory.values,
-          itemLabel: (category) => category.label,
-          onChanged: (value) => setState(() {
-            _category = value!;
-            if (_category == StockCategory.rawMaterial) _productType = null;
-          }),
-        ),
+      AppTextField(
+        label: 'Category',
+        controller: TextEditingController(text: _category.label),
+        enabled: false,
+        helperText: _isEditing
+            ? null
+            : 'Finished goods are added with their product, under Products',
+      ),
       AppTextField(
         label: 'Unit',
         controller: _unitController,
-        helperText: 'e.g. pcs, rolls, litres, bags',
+        enabled: !_isProductStock,
+        helperText: _isProductStock
+            ? 'Change it under Products'
+            : 'e.g. pcs, rolls, litres, bags',
         validator: (value) => (value == null || value.trim().isEmpty)
             ? 'Enter the unit this is counted in.'
             : null,
@@ -148,19 +126,11 @@ class _AddStockItemScreenState extends ConsumerState<AddStockItemScreen> {
         validator: (value) =>
             (value == null || value.isEmpty) ? 'Enter a reorder level.' : null,
       ),
-      if (!_isEditing && _category == StockCategory.finishedGoods)
-        AppDropdownField<ProductType?>(
-          label: 'Linked product (optional)',
-          value: _productType,
-          items: [null, ...availableProductTypes],
-          itemLabel: (type) => type?.label ?? 'None',
-          onChanged: (value) => setState(() => _productType = value),
-        ),
     ];
 
     return Scaffold(
       appBar: AppBar(
-        title: Text(_isEditing ? 'Edit item' : 'Add inventory item'),
+        title: Text(_isEditing ? 'Edit item' : 'Add raw material'),
       ),
       body: SafeArea(
         child: SingleChildScrollView(

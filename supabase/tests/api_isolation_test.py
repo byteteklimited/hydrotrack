@@ -114,7 +114,7 @@ def main():
         check(a and b and a != b, "Each creates an organization through create_tenant")
 
         # Alice records real data in A, the way the app does.
-        _, items = http("GET", f"/rest/v1/stock_items?select=*&tenant_id=eq.{a}&product_type=eq.sachet50cl", alice)
+        _, items = http("GET", f"/rest/v1/stock_items?select=*&tenant_id=eq.{a}&name=eq.50cl%20Sachet", alice)
         sachet = items[0]["id"]
         status, _ = http("POST", "/rest/v1/rpc/add_stock", alice,
                          {"p_tenant_id": a, "p_item_id": sachet, "p_quantity": 100, "p_note": "API test", "p_expiry_date": None})

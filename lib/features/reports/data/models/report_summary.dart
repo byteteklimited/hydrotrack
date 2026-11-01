@@ -85,18 +85,25 @@ class StockReportSection {
 
 /// The bottom line: revenue minus expenses, shown as the actual
 /// subtraction rather than a single opaque figure.
+/// Profit = revenue − what the bags sold cost (material, at average
+/// cost) − running expenses. Material bought through Purchases counts
+/// when its bags are sold, so "materials purchase" expenses are left out
+/// of [expenses] to avoid counting it twice.
 class ProfitReportSection {
   const ProfitReportSection({
     required this.revenue,
     required this.expenses,
     required this.previousProfit,
+    this.costOfSales = 0,
   });
 
   final num revenue;
+  final num costOfSales;
   final num expenses;
   final num previousProfit;
 
-  num get profit => revenue - expenses;
+  num get grossProfit => revenue - costOfSales;
+  num get profit => grossProfit - expenses;
 }
 
 /// The full report for one period: profit first (the answer the owner

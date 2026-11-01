@@ -9,10 +9,18 @@ import '../../data/models/product.dart';
 
 /// One product: name, unit, its two prices, and whether it's retired.
 class ProductTile extends StatelessWidget {
-  const ProductTile({super.key, required this.product, required this.onTap});
+  const ProductTile({
+    super.key,
+    required this.product,
+    required this.onTap,
+    this.costToMake = 0,
+  });
 
   final Product product;
   final VoidCallback onTap;
+
+  /// Average material cost per unit (0 until costs are known).
+  final num costToMake;
 
   @override
   Widget build(BuildContext context) {
@@ -37,7 +45,8 @@ class ProductTile extends StatelessWidget {
                   Text(
                     'Walk-in ${formatNaira(product.walkInPrice)} · '
                     'Distributor ${formatNaira(product.distributorPrice)} · '
-                    'sold in ${product.unit}',
+                    'sold in ${product.unit}'
+                    '${costToMake > 0 ? ' · costs ${formatNairaWithKobo(costToMake)} to make' : ''}',
                     style: theme.textTheme.bodySmall?.copyWith(
                       color: AppColors.textSecondary,
                     ),

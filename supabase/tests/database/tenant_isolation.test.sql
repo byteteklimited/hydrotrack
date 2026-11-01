@@ -89,7 +89,8 @@ create function tests.tenant_relations() returns text[] language sql immutable a
     'stock_movements', 'sales', 'sale_lines', 'customers', 'ledger_entries',
     'cash_entries', 'expenses', 'drivers', 'vehicles', 'load_outs',
     'staff_audit_log', 'tenant_members', 'tenant_invitations', 'audit_trail',
-    'tenants', 'products'
+    'tenants', 'products', 'suppliers', 'purchases', 'purchase_lines',
+    'supplier_ledger', 'cash_counts'
   ];
 $$;
 
@@ -161,6 +162,10 @@ begin
     '[{"product": "sachet50cl", "quantity": 10, "unit_price": 400}]'::jsonb, 'cash');
   perform public.record_customer_payment(v_tenant, v_customer, 500, 'transfer', current_date, 'Part payment');
   perform public.record_expense(v_tenant, current_date, 'electricity', 'Electricity token', 5000, 'cash');
+  perform public.record_purchase(v_tenant, (public.create_supplier(v_tenant, p_prefix || ' Supplier', null)).id,
+    current_date, jsonb_build_array(jsonb_build_object('item_id', v_nylon, 'quantity', 5, 'unit_cost', 1000)),
+    1000, 'cash', null);
+  perform public.record_cash_count(v_tenant, 0, 'Fixture count');
 
   insert into public.drivers (tenant_id, name, phone) values (v_tenant, 'Yakubu', '08099998888') returning id into v_driver;
   insert into public.vehicles (tenant_id, name) values (v_tenant, 'Hilux') returning id into v_vehicle;

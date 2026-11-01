@@ -267,13 +267,25 @@ class AggregatingReportsRepository implements ReportsRepository {
     ReportPeriod previous,
   ) {
     num expensesIn(ReportPeriod p) => allExpenses
-        .where((e) => p.contains(e.date))
+        .where(
+          (e) =>
+              p.contains(e.date) &&
+              e.category != ExpenseCategory.materialsPurchase,
+        )
         .fold<num>(0, (sum, e) => sum + e.amount);
+    num costOfSalesIn(ReportPeriod p) => allSales
+        .where((s) => !s.isVoided && p.contains(s.dateTime))
+        .expand((s) => s.lines)
+        .fold<num>(0, (sum, line) => sum + line.lineCost);
 
     return ProfitReportSection(
       revenue: salesSection.revenue,
+      costOfSales: costOfSalesIn(period),
       expenses: expensesIn(period),
-      previousProfit: salesSection.previousRevenue - expensesIn(previous),
+      previousProfit:
+          salesSection.previousRevenue -
+          costOfSalesIn(previous) -
+          expensesIn(previous),
     );
   }
 }

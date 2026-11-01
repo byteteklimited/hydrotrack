@@ -44,6 +44,7 @@ Future<pw.Document> buildReportPdf(
               'Profit',
               [
                 _row('Revenue', pdfNaira(summary.profit.revenue)),
+                _row('Cost of bags sold', pdfNaira(summary.profit.costOfSales)),
                 _row('Expenses', pdfNaira(summary.profit.expenses)),
                 _row('Profit', pdfNaira(summary.profit.profit), bold: true),
               ],

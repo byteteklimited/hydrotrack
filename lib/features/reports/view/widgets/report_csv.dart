@@ -39,6 +39,7 @@ Uint8List buildReportCsv(
     '',
     _row(['Profit']),
     _row(['Revenue', formatNaira(summary.profit.revenue)]),
+    _row(['Cost of bags sold', formatNaira(summary.profit.costOfSales)]),
     _row(['Expenses', formatNaira(summary.profit.expenses)]),
     _row(['Profit', formatNaira(summary.profit.profit)]),
     _row([

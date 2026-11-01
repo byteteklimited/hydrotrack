@@ -28,7 +28,16 @@ CashDirection directionFromDb(String value) => switch (value) {
 /// Where a cash movement came from or went to. [sales] and [debtPayment]
 /// are populated automatically from those features in Phase 3; the rest
 /// are recorded directly here.
-enum CashSource { sales, debtPayment, expense, wages, ownerDrawing, other }
+enum CashSource {
+  sales,
+  debtPayment,
+  expense,
+  wages,
+  ownerDrawing,
+  purchase,
+  supplierPayment,
+  other,
+}
 
 extension CashSourceLabel on CashSource {
   String get label => switch (this) {
@@ -37,6 +46,8 @@ extension CashSourceLabel on CashSource {
     CashSource.expense => 'Expense',
     CashSource.wages => 'Wages',
     CashSource.ownerDrawing => 'Owner drawing',
+    CashSource.purchase => 'Purchase',
+    CashSource.supplierPayment => 'Supplier payment',
     CashSource.other => 'Other',
   };
 
@@ -47,6 +58,8 @@ extension CashSourceLabel on CashSource {
     CashSource.expense => 'expense',
     CashSource.wages => 'wages',
     CashSource.ownerDrawing => 'owner_drawing',
+    CashSource.purchase => 'purchase',
+    CashSource.supplierPayment => 'supplier_payment',
     CashSource.other => 'other',
   };
 }
@@ -58,6 +71,8 @@ CashSource sourceFromDb(String value) => switch (value) {
   'expense' => CashSource.expense,
   'wages' => CashSource.wages,
   'owner_drawing' => CashSource.ownerDrawing,
+  'purchase' => CashSource.purchase,
+  'supplier_payment' => CashSource.supplierPayment,
   'other' => CashSource.other,
   _ => throw ArgumentError('Unknown cash source: $value'),
 };

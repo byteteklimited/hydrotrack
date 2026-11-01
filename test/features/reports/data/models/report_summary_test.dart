@@ -21,4 +21,15 @@ void main() {
       expect(section.profit, -30000);
     });
   });
+
+  test('profit takes off what the bags sold cost, then expenses', () {
+    const section = ProfitReportSection(
+      revenue: 100000,
+      costOfSales: 30000,
+      expenses: 20000,
+      previousProfit: 0,
+    );
+    expect(section.grossProfit, 70000);
+    expect(section.profit, 50000);
+  });
 }

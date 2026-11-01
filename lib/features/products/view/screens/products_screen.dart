@@ -9,6 +9,7 @@ import '../../../../core/widgets/app_error_state.dart';
 import '../../../../core/widgets/app_loading.dart';
 import '../../../../core/widgets/app_modal.dart';
 import '../../../../core/widgets/responsive_center.dart';
+import '../../../inventory/data/providers/inventory_providers.dart';
 import '../../data/models/product.dart';
 import '../../data/providers/products_providers.dart';
 import '../widgets/product_tile.dart';
@@ -31,6 +32,10 @@ class ProductsScreen extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final productsAsync = ref.watch(productsProvider);
+    final costs = {
+      for (final item in ref.watch(stockItemsProvider).valueOrNull ?? const [])
+        if (item.product != null) item.product!.id: item.averageCost,
+    };
     final theme = Theme.of(context);
 
     return Scaffold(
@@ -86,6 +91,7 @@ class ProductsScreen extends ConsumerWidget {
                     for (final product in [...active, ...retired])
                       ProductTile(
                         product: product,
+                        costToMake: costs[product.id] ?? 0,
                         onTap: () => _open(context, product),
                       ),
                   ],

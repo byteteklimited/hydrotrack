@@ -5,6 +5,7 @@ import 'package:intl/intl.dart';
 import '../../../../core/constants/production_thresholds.dart';
 import '../../../../core/theme/app_spacing.dart';
 import '../../../../core/utils/action_error.dart';
+import '../../../../core/utils/formatters.dart';
 import '../../../../core/widgets/app_card.dart';
 import '../../../../core/widgets/app_confirm_dialog.dart';
 import '../../../../core/widgets/app_error_state.dart';
@@ -141,6 +142,13 @@ class _RunDetailBody extends ConsumerWidget {
                           '${run.wastage} bags '
                           '(${run.wastagePercent.toStringAsFixed(1)}%)',
                       valueColor: wastageColor(run.wastagePercent),
+                    ),
+                    _DetailRow(
+                      label: 'Material cost',
+                      value: run.costPerBag == null
+                          ? formatNaira(run.materialCost)
+                          : '${formatNaira(run.materialCost)} '
+                                '(${formatNairaWithKobo(run.costPerBag!)} a bag)',
                     ),
                   ],
                 ),

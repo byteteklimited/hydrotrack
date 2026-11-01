@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/utils/date_utils.dart';
+import '../../../../core/utils/formatters.dart';
 import '../../../../core/widgets/app_stat_tile.dart';
 import '../../../../core/widgets/app_stat_tile_grid.dart';
 import '../../data/models/stock_batch.dart';
@@ -10,10 +11,8 @@ import '../../data/models/stock_item.dart';
 import '../../data/providers/inventory_providers.dart';
 
 /// Out of stock / running low / expiring-soon counts, and when stock was
-/// last physically counted — the at-a-glance read before scrolling into
-/// the lists below. Total stock value belongs here too but needs unit
-/// cost on the catalog first, which doesn't exist yet — left out rather
-/// than shown as a meaningless ₦0.
+/// last physically counted, and what the stock is worth at average cost —
+/// the at-a-glance read before scrolling into the lists below.
 class InventorySummaryStrip extends ConsumerWidget {
   const InventorySummaryStrip({super.key, required this.items});
 
@@ -71,6 +70,13 @@ class InventorySummaryStrip extends ConsumerWidget {
           valueColor: lastCountAsync.valueOrNull == null
               ? AppColors.textSecondary
               : null,
+        ),
+        AppStatTile(
+          icon: Icons.account_balance_wallet_outlined,
+          label: 'Stock value',
+          value: formatNaira(
+            items.fold<num>(0, (sum, item) => sum + item.stockValue),
+          ),
         ),
       ],
     );

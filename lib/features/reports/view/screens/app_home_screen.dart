@@ -15,6 +15,7 @@ import '../../../organizations/data/providers/organization_providers.dart';
 import '../../../organizations/view/screens/organization_settings_screen.dart';
 import '../../../production/view/screens/production_list_screen.dart';
 import '../../../products/view/screens/products_screen.dart';
+import '../../../purchases/view/screens/purchases_screen.dart';
 import '../../../sales/view/screens/sales_list_screen.dart';
 import '../../../staff/view/screens/staff_screen.dart';
 import 'dashboard_screen.dart';
@@ -50,6 +51,7 @@ class AppHomeScreen extends ConsumerWidget {
       AppSection.finance => const FinanceScreen(),
       AppSection.distribution => const DistributionScreen(),
       AppSection.expenses => const ExpensesScreen(),
+      AppSection.purchases => const PurchasesScreen(),
       AppSection.reports => const ReportsScreen(),
       AppSection.staff => const StaffScreen(),
       AppSection.products => const ProductsScreen(),

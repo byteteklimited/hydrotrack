@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../../core/theme/app_spacing.dart';
 import '../../../../core/utils/action_error.dart';
+import '../../../../core/utils/formatters.dart';
 import '../../../../core/widgets/app_button.dart';
 import '../../../../core/widgets/app_card.dart';
 import '../../../../core/widgets/app_confirm_dialog.dart';
@@ -154,6 +155,29 @@ class _ItemDetailBody extends ConsumerWidget {
                     ],
                   ),
                 ),
+                if (item.averageCost > 0) ...[
+                  const SizedBox(height: AppSpacing.md),
+                  AppCard(
+                    child: Row(
+                      children: [
+                        Expanded(
+                          child: AppStat(
+                            label: 'Average cost',
+                            value:
+                                '${formatNairaWithKobo(item.averageCost)} per '
+                                '${item.unit}',
+                          ),
+                        ),
+                        Expanded(
+                          child: AppStat(
+                            label: 'Stock value',
+                            value: formatNaira(item.stockValue),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ],
                 const SizedBox(height: AppSpacing.md),
                 Row(
                   children: [

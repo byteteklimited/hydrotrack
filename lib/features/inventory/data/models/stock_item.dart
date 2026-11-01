@@ -38,6 +38,7 @@ class StockItem {
     required this.quantityOnHand,
     required this.reorderLevel,
     this.product,
+    this.averageCost = 0,
   });
 
   final String id;
@@ -46,6 +47,12 @@ class StockItem {
   final String unit;
   final int quantityOnHand;
   final int reorderLevel;
+
+  /// Average cost per unit (purchases / production; migration 0021).
+  final num averageCost;
+
+  /// What the stock on hand is worth at average cost.
+  num get stockValue => quantityOnHand > 0 ? quantityOnHand * averageCost : 0;
   final Product? product;
 
   /// The product's own name for a product's item (the same name Sales
@@ -69,6 +76,7 @@ class StockItem {
       quantityOnHand: quantityOnHand ?? this.quantityOnHand,
       reorderLevel: reorderLevel,
       product: product,
+      averageCost: averageCost,
     );
   }
 
@@ -79,6 +87,7 @@ class StockItem {
     unit: json['unit'] as String,
     quantityOnHand: json['quantity_on_hand'] as int,
     reorderLevel: json['reorder_level'] as int,
+    averageCost: json['average_cost'] as num? ?? 0,
     // A product's item has the product's name and unit (kept in step by
     // update_product), so they stand in when the embed isn't selected.
     product: json['product_id'] == null
@@ -98,6 +107,7 @@ class StockItem {
     'unit': unit,
     'quantity_on_hand': quantityOnHand,
     'reorder_level': reorderLevel,
+    'average_cost': averageCost,
     ...?product?.toRecordJson(),
   };
 }

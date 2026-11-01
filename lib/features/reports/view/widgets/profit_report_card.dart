@@ -35,7 +35,9 @@ class ProfitReportCard extends StatelessWidget {
           Text(formatNaira(profit.profit), style: AppTypography.moneyLarge),
           const SizedBox(height: AppSpacing.xs),
           Text(
-            'Revenue ${formatNaira(profit.revenue)} − Expenses ${formatNaira(profit.expenses)}',
+            'Revenue ${formatNaira(profit.revenue)} − Cost of bags sold '
+            '${formatNaira(profit.costOfSales)} − Expenses '
+            '${formatNaira(profit.expenses)}',
             style: theme.textTheme.bodySmall?.copyWith(
               color: theme.colorScheme.onSurfaceVariant,
             ),

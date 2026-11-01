@@ -183,4 +183,38 @@ void main() {
     );
     expect(Customer.fromJson(s.row('customers', 'new-customer')!).balance, 0);
   });
+
+  test('production is costed at the raw material it used, and sales keep '
+      'that cost', () {
+    final s = sampleSnapshot();
+    s.row('stock_items', nylonId)!['average_cost'] = 1100;
+    s.row('stock_items', sachetId)!['average_cost'] = 0;
+    s.row('stock_items', sachetId)!['quantity_on_hand'] = 0;
+    LocalBookkeeping.apply(
+      s,
+      _op(OperationType.productionRun, {
+        'date': '2026-11-01',
+        'shift': 'morning',
+        'machine': 'Machine 1',
+        'operator_name': 'Musa',
+        'product_id': sachetProductId,
+        'quantity_produced': 480,
+        'wastage': 20,
+        'expiry_date': null,
+      }),
+    );
+    expect(s.row('production_runs', 'op-1')!['material_cost'], 5500);
+    expect(
+      s.row('stock_items', sachetId)!['average_cost'],
+      closeTo(5500 / 480, 0.0001),
+    );
+
+    LocalBookkeeping.apply(
+      s,
+      _op(OperationType.sale, salePayload(bags: 10), id: 'sale-1'),
+    );
+    final line =
+        (s.row('sales', 'sale-1')!['sale_lines'] as List).single as Map;
+    expect(line['unit_cost'], closeTo(5500 / 480, 0.0001));
+  });
 }

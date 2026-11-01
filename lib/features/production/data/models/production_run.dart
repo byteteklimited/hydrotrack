@@ -34,6 +34,7 @@ class ProductionRun {
     required this.wastage,
     required this.recordedBy,
     required this.recordedAt,
+    this.materialCost = 0,
   });
 
   final String id;
@@ -43,6 +44,13 @@ class ProductionRun {
   final String operatorName;
   final Product product;
   final int quantityProduced;
+
+  /// Raw material it used, at average cost (migration 0021).
+  final num materialCost;
+
+  /// What each good bag cost in material; null when none were made.
+  num? get costPerBag =>
+      quantityProduced > 0 ? materialCost / quantityProduced : null;
   final int wastage;
   final String recordedBy;
   final DateTime recordedAt;
@@ -66,6 +74,7 @@ class ProductionRun {
     operatorName: json['operator_name'] as String,
     product: Product.fromRecord(json),
     quantityProduced: json['quantity_produced'] as int,
+    materialCost: json['material_cost'] as num? ?? 0,
     wastage: json['wastage'] as int,
     recordedBy:
         (json['profiles'] as Map<String, dynamic>?)?['full_name'] as String? ??
@@ -81,6 +90,7 @@ class ProductionRun {
     'operator_name': operatorName,
     ...product.toRecordJson(),
     'quantity_produced': quantityProduced,
+    'material_cost': materialCost,
     'wastage': wastage,
     'recorded_by': recordedBy,
     'recorded_at': recordedAt.toIso8601String(),

@@ -32,6 +32,7 @@ class StockMovement {
     required this.byWhom,
     required this.at,
     this.note,
+    this.unitCost,
   });
 
   final String id;
@@ -41,6 +42,9 @@ class StockMovement {
   final String? note;
   final String byWhom;
   final DateTime at;
+
+  /// Cost per unit at the time (migration 0021).
+  final num? unitCost;
 
   /// `by_whom` is a Postgres FK to `profiles`, so a row fetched from
   /// Supabase carries the joined `profiles.full_name` here instead of the
@@ -55,6 +59,7 @@ class StockMovement {
         (json['profiles'] as Map<String, dynamic>?)?['full_name'] as String? ??
         'Unknown',
     at: DateTime.parse(json['at'] as String),
+    unitCost: json['unit_cost'] as num?,
   );
 
   Map<String, dynamic> toJson() => {

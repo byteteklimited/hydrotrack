@@ -109,6 +109,8 @@ class LocalBookkeeping {
             'quantity': line['quantity'],
             'unit_price': line['unit_price'],
             'list_price': line['list_price'],
+            'unit_cost':
+                _finishedItem(_productId(line))?['average_cost'] as num? ?? 0,
           },
       ],
       'profiles': _recorder,
@@ -226,6 +228,7 @@ class LocalBookkeeping {
       'local_op_id': _op.opId,
     });
 
+    num materialCost = 0;
     for (final recipe in _snapshot.rows('production_recipes')) {
       if (recipe['product_id'] != product) continue;
       final need =
@@ -238,6 +241,7 @@ class LocalBookkeeping {
         recipe['raw_material_item_id'] as String,
       );
       if (need > 0 && material != null) {
+        materialCost += need * (material['average_cost'] as num? ?? 0);
         _takeStock(
           material,
           need,
@@ -248,9 +252,11 @@ class LocalBookkeeping {
       }
     }
 
+    _snapshot.row('production_runs', _op.opId)!['material_cost'] = materialCost;
     _snapshot.totalBagsProduced += produced;
     final finished = _finishedItem(product);
     if (finished != null && produced > 0) {
+      _averageIn(finished, produced, materialCost / produced);
       _addStock(
         finished,
         produced,
@@ -464,10 +470,22 @@ class LocalBookkeeping {
       'batch_id': null,
       'production_run_id': runId,
       'sale_id': saleId,
+      'unit_cost': item['average_cost'] ?? 0,
       'profiles': _recorder,
       'local_op_id': _op.opId,
     });
     item['quantity_on_hand'] = (item['quantity_on_hand'] as int) + quantity;
+  }
+
+  /// Folds [quantity] at [unitCost] into the item's average cost, as the
+  /// server does for priced stock in (migration 0021).
+  void _averageIn(Map<String, dynamic> item, int quantity, num unitCost) {
+    final onHand = (item['quantity_on_hand'] as int) > 0
+        ? item['quantity_on_hand'] as int
+        : 0;
+    final average = item['average_cost'] as num? ?? 0;
+    item['average_cost'] =
+        (onHand * average + quantity * unitCost) / (onHand + quantity);
   }
 
   /// Oldest batches first, like consume_stock_fifo. Stock may go below

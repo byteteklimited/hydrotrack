@@ -11,6 +11,7 @@ class SaleLine {
     required this.quantity,
     required this.unitPrice,
     this.listPrice,
+    this.unitCost,
   });
 
   final Product product;
@@ -22,6 +23,11 @@ class SaleLine {
 
   num get lineTotal => quantity * unitPrice;
 
+  /// What one unit cost the factory when sold (null on older sales).
+  final num? unitCost;
+
+  num get lineCost => quantity * (unitCost ?? 0);
+
   bool get priceChanged => listPrice != null && listPrice != unitPrice;
 
   factory SaleLine.fromJson(Map<String, dynamic> json) => SaleLine(
@@ -29,6 +35,7 @@ class SaleLine {
     quantity: json['quantity'] as int,
     unitPrice: json['unit_price'] as num,
     listPrice: json['list_price'] as num?,
+    unitCost: json['unit_cost'] as num?,
   );
 
   Map<String, dynamic> toJson() => {
@@ -36,5 +43,6 @@ class SaleLine {
     'quantity': quantity,
     'unit_price': unitPrice,
     'list_price': listPrice,
+    'unit_cost': unitCost,
   };
 }

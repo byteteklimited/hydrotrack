@@ -12,6 +12,7 @@ import '../../../../core/widgets/app_navigation_shell.dart';
 import '../../../../core/widgets/app_stat_strip.dart';
 import '../../../../core/widgets/app_stat_tile.dart';
 import '../../../../core/widgets/app_stat_tile_grid.dart';
+import '../../../alerts/view/widgets/alerts_bell.dart';
 import '../../../auth/data/models/staff_user.dart';
 import '../../../auth/data/providers/auth_providers.dart';
 import '../../../debts/view/screens/debts_screen.dart';
@@ -53,7 +54,10 @@ class DashboardScreen extends ConsumerWidget {
         title: const Text('Home'),
         // On phones there's no sidebar footer, so the account menu
         // (organization, switch, sign out) lives here.
-        actions: [if (!hasSidebar) const AccountMenuButton()],
+        actions: [
+          if (user?.role == StaffRole.owner) const AlertsBell(),
+          if (!hasSidebar) const AccountMenuButton(),
+        ],
       ),
       body: snapshotAsync.when(
         data: (snapshot) => RefreshIndicator(

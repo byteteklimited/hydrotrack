@@ -17,6 +17,7 @@ import '../../../auth/data/models/staff_user.dart';
 import '../../../auth/data/providers/auth_providers.dart';
 import '../../../debts/view/screens/debts_screen.dart';
 import '../../../finance/view/widgets/count_cash_card.dart';
+import '../../../machines/view/widgets/maintenance_due_card.dart';
 import '../../../offline/view/widgets/needs_checking_card.dart';
 import '../../../organizations/data/providers/organization_providers.dart';
 import '../../../organizations/view/widgets/account_menu_button.dart';
@@ -104,6 +105,9 @@ class DashboardScreen extends ConsumerWidget {
                       ].contains(user.role))
                     const CountCashCard(),
                   if (user?.role.canManage ?? false) const NeedsCheckingCard(),
+                  if ((user?.role.canManage ?? false) ||
+                      user?.role == StaffRole.storeKeeper)
+                    const MaintenanceDueCard(),
                   AppStatStrip(
                     items: [
                       AppStatStripItem(

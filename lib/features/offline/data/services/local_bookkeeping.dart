@@ -1,3 +1,4 @@
+import '../../../../core/utils/formatters.dart';
 import '../../../finance/data/repositories/cash_count_repository.dart';
 import '../../../organizations/data/models/water_limits.dart';
 import '../models/offline_snapshot.dart';
@@ -70,6 +71,14 @@ class LocalBookkeeping {
         _waterTest();
       case OperationType.sanitationCheck:
         _sanitationCheck();
+      case OperationType.diesel:
+        _diesel();
+      case OperationType.maintenanceDone:
+        _maintenanceDone();
+      case OperationType.breakdown:
+        _breakdown();
+      case OperationType.breakdownEnd:
+        _breakdownEnd();
     }
   }
 
@@ -190,16 +199,35 @@ class LocalBookkeeping {
   }
 
   void _expense() {
-    final date = _p['date'] as String;
-    final category = _p['category'] as String;
+    _postExpense(
+      id: _op.opId,
+      date: _p['date'] as String,
+      category: _p['category'] as String,
+      description: _p['description'] as String?,
+      amount: _p['amount'] as num,
+      method: _p['method'] as String,
+    );
+  }
+
+  /// An expense and its cash out, as record_expense / post_machine_expense
+  /// make them. Returns the expense id (null when there's nothing to post).
+  String? _postExpense({
+    required String id,
+    required String date,
+    required String category,
+    required String? description,
+    required num amount,
+    required String? method,
+  }) {
+    if (amount <= 0 || method == null) return null;
     _snapshot.rows('expenses').add({
-      'id': _op.opId,
+      'id': id,
       'tenant_id': _tenantId,
       'date': date,
       'category': category,
-      'description': _p['description'],
-      'amount': _p['amount'],
-      'method': _p['method'],
+      'description': description,
+      'amount': amount,
+      'method': method,
       'recorded_by': _op.actorId,
       'profiles': _recorder,
       'local_op_id': _op.opId,
@@ -207,11 +235,131 @@ class LocalBookkeeping {
     _cash(
       'money_out',
       category == 'wages' ? 'wages' : 'expense',
-      _p['amount'] as num,
-      _p['method'] as String,
-      _p['description'] as String?,
+      amount,
+      method,
+      description,
       dateTime: '${date}T00:00:00Z',
     );
+    return id;
+  }
+
+  /// Like the server's link_run_machine: the machine with that name.
+  String? _machineIdNamed(String? name) {
+    final wanted = name?.trim().toLowerCase();
+    for (final machine in _snapshot.rows('machines')) {
+      if ((machine['name'] as String).trim().toLowerCase() == wanted) {
+        return machine['id'] as String;
+      }
+    }
+    return null;
+  }
+
+  String _machineName(String? id) =>
+      (id == null ? null : _snapshot.row('machines', id)?['name'] as String?) ??
+      'Machine';
+
+  void _diesel() {
+    final date = _p['date'] as String;
+    final litres = _p['litres'] as num;
+    final expense = _postExpense(
+      id: _childId(),
+      date: date,
+      category: 'fuel_diesel',
+      description:
+          'Diesel for ${_machineName(_p['machine_id'] as String?)}: '
+          '${formatPlain(litres)} litres',
+      amount: _p['cost'] as num,
+      method: _p['method'] as String?,
+    );
+    _snapshot.rows('diesel_logs').add({
+      'id': _op.opId,
+      'tenant_id': _tenantId,
+      'machine_id': _p['machine_id'],
+      'date': date,
+      'litres': litres,
+      'cost': _p['cost'],
+      'run_hours': _p['run_hours'],
+      'expense_id': expense,
+      'note': _p['note'],
+      'recorded_by': _op.actorId,
+      'created_at': _at,
+      'profiles': _recorder,
+      'local_op_id': _op.opId,
+    });
+  }
+
+  void _maintenanceDone() {
+    final task = _snapshot.row('maintenance_tasks', _p['task_id'] as String);
+    if (task == null) return;
+    final doneOn = _p['done_on'] as String;
+    final cost = _p['cost'] as num? ?? 0;
+    final expense = _postExpense(
+      id: _childId(),
+      date: doneOn,
+      category: 'maintenance',
+      description:
+          '${_machineName(task['machine_id'] as String?)}: ${task['name']}',
+      amount: cost,
+      method: _p['method'] as String?,
+    );
+    _snapshot.rows('maintenance_logs').add({
+      'id': _op.opId,
+      'tenant_id': _tenantId,
+      'task_id': task['id'],
+      'machine_id': task['machine_id'],
+      'done_on': doneOn,
+      'cost': cost,
+      'expense_id': expense,
+      'note': _p['note'],
+      'done_by': _op.actorId,
+      'created_at': _at,
+      'profiles': _recorder,
+      'local_op_id': _op.opId,
+    });
+    final last = task['last_done_on'] as String?;
+    if (last == null || last.compareTo(doneOn) < 0) {
+      task['last_done_on'] = doneOn;
+    }
+  }
+
+  void _breakdown() {
+    _snapshot.rows('breakdowns').add({
+      'id': _p['id'],
+      'tenant_id': _tenantId,
+      'machine_id': _p['machine_id'],
+      'started_at': _p['started_at'],
+      'ended_at': null,
+      'cause': _p['cause'],
+      'repair_cost': 0,
+      'note': null,
+      'reported_by': _op.actorId,
+      'profiles': _recorder,
+      'local_op_id': _op.opId,
+    });
+  }
+
+  void _breakdownEnd() {
+    final breakdown = _snapshot.row('breakdowns', _p['breakdown_id'] as String);
+    if (breakdown == null) return;
+    final endedAt = _p['ended_at'] as String;
+    final cost = _p['repair_cost'] as num? ?? 0;
+    final expense = _postExpense(
+      id: _childId(),
+      date: DateTime.parse(
+        endedAt,
+      ).toLocal().toIso8601String().split('T').first,
+      category: 'maintenance',
+      description:
+          'Repair: ${_machineName(breakdown['machine_id'] as String?)} '
+          '(${breakdown['cause']})',
+      amount: cost,
+      method: _p['method'] as String?,
+    );
+    breakdown
+      ..['ended_at'] = endedAt
+      ..['repair_cost'] = cost
+      ..['expense_id'] = expense
+      ..['note'] = _p['note'];
   }
 
   void _productionRun() {
@@ -224,6 +372,8 @@ class LocalBookkeeping {
       'date': _p['date'],
       'shift': _p['shift'],
       'machine': _p['machine'],
+      'machine_id': _machineIdNamed(_p['machine'] as String?),
+      'batch_number': null,
       'operator_name': _p['operator_name'],
       ..._productFields(product),
       'quantity_produced': produced,

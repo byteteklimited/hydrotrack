@@ -2,11 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/intl.dart';
 
-import '../../../../core/theme/app_colors.dart';
-import '../../../../core/theme/app_spacing.dart';
-import '../../../../core/utils/action_error.dart';
 import '../../../../core/utils/formatters.dart';
-import '../../../../core/widgets/app_button.dart';
+import '../../../../core/widgets/app_form_dialog.dart';
 import '../../../../core/widgets/app_text_field.dart';
 import '../../data/models/admin_organization.dart';
 import '../../data/providers/admin_providers.dart';
@@ -48,88 +45,6 @@ String? _wholeNumberBetween(String? value, int min, int max, String what) {
 
 String? _optional(TextEditingController controller) =>
     controller.text.trim().isEmpty ? null : controller.text.trim();
-
-/// Shared frame: validates, runs [onSubmit], closes on success, otherwise
-/// shows the server's reason.
-class _ActionDialog extends ConsumerWidget {
-  const _ActionDialog({
-    required this.formKey,
-    required this.title,
-    required this.intro,
-    required this.submitLabel,
-    required this.onSubmit,
-    required this.fields,
-    this.destructive = false,
-  });
-
-  final GlobalKey<FormState> formKey;
-  final String title;
-  final String intro;
-  final String submitLabel;
-  final Future<bool> Function() onSubmit;
-  final List<Widget> fields;
-  final bool destructive;
-
-  Future<void> _submit(BuildContext context, WidgetRef ref) async {
-    if (!(formKey.currentState?.validate() ?? false)) return;
-    final done = await onSubmit();
-    if (!context.mounted) return;
-    if (!done) {
-      showActionErrorSnackBar(
-        context,
-        message: readableErrorMessage(
-          ref.read(adminActionControllerProvider).error,
-        ),
-      );
-      return;
-    }
-    Navigator.of(context).pop();
-  }
-
-  @override
-  Widget build(BuildContext context, WidgetRef ref) {
-    final busy = ref.watch(adminActionControllerProvider).isLoading;
-    return AlertDialog(
-      title: Text(title),
-      content: Form(
-        key: formKey,
-        child: SingleChildScrollView(
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            crossAxisAlignment: CrossAxisAlignment.stretch,
-            children: [
-              Text(
-                intro,
-                style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                  color: AppColors.textSecondary,
-                ),
-              ),
-              for (final field in fields) ...[
-                const SizedBox(height: AppSpacing.md),
-                field,
-              ],
-            ],
-          ),
-        ),
-      ),
-      actions: [
-        AppButton(
-          label: 'Cancel',
-          variant: AppButtonVariant.text,
-          onPressed: () => Navigator.of(context).pop(),
-        ),
-        AppButton(
-          label: submitLabel,
-          variant: destructive
-              ? AppButtonVariant.destructive
-              : AppButtonVariant.primary,
-          isLoading: busy,
-          onPressed: busy ? null : () => _submit(context, ref),
-        ),
-      ],
-    );
-  }
-}
 
 class _RecordPaymentDialog extends ConsumerStatefulWidget {
   const _RecordPaymentDialog({required this.organization});
@@ -175,7 +90,9 @@ class _RecordPaymentDialogState extends ConsumerState<_RecordPaymentDialog> {
 
   @override
   Widget build(BuildContext context) {
-    return _ActionDialog(
+    return AppFormDialog(
+      busy: ref.watch(adminActionControllerProvider).isLoading,
+      error: () => ref.read(adminActionControllerProvider).error,
       formKey: _formKey,
       title: 'Record payment',
       intro:
@@ -235,7 +152,9 @@ class _FreeDaysDialogState extends ConsumerState<_FreeDaysDialog> {
 
   @override
   Widget build(BuildContext context) {
-    return _ActionDialog(
+    return AppFormDialog(
+      busy: ref.watch(adminActionControllerProvider).isLoading,
+      error: () => ref.read(adminActionControllerProvider).error,
       formKey: _formKey,
       title: 'Give free days',
       intro:
@@ -283,7 +202,9 @@ class _SuspendDialogState extends ConsumerState<_SuspendDialog> {
 
   @override
   Widget build(BuildContext context) {
-    return _ActionDialog(
+    return AppFormDialog(
+      busy: ref.watch(adminActionControllerProvider).isLoading,
+      error: () => ref.read(adminActionControllerProvider).error,
       formKey: _formKey,
       title: 'Suspend ${widget.organization.name}?',
       intro:

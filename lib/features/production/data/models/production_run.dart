@@ -12,13 +12,6 @@ extension ProductionShiftLabel on ProductionShift {
   };
 }
 
-/// The factory's production machines.
-class ProductionMachines {
-  ProductionMachines._();
-
-  static const all = ['Machine 1', 'Machine 2'];
-}
-
 /// One production run: a shift on a machine, what was made, how much, and
 /// how much was wasted. [recordedBy]/[recordedAt] make this the visible
 /// audit trail for production entries.

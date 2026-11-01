@@ -77,3 +77,11 @@ class ThousandsInputFormatter extends TextInputFormatter {
 /// Strips the thousands-grouping `AppTextField.naira` adds live, so the
 /// typed amount can be read back as a number.
 num parseNairaText(String text) => num.tryParse(text.replaceAll(',', '')) ?? 0;
+
+/// A number without trailing zeros, as Postgres `trim_scale` prints it:
+/// 9.10 → "9.1", 500.0 → "500".
+String formatPlain(num value) {
+  final text = value.toString();
+  if (!text.contains('.')) return text;
+  return text.replaceFirst(RegExp(r'\.?0+$'), '');
+}

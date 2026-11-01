@@ -1,3 +1,5 @@
+import '../../../../core/utils/formatters.dart';
+
 /// What a water test must read to pass (migration 0025). Defaults are the
 /// Nigerian standard for drinking water, NIS 554.
 class WaterLimits {
@@ -39,12 +41,8 @@ class WaterLimits {
           '(allowed ${plain(chlorineMin)}–${plain(chlorineMax)})',
   ];
 
-  /// A number without trailing zeros: 9.10 → "9.1", 500.0 → "500".
-  static String plain(num value) {
-    final text = value.toString();
-    if (!text.contains('.')) return text;
-    return text.replaceFirst(RegExp(r'\.?0+$'), '');
-  }
+  /// A reading as the server prints it (no trailing zeros).
+  static String plain(num value) => formatPlain(value);
 
   factory WaterLimits.fromTenantJson(Map<String, dynamic> json) => WaterLimits(
     phMin: json['water_ph_min'] as num? ?? defaultPhMin,

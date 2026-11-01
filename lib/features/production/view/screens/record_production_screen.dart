@@ -14,6 +14,8 @@ import '../../../../core/widgets/app_text_field.dart';
 import '../../../../core/widgets/responsive_center.dart';
 import '../../../auth/data/providers/auth_providers.dart';
 import '../../../inventory/data/providers/inventory_providers.dart';
+import '../../../machines/data/models/machine.dart';
+import '../../../machines/data/providers/machines_providers.dart';
 import '../../../products/data/providers/products_providers.dart';
 import '../../data/models/production_run.dart';
 import '../../data/providers/production_providers.dart';
@@ -49,8 +51,25 @@ class _RecordProductionScreenState
   late DateTime _date = widget.existingRun?.date ?? DateTime.now();
   late ProductionShift _shift =
       widget.existingRun?.shift ?? ProductionShift.morning;
-  late String _machine =
-      widget.existingRun?.machine ?? ProductionMachines.all.first;
+
+  /// Null until chosen: the first machine in the list is used.
+  late String? _chosenMachine = widget.existingRun?.machine;
+
+  /// What can be picked: the organization's machines in use (not the
+  /// generator), plus the run's own machine if it isn't one of them.
+  List<String> _machineChoices(WidgetRef ref) {
+    final machines =
+        ref.watch(activeMachinesProvider).valueOrNull ?? const <Machine>[];
+    final names = [
+      for (final machine in machines)
+        if (machine.kind != MachineKind.generator) machine.name,
+    ];
+    final own = widget.existingRun?.machine;
+    return [if (own != null && !names.contains(own)) own, ...names];
+  }
+
+  String get _machine =>
+      _chosenMachine ?? _machineChoices(ref).firstOrNull ?? '';
 
   /// Null until chosen: the first active product is used.
   late Product? _chosenProduct = widget.existingRun?.product;
@@ -156,7 +175,7 @@ class _RecordProductionScreenState
     final user = ref.read(authStateProvider);
     final quantity = int.parse(_quantityController.text);
     final product = _product(ref);
-    if (product == null) return;
+    if (product == null || _machine.isEmpty) return;
     final run = ProductionRun(
       id: existing?.id ?? 'run-${DateTime.now().microsecondsSinceEpoch}',
       date: _date,
@@ -234,13 +253,21 @@ class _RecordProductionScreenState
         itemLabel: (shift) => shift.label,
         onChanged: (value) => setState(() => _shift = value!),
       ),
-      AppDropdownField<String>(
-        label: 'Machine',
-        value: _machine,
-        items: ProductionMachines.all,
-        itemLabel: (machine) => machine,
-        onChanged: (value) => setState(() => _machine = value!),
-      ),
+      if (_machineChoices(ref).isEmpty)
+        const AppInlineAlert(
+          severity: AppAlertSeverity.warning,
+          message:
+              'No machines yet. A manager can add them under More → '
+              'Machines.',
+        )
+      else
+        AppDropdownField<String>(
+          label: 'Machine',
+          value: _machine,
+          items: _machineChoices(ref),
+          itemLabel: (machine) => machine,
+          onChanged: (value) => setState(() => _chosenMachine = value),
+        ),
       AppDropdownField<Product?>(
         label: 'Product',
         value: _product(ref),

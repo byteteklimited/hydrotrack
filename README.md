@@ -28,7 +28,7 @@ start if that file still holds placeholders.
   owners (throwaway account).
 - `./supabase/tests/run_linked.sh` — database suites (pgTAP: isolation,
   debt reminders, offline sync, products and prices, PIN reset, cash
-  counts, purchases and costs, alerts, subscriptions, quality)
+  counts, purchases and costs, alerts, subscriptions, quality, machines)
   against the linked hydrotrack project. Runs in one transaction and rolls
   back; nothing persists. With Docker: `supabase test db --linked`.
 - `python3 -I supabase/tests/api_isolation_test.py` — the same boundaries
@@ -188,3 +188,19 @@ Studio.app/Contents/jbr/Contents/Home"`, or upgrade Gradle.
      suggested items), ticked off daily. Works offline.
    - The 8 pm summary adds failed or missing water tests and a missed
      checklist.
+2. **Machines and generator** (More → Machines; owners, admins, managers,
+   store keepers):
+   - Each organization's **machine list** (starts with Machine 1, Machine
+     2 and Generator; managers add, rename, retire). Production runs pick
+     their machine from it.
+   - **Maintenance** tasks every N days per machine; due and overdue tasks
+     show on Home and Machines and alert the owner once when they fall
+     due. "Mark done" can carry a cost (posted as a maintenance expense).
+   - **Breakdowns**: which machine, when it stopped, why; "Mark fixed"
+     with the restart time and repair cost (posted as a maintenance
+     expense). Downtime hours per machine this month.
+   - **Diesel**: litres and cost put in (posted as a diesel expense — don't
+     also add it under Expenses), optional run-hours. This month's diesel
+     per 100 bags and diesel cost per bag.
+   - Diesel, maintenance done and breakdowns work offline; this month's
+     figures need internet.

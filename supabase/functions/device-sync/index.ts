@@ -11,10 +11,11 @@
 //     -> the organization's data for offline use: staff (with offline
 //        sign-in checks), products, stock, customers, drivers, vehicles, recipes,
 //        open flags, subscription status, permits, the sanitation
-//        checklist, and the last 90 days of sales, payments, cash,
-//        expenses, production, stock movements, load-outs, water tests
-//        and sanitation checks, in the same shape the app's own queries
-//        return.
+//        checklist, machines and their maintenance tasks, open breakdowns,
+//        and the last 90 days of sales, payments, cash, expenses,
+//        production, stock movements, load-outs, water tests, sanitation
+//        checks, maintenance done, breakdowns and diesel, in the same
+//        shape the app's own queries return.
 //   {"action": "push", "device_key": "...", "operations": [...]}
 //     -> applies queued records in order (apply_device_operation) and
 //        returns each one's result. Stops at the first error that isn't
@@ -140,6 +141,17 @@ async function pull(admin: SupabaseClient, deviceKey: string, tenantId: string) 
       t("sanitation_checks", "*, profiles!checked_by(full_name)")
         .gte("date", sinceDate).order("id").range(a, b),
     permits: (a, b) => t("permits").order("id").range(a, b),
+    machines: (a, b) => t("machines").order("id").range(a, b),
+    maintenance_tasks: (a, b) => t("maintenance_tasks").order("id").range(a, b),
+    maintenance_logs: (a, b) =>
+      t("maintenance_logs", "*, profiles!done_by(full_name)")
+        .gte("done_on", sinceDate).order("id").range(a, b),
+    breakdowns: (a, b) =>
+      t("breakdowns", "*, profiles!reported_by(full_name)")
+        .or(`ended_at.is.null,started_at.gte.${sinceTime}`).order("id").range(a, b),
+    diesel_logs: (a, b) =>
+      t("diesel_logs", "*, profiles!recorded_by(full_name)")
+        .gte("date", sinceDate).order("id").range(a, b),
   };
 
   const names = Object.keys(tables);

@@ -13,7 +13,11 @@ enum OperationType {
   driverReturn('driver_return', 'Driver return'),
   cashCount('cash_count', 'Cash count'),
   waterTest('water_test', 'Water test'),
-  sanitationCheck('sanitation_check', 'Sanitation checklist');
+  sanitationCheck('sanitation_check', 'Sanitation checklist'),
+  diesel('diesel', 'Diesel'),
+  maintenanceDone('maintenance_done', 'Maintenance done'),
+  breakdown('breakdown', 'Breakdown'),
+  breakdownEnd('breakdown_end', 'Machine fixed');
 
   const OperationType(this.dbValue, this.label);
 

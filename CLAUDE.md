@@ -293,5 +293,15 @@ supabase/
          Water tests + checklist offline (apply_device_operation copied
          from 0020 + 2 branches). Quality section (tabs, trace, settings).
          Tests: quality.test.sql (39), 296 Flutter tests.
-      2. [ ] Machines and generator  3. [ ] Staff and payroll
+      2. [x] Machines and generator (0026): machines (seeded; runs get
+         machine_id from the name by trigger, so RPC/offline payloads
+         are unchanged), maintenance tasks every N days (due alert once
+         per due date), maintenance logs, breakdowns (one open per
+         machine; device-given ids so "fixed" works offline), diesel
+         logs; costs posted via post_machine_expense (store keepers too);
+         machine_report (downtime, litres per 100 bags, cost per bag).
+         4 new offline record types. Machines section + Home card; shared
+         AppFormDialog/AppDateTimeField; formatPlain in core.
+         Tests: machines.test.sql (31), 306 Flutter tests.
+      3. [ ] Staff and payroll
       4. [ ] Forecasting (stock run-out)  5. [ ] Factories and depots

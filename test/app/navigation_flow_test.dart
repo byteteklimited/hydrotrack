@@ -23,6 +23,21 @@ class _SignedOutAuth implements AuthRepository {
   String? get signedInUserId => null;
 
   @override
+  Stream<void> get passwordRecoveries => const Stream.empty();
+
+  @override
+  Future<String> resetPinWithCode({
+    required String code,
+    required String pin,
+  }) => throw UnimplementedError();
+
+  @override
+  Future<void> sendPasswordReset(String email) => throw UnimplementedError();
+
+  @override
+  Future<void> updatePassword(String password) => throw UnimplementedError();
+
+  @override
   Future<void> signOut() async {}
 
   @override

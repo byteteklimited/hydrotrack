@@ -31,6 +31,20 @@ abstract class AuthRepository {
     required String pin,
   });
 
+  /// Sets a new PIN with a reset code from an admin (`reset-pin` Edge
+  /// Function). Returns the phone number to sign in with.
+  Future<String> resetPinWithCode({required String code, required String pin});
+
+  /// Emails an owner a link to set a new password.
+  Future<void> sendPasswordReset(String email);
+
+  /// Sets a new password for the signed-in account (after opening the
+  /// reset link).
+  Future<void> updatePassword(String password);
+
+  /// Fires when someone opens a password reset link.
+  Stream<void> get passwordRecoveries;
+
   bool get hasSession;
 
   /// The account with an online session on this device, if any.
@@ -111,6 +125,37 @@ class SupabaseAuthRepository implements AuthRepository {
     final data = response.data as Map<String, dynamic>;
     return (data['phone'] ?? data['email']) as String;
   }
+
+  @override
+  Future<String> resetPinWithCode({
+    required String code,
+    required String pin,
+  }) async {
+    final response = await _client.functions.invoke(
+      'reset-pin',
+      body: {'code': code, 'pin': pin},
+    );
+    return (response.data as Map<String, dynamic>)['phone'] as String;
+  }
+
+  @override
+  Future<void> sendPasswordReset(String email) {
+    return _client.auth.resetPasswordForEmail(
+      email.trim().toLowerCase(),
+      // Web: come back to this same app. Elsewhere: the project's Site URL.
+      redirectTo: kIsWeb ? '${Uri.base.origin}/' : null,
+    );
+  }
+
+  @override
+  Future<void> updatePassword(String password) {
+    return _client.auth.updateUser(UserAttributes(password: password));
+  }
+
+  @override
+  Stream<void> get passwordRecoveries => _client.auth.onAuthStateChange
+      .where((state) => state.event == AuthChangeEvent.passwordRecovery)
+      .map((_) {});
 
   @override
   bool get hasSession => _client.auth.currentSession != null;

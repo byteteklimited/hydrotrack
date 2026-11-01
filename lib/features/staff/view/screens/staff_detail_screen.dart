@@ -13,6 +13,7 @@ import '../../../../core/widgets/app_loading.dart';
 import '../../../auth/data/providers/auth_providers.dart';
 import '../../data/models/staff_member.dart';
 import '../../data/providers/staff_providers.dart';
+import '../widgets/reset_pin_button.dart';
 
 /// Same reasoning as every other detail screen in the app: content
 /// reads best at a bounded width, implemented as responsive padding so
@@ -225,6 +226,12 @@ class _StaffDetailBody extends ConsumerWidget {
                       ),
                     ],
                   ),
+                  // Email accounts reset their own password by email.
+                  if (!isSelf && !staff.phone.contains('@'))
+                    Align(
+                      alignment: Alignment.centerLeft,
+                      child: ResetPinButton(staff: staff),
+                    ),
                 ],
               ],
             ),

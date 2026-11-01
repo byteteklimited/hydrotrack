@@ -11,4 +11,7 @@ class AppRoutes {
   static const joinWithInvite = '/join';
   static const organizations = '/organizations';
   static const home = '/home';
+  static const resetPin = '/reset-pin';
+  static const forgotPassword = '/forgot-password';
+  static const setNewPassword = '/set-new-password';
 }

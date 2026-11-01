@@ -102,7 +102,25 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
               isLoading: signInState.isLoading,
               expanded: true,
             ),
-            const SizedBox(height: AppSpacing.xl),
+            const SizedBox(height: AppSpacing.sm),
+            Wrap(
+              alignment: WrapAlignment.center,
+              children: [
+                AppButton(
+                  label: 'Forgot your PIN?',
+                  variant: AppButtonVariant.text,
+                  onPressed: () =>
+                      Navigator.of(context).pushNamed(AppRoutes.resetPin),
+                ),
+                AppButton(
+                  label: 'Forgot your password?',
+                  variant: AppButtonVariant.text,
+                  onPressed: () =>
+                      Navigator.of(context).pushNamed(AppRoutes.forgotPassword),
+                ),
+              ],
+            ),
+            const SizedBox(height: AppSpacing.md),
             AppButton(
               label: 'Join your team with an invite code',
               variant: AppButtonVariant.text,

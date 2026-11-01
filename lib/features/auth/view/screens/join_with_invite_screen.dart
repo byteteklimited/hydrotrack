@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../../core/constants/app_routes.dart';
@@ -12,6 +11,7 @@ import '../../../../core/widgets/app_text_field.dart';
 import '../../../organizations/data/providers/organization_providers.dart';
 import '../../data/providers/auth_providers.dart';
 import '../widgets/auth_page_layout.dart';
+import '../widgets/new_pin_fields.dart';
 
 /// New staff: enter the invite code your admin gave you and choose a PIN.
 /// Creates a phone + PIN account for the number the invite was sent to,
@@ -65,10 +65,6 @@ class _JoinWithInviteScreenState extends ConsumerState<JoinWithInviteScreen> {
         ? readableErrorMessage(state.error) ??
               "Couldn't join — check your connection and try again."
         : null;
-    final pinFormatters = [
-      FilteringTextInputFormatter.digitsOnly,
-      LengthLimitingTextInputFormatter(Validators.pinLength),
-    ];
 
     return AuthPageLayout(
       title: 'Join your team',
@@ -87,24 +83,9 @@ class _JoinWithInviteScreenState extends ConsumerState<JoinWithInviteScreen> {
                   Validators.required(value, 'Enter your invite code'),
             ),
             const SizedBox(height: AppSpacing.lg),
-            AppTextField(
-              label: 'Choose a PIN',
-              controller: _pinController,
-              keyboardType: TextInputType.number,
-              obscureText: true,
-              inputFormatters: pinFormatters,
-              helperText: "You'll sign in with your phone number and this PIN",
-              validator: Validators.pin,
-            ),
-            const SizedBox(height: AppSpacing.lg),
-            AppTextField(
-              label: 'Confirm PIN',
-              controller: _confirmPinController,
-              keyboardType: TextInputType.number,
-              obscureText: true,
-              inputFormatters: pinFormatters,
-              validator: (value) =>
-                  value == _pinController.text ? null : "PINs don't match",
+            NewPinFields(
+              pinController: _pinController,
+              confirmController: _confirmPinController,
             ),
             if (error != null) ...[
               const SizedBox(height: AppSpacing.lg),

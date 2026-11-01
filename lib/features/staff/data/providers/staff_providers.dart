@@ -39,6 +39,11 @@ class StaffActionController extends ActionController {
 
   StaffRepository get _repository => _ref.read(staffRepositoryProvider);
 
+  /// A PIN reset code for [staffId], or null when it couldn't be made.
+  Future<({String code, DateTime expiresAt})?> createPinReset(String staffId) {
+    return guard(() => _repository.createPinReset(staffId));
+  }
+
   Future<Invitation?> inviteStaff({
     required String fullName,
     required String phone,

@@ -7,10 +7,14 @@ import 'core/constants/supabase_config.dart';
 import 'core/theme/app_theme.dart';
 import 'core/widgets/app_error_state.dart';
 import 'core/widgets/app_loading.dart';
+import 'features/auth/view/screens/forgot_password_screen.dart';
 import 'features/auth/view/screens/join_with_invite_screen.dart';
 import 'features/auth/view/screens/login_screen.dart';
+import 'features/auth/view/screens/reset_pin_screen.dart';
+import 'features/auth/view/screens/set_new_password_screen.dart';
 import 'features/auth/view/screens/sign_up_screen.dart';
 import 'features/auth/view/screens/splash_screen.dart';
+import 'features/auth/view/widgets/password_recovery_listener.dart';
 import 'features/offline/view/screens/sync_status_screen.dart';
 import 'features/offline/view/widgets/offline_banner.dart';
 import 'features/organizations/view/screens/organizations_screen.dart';
@@ -147,6 +151,9 @@ class HydroTrackApp extends StatelessWidget {
         AppRoutes.joinWithInvite: (context) => const JoinWithInviteScreen(),
         AppRoutes.organizations: (context) => const OrganizationsScreen(),
         AppRoutes.home: (context) => const AppHomeScreen(),
+        AppRoutes.resetPin: (context) => const ResetPinScreen(),
+        AppRoutes.forgotPassword: (context) => const ForgotPasswordScreen(),
+        AppRoutes.setNewPassword: (context) => const SetNewPasswordScreen(),
       },
       navigatorKey: _navigatorKey,
       builder: (context, child) => Column(
@@ -156,7 +163,12 @@ class HydroTrackApp extends StatelessWidget {
               MaterialPageRoute<void>(builder: (_) => const SyncStatusScreen()),
             ),
           ),
-          Expanded(child: child ?? const SizedBox.shrink()),
+          Expanded(
+            child: PasswordRecoveryListener(
+              navigatorKey: _navigatorKey,
+              child: child ?? const SizedBox.shrink(),
+            ),
+          ),
         ],
       ),
     );

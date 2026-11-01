@@ -39,6 +39,10 @@ abstract class StaffRepository {
   /// readable reason — if they have recorded activity here; deactivate
   /// them instead in that case.
   Future<void> removeMember(String staffId);
+
+  /// Owner/Admin: a one-time code (2 days) the staff member uses to set
+  /// a new PIN. Returns the code and when it expires.
+  Future<({String code, DateTime expiresAt})> createPinReset(String staffId);
 }
 
 /// Backed by `tenant_members`, `tenant_invitations` and the
@@ -166,6 +170,22 @@ class SupabaseStaffRepository implements StaffRepository {
       },
     );
     return _fetchMember(staffId);
+  }
+
+  @override
+  Future<({String code, DateTime expiresAt})> createPinReset(
+    String staffId,
+  ) async {
+    final row =
+        await _client.rpc(
+              'create_pin_reset',
+              params: {'p_tenant_id': _tenantId, 'p_user_id': staffId},
+            )
+            as Map<String, dynamic>;
+    return (
+      code: row['code'] as String,
+      expiresAt: DateTime.parse(row['expires_at'] as String),
+    );
   }
 
   @override

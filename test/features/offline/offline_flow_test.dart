@@ -34,6 +34,9 @@ class _NoInternetAuth implements AuthRepository {
   String? get signedInUserId => null;
 
   @override
+  Stream<void> get passwordRecoveries => const Stream.empty();
+
+  @override
   Future<void> signOut() async {}
 
   @override

@@ -145,6 +145,35 @@ class AccountSetupController extends ActionController {
     });
     return joined ?? false;
   }
+
+  /// Sets a new PIN with an admin's reset code, then signs straight in.
+  Future<bool> resetPin({required String code, required String pin}) async {
+    final done = await guard(() async {
+      final repository = _ref.read(authRepositoryProvider);
+      final phone = await repository.resetPinWithCode(code: code, pin: pin);
+      final result = await repository.signIn(identifier: phone, secret: pin);
+      if (result is SignInSuccess) rememberForOfflineSignIn(_ref, pin);
+      return result is SignInSuccess;
+    });
+    return done ?? false;
+  }
+
+  Future<bool> sendPasswordReset(String email) async {
+    final done = await guard(() async {
+      await _ref.read(authRepositoryProvider).sendPasswordReset(email);
+      return true;
+    });
+    return done ?? false;
+  }
+
+  Future<bool> setNewPassword(String password) async {
+    final done = await guard(() async {
+      await _ref.read(authRepositoryProvider).updatePassword(password);
+      rememberForOfflineSignIn(_ref, password);
+      return true;
+    });
+    return done ?? false;
+  }
 }
 
 /// Auto-disposed so an error from one screen (sign up / join) never shows

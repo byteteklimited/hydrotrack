@@ -1,8 +1,8 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../../core/utils/action_controller.dart';
+import '../../../locations/data/providers/location_providers.dart';
 import '../../../organizations/data/models/invitation.dart';
-import '../../../organizations/data/providers/organization_providers.dart';
 import '../models/audit_entry.dart';
 import '../models/staff_member.dart';
 import '../repositories/staff_repository.dart';
@@ -10,7 +10,7 @@ import '../repositories/staff_repository.dart';
 /// The active [StaffRepository] implementation, for the current
 /// organization.
 final staffRepositoryProvider = Provider<StaffRepository>(
-  (ref) => SupabaseStaffRepository(ref.watch(currentTenantIdProvider)),
+  (ref) => SupabaseStaffRepository(ref.watch(dataScopeProvider).tenantId),
 );
 
 /// The current organization's roster.

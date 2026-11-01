@@ -2,15 +2,15 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../../core/utils/action_controller.dart';
 import '../../../../core/utils/date_utils.dart';
+import '../../../locations/data/providers/location_providers.dart';
 import '../../../offline/data/providers/offline_providers.dart';
-import '../../../organizations/data/providers/organization_providers.dart';
 import '../models/cash_count.dart';
 import '../repositories/cash_count_repository.dart';
 import 'finance_providers.dart';
 
 final cashCountRepositoryProvider = Provider<CashCountRepository>((ref) {
   final remote = SupabaseCashCountRepository(
-    ref.watch(currentTenantIdProvider),
+    ref.watch(dataScopeProvider).tenantId,
   );
   final offline = ref.watch(offlineContextProvider);
   return offline == null ? remote : OfflineCashCountRepository(remote, offline);

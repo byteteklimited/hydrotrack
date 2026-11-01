@@ -1,8 +1,8 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../../core/utils/action_controller.dart';
+import '../../../locations/data/providers/location_providers.dart';
 import '../../../offline/data/providers/offline_providers.dart';
-import '../../../organizations/data/providers/organization_providers.dart';
 import '../models/production_recipe.dart';
 import '../repositories/offline_production_recipe_repository.dart';
 import '../repositories/production_recipe_repository.dart';
@@ -11,7 +11,7 @@ import '../repositories/production_recipe_repository.dart';
 final productionRecipeRepositoryProvider = Provider<ProductionRecipeRepository>(
   (ref) {
     final remote = SupabaseProductionRecipeRepository(
-      ref.watch(currentTenantIdProvider),
+      ref.watch(dataScopeProvider).tenantId,
     );
     final offline = ref.watch(offlineContextProvider);
     return offline == null

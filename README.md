@@ -28,7 +28,7 @@ start if that file still holds placeholders.
   owners (throwaway account).
 - `./supabase/tests/run_linked.sh` — database suites (pgTAP: isolation,
   debt reminders, offline sync, products and prices, PIN reset, cash
-  counts, purchases and costs, alerts, subscriptions, quality, machines, payroll, forecast)
+  counts, purchases and costs, alerts, subscriptions, quality, machines, payroll, forecast, locations)
   against the linked hydrotrack project. Runs in one transaction and rolls
   back; nothing persists. With Docker: `supabase test db --linked`.
 - `python3 -I supabase/tests/api_isolation_test.py` — the same boundaries
@@ -227,3 +227,27 @@ Studio.app/Contents/jbr/Contents/Home"`, or upgrade Gradle.
    item when it will run out within 7 days (items already at their
    reorder level get the low-stock alert instead). Works offline from the
    device's own copy.
+5. **Factories and depots** (Organization → Locations; owners/admins):
+   - Every organization starts with **Main factory** (existing records
+     are there). Add factories (make and sell) and depots (hold and sell),
+     rename or close them, and choose **who works where**. Owners and
+     admins work everywhere; other staff only see and record at their
+     locations.
+   - Kept per location: stock, sales, production, expenses, cash and cash
+     counts, customers and their debts, load-outs and purchases. Shared:
+     products and prices, drivers, vehicles, suppliers, quality, machines,
+     workers and payroll.
+   - The app works in one location at a time (switch on Home when you
+     can use several). It sends it with every request (`x-location-id`);
+     the database stamps new records with it, only shows that location,
+     and only lets a record be changed (void, edit, settle) from its own
+     location.
+   - **Transfers** (Inventory → ⇄): send stock to another location (it
+     leaves straight away, oldest batches first), and the other location
+     receives it with the same batch numbers, expiry and cost — tracing a
+     batch follows it. Needs internet.
+   - An offline device belongs to the location it was set up at:
+     it downloads only that location and only its staff (plus owners and
+     admins) can sign in on it.
+   - Stock forecasts and low-stock alerts are per location (alerts name
+     the location when there are several).

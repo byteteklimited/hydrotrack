@@ -5,15 +5,15 @@ import '../../../../core/utils/action_controller.dart';
 import '../../../../core/utils/date_utils.dart';
 import '../../../finance/data/providers/finance_providers.dart';
 import '../../../inventory/data/providers/inventory_providers.dart';
+import '../../../locations/data/providers/location_providers.dart';
 import '../../../offline/data/providers/offline_providers.dart';
-import '../../../organizations/data/providers/organization_providers.dart';
 import '../models/purchase.dart';
 import '../models/supplier.dart';
 import '../repositories/purchases_repository.dart';
 
 final purchasesRepositoryProvider = Provider<PurchasesRepository>((ref) {
   final remote = SupabasePurchasesRepository(
-    ref.watch(currentTenantIdProvider),
+    ref.watch(dataScopeProvider).tenantId,
   );
   final offline = ref.watch(offlineContextProvider);
   return offline == null ? remote : OfflinePurchasesRepository(remote, offline);

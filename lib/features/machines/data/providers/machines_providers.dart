@@ -3,8 +3,8 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../../core/constants/payment_channel.dart';
 import '../../../../core/utils/action_controller.dart';
 import '../../../expenses/data/providers/expenses_providers.dart';
+import '../../../locations/data/providers/location_providers.dart';
 import '../../../offline/data/providers/offline_providers.dart';
-import '../../../organizations/data/providers/organization_providers.dart';
 import '../models/machine.dart';
 import '../models/machine_report.dart';
 import '../repositories/machines_repository.dart';
@@ -14,7 +14,9 @@ import '../repositories/offline_machines_repository.dart';
 const machineHistoryDays = 30;
 
 final machinesRepositoryProvider = Provider<MachinesRepository>((ref) {
-  final remote = SupabaseMachinesRepository(ref.watch(currentTenantIdProvider));
+  final remote = SupabaseMachinesRepository(
+    ref.watch(dataScopeProvider).tenantId,
+  );
   final offline = ref.watch(offlineContextProvider);
   return offline == null ? remote : OfflineMachinesRepository(remote, offline);
 });

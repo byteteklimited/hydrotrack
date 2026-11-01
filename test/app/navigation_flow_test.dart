@@ -14,6 +14,8 @@ import 'package:hydrotrack/features/organizations/data/providers/organization_pr
 import 'package:hydrotrack/features/reports/view/screens/app_home_screen.dart';
 import 'package:hydrotrack/main.dart';
 
+import 'test_locations.dart';
+
 /// Signed out, with no network behind it.
 class _SignedOutAuth implements AuthRepository {
   @override
@@ -90,6 +92,7 @@ void main() {
     await tester.pumpWidget(
       ProviderScope(
         overrides: [
+          ...testLocationOverrides,
           authRepositoryProvider.overrideWithValue(_SignedOutAuth()),
           stockItemsProvider.overrideWith((ref) async => const []),
           authStateProvider.overrideWith(
@@ -112,6 +115,7 @@ void main() {
         ),
       ),
     );
+    await tester.pumpAndSettle();
     await tester.tap(find.text('Inventory').first);
     await tester.pumpAndSettle();
 

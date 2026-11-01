@@ -3,8 +3,8 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../../core/utils/action_controller.dart';
 import '../../../../core/utils/date_utils.dart';
 import '../../../inventory/data/providers/inventory_providers.dart';
+import '../../../locations/data/providers/location_providers.dart';
 import '../../../offline/data/providers/offline_providers.dart';
-import '../../../organizations/data/providers/organization_providers.dart';
 import '../models/production_run.dart';
 import '../repositories/offline_production_repository.dart';
 import '../repositories/production_repository.dart';
@@ -12,7 +12,7 @@ import '../repositories/production_repository.dart';
 /// The active [ProductionRepository] implementation.
 final productionRepositoryProvider = Provider<ProductionRepository>((ref) {
   final remote = SupabaseProductionRepository(
-    ref.watch(currentTenantIdProvider),
+    ref.watch(dataScopeProvider).tenantId,
   );
   final offline = ref.watch(offlineContextProvider);
   return offline == null

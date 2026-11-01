@@ -217,4 +217,31 @@ void main() {
         (s.row('sales', 'sale-1')!['sale_lines'] as List).single as Map;
     expect(line['unit_cost'], closeTo(5500 / 480, 0.0001));
   });
+
+  test('a factory device uses its own copy of a recipe\'s raw material', () {
+    final s = sampleSnapshot();
+    final recipe = s.rows('production_recipes').single;
+    final nylon = s.row('stock_items', nylonId)!;
+    // The recipe names the main factory's row; this device has its own.
+    nylon['item_key'] = 'nylon-key';
+    recipe['raw_material_item_id'] = 'main-factory-nylon';
+    recipe['stock_items'] = {
+      'name': 'Nylon roll',
+      'unit': 'rolls',
+      'item_key': 'nylon-key',
+    };
+    LocalBookkeeping.apply(
+      s,
+      _op(OperationType.productionRun, {
+        'date': '2026-11-01',
+        'shift': 'morning',
+        'machine': 'Machine 1',
+        'operator_name': 'Ade',
+        'product_id': sachetProductId,
+        'quantity_produced': 200,
+        'wastage': 0,
+      }),
+    );
+    expect(_stock(s, nylonId), 8);
+  });
 }

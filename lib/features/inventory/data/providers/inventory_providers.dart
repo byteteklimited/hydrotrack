@@ -1,8 +1,8 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../../core/utils/action_controller.dart';
+import '../../../locations/data/providers/location_providers.dart';
 import '../../../offline/data/providers/offline_providers.dart';
-import '../../../organizations/data/providers/organization_providers.dart';
 import '../models/stock_forecast.dart';
 import '../models/stock_item.dart';
 import '../repositories/inventory_repository.dart';
@@ -12,7 +12,7 @@ import '../repositories/stock_forecast_repository.dart';
 /// The active [InventoryRepository] implementation.
 final inventoryRepositoryProvider = Provider<InventoryRepository>((ref) {
   final remote = SupabaseInventoryRepository(
-    ref.watch(currentTenantIdProvider),
+    ref.watch(dataScopeProvider).tenantId,
   );
   final offline = ref.watch(offlineContextProvider);
   return offline == null ? remote : OfflineInventoryRepository(remote, offline);
@@ -148,7 +148,7 @@ final stockForecastRepositoryProvider = Provider<StockForecastRepository>((
   ref,
 ) {
   final remote = SupabaseStockForecastRepository(
-    ref.watch(currentTenantIdProvider),
+    ref.watch(dataScopeProvider).tenantId,
   );
   final offline = ref.watch(offlineContextProvider);
   return offline == null

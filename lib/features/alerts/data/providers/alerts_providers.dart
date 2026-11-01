@@ -1,12 +1,14 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../../../locations/data/providers/location_providers.dart';
 import '../../../offline/data/providers/offline_providers.dart';
-import '../../../organizations/data/providers/organization_providers.dart';
 import '../models/owner_alert.dart';
 import '../repositories/alerts_repository.dart';
 
 final alertsRepositoryProvider = Provider<AlertsRepository>((ref) {
-  final remote = SupabaseAlertsRepository(ref.watch(currentTenantIdProvider));
+  final remote = SupabaseAlertsRepository(
+    ref.watch(dataScopeProvider).tenantId,
+  );
   final offline = ref.watch(offlineContextProvider);
   return offline == null ? remote : OfflineAlertsRepository(remote, offline);
 });

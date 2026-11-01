@@ -11,6 +11,8 @@ import '../../../../core/widgets/app_loading.dart';
 import '../../../../core/widgets/app_modal.dart';
 import '../../../auth/data/models/staff_user.dart';
 import '../../../auth/data/providers/auth_providers.dart';
+import '../../../locations/data/providers/location_providers.dart';
+import '../../../locations/view/screens/transfers_screen.dart';
 import '../../data/models/stock_item.dart';
 import '../../data/providers/inventory_providers.dart';
 import '../widgets/inventory_items_card.dart';
@@ -43,6 +45,23 @@ class InventoryScreen extends ConsumerWidget {
       }
     }
 
+    // Transfers show once there's somewhere to send stock.
+    final hasOtherLocations =
+        (ref.watch(allLocationsProvider).valueOrNull ?? const [])
+            .where((location) => location.isActive)
+            .length >
+        1;
+    final transfersAction =
+        hasOtherLocations && (canManage || role == StaffRole.storeKeeper)
+        ? IconButton(
+            icon: const Icon(Icons.swap_horiz),
+            tooltip: 'Transfers',
+            onPressed: () => Navigator.of(context).push(
+              MaterialPageRoute<void>(builder: (_) => const TransfersScreen()),
+            ),
+          )
+        : null;
+
     final fab = canManage
         ? AppButton(
             label: 'Add item',
@@ -63,6 +82,7 @@ class InventoryScreen extends ConsumerWidget {
             appBar: AppBar(
               title: const Text('Inventory'),
               actions: [
+                ?transfersAction,
                 if (fab != null)
                   Padding(
                     padding: const EdgeInsets.only(right: AppSpacing.lg),
@@ -88,6 +108,7 @@ class InventoryScreen extends ConsumerWidget {
           child: Scaffold(
             appBar: AppBar(
               title: const Text('Inventory'),
+              actions: [?transfersAction],
               bottom: const TabBar(
                 tabs: [
                   Tab(text: 'Raw materials'),

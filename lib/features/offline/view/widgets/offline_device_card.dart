@@ -9,6 +9,7 @@ import '../../../../core/widgets/app_button.dart';
 import '../../../../core/widgets/app_card.dart';
 import '../../../../core/widgets/app_confirm_dialog.dart';
 import '../../../organizations/data/models/organization.dart';
+import '../../../locations/data/providers/location_providers.dart';
 import '../../data/providers/offline_providers.dart';
 import '../screens/sync_status_screen.dart';
 import 'device_name_dialog.dart';
@@ -97,6 +98,15 @@ class OfflineDeviceCard extends ConsumerWidget {
                 "In a browser, records waiting to sync are lost if someone "
                 "clears this browser's site data. Use the installed app on "
                 'devices that will be offline often.',
+                style: secondary,
+              ),
+            ],
+            if (ref.watch(currentLocationProvider)?.name case final here?
+                when here.isNotEmpty) ...[
+              const SizedBox(height: AppSpacing.sm),
+              Text(
+                'It will work at $here: its stock, sales and customers. To '
+                'use it at another location, switch there first.',
                 style: secondary,
               ),
             ],

@@ -1,15 +1,17 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../../core/utils/action_controller.dart';
+import '../../../locations/data/providers/location_providers.dart';
 import '../../../offline/data/providers/offline_providers.dart';
-import '../../../organizations/data/providers/organization_providers.dart';
 import '../models/expense.dart';
 import '../repositories/expenses_repository.dart';
 import '../repositories/offline_expenses_repository.dart';
 
 /// The active [ExpensesRepository] implementation.
 final expensesRepositoryProvider = Provider<ExpensesRepository>((ref) {
-  final remote = SupabaseExpensesRepository(ref.watch(currentTenantIdProvider));
+  final remote = SupabaseExpensesRepository(
+    ref.watch(dataScopeProvider).tenantId,
+  );
   final offline = ref.watch(offlineContextProvider);
   return offline == null ? remote : OfflineExpensesRepository(remote, offline);
 });

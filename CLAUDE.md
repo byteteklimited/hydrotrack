@@ -282,7 +282,7 @@ supabase/
       (8), api_isolation (22), pin_reset (7), device_sync (9); 283 Flutter
       tests. Before launch: set the price and payment instructions in the
       console. Next: Phase D.
-- [ ] Phase D (2026-11-01), five parts, each committed (agreed rules in
+- [x] Phase D (2026-11-01), five parts, each committed (agreed rules in
       the chat; README "Phase D"):
       1. [x] Quality and compliance (0025): water tests per shift vs
          per-organization limits (NIS 554 defaults; failure → owner
@@ -317,4 +317,21 @@ supabase/
          7 days unless already low. App: StockForecast (+ identical local
          compute offline), days left on inventory tiles and item page.
          Tests: forecast.test.sql (8), 316 Flutter tests.
-      5. [ ] Factories and depots
+      5. [x] Factories and depots (0029–0034): locations (is_main),
+         member_locations; location of a request = device setting
+         (offline) or `x-location-id` header (requested_location), else
+         the person's own / main (resolve_location); stamp_location on
+         10 tables; require_own_location on changes; SELECT policies
+         narrowed by location_visible (header can only narrow); stock
+         rows per location linked by item_key (item_here /
+         item_at_location; finished_item_for, shortages, recipe
+         deduction, sale cost made location-aware); totals per location;
+         transfers (send/receive per batch, transfer_out/in movement
+         types, location_transfers list); devices per location (pull
+         filtered, device_members limited). 0033 removed an ambiguous
+         tenants embed path (broke the organizations query — caught by
+         api_isolation_test). App: locations feature (switcher,
+         Locations screens, transfers), dataScopeProvider keys every data
+         provider on organization + location and sets the header.
+         Tests: locations.test.sql (35), 321 Flutter tests.
+      Phase D complete.

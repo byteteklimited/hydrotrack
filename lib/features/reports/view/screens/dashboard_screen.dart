@@ -17,6 +17,7 @@ import '../../../auth/data/models/staff_user.dart';
 import '../../../auth/data/providers/auth_providers.dart';
 import '../../../debts/view/screens/debts_screen.dart';
 import '../../../finance/view/widgets/count_cash_card.dart';
+import '../../../locations/view/widgets/location_switcher.dart';
 import '../../../machines/view/widgets/maintenance_due_card.dart';
 import '../../../offline/view/widgets/needs_checking_card.dart';
 import '../../../organizations/data/providers/organization_providers.dart';
@@ -95,6 +96,7 @@ class DashboardScreen extends ConsumerWidget {
                       ),
                     ),
                   ],
+                  const LocationSwitcher(),
                   const SizedBox(height: AppSpacing.lg),
                   if (user?.role == StaffRole.owner) const SetupChecklistCard(),
                   if (user != null &&

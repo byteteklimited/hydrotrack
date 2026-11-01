@@ -8,6 +8,8 @@ import 'package:hydrotrack/features/organizations/data/models/organization.dart'
 import 'package:hydrotrack/features/organizations/data/providers/organization_providers.dart';
 import 'package:hydrotrack/features/reports/view/screens/app_home_screen.dart';
 
+import 'test_locations.dart';
+
 /// Opens every section an owner can reach. There's no backend in tests,
 /// so each screen shows its loading/error state — this catches layout
 /// crashes (like the one Inventory had) in the screens' own structure.
@@ -29,6 +31,7 @@ void main() {
         await tester.pumpWidget(
           ProviderScope(
             overrides: [
+              ...testLocationOverrides,
               authStateProvider.overrideWith(
                 (ref) => const StaffUser(
                   id: 'owner',

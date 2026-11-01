@@ -4,15 +4,15 @@ import '../../../../core/constants/payment_channel.dart';
 import '../../../../core/utils/action_controller.dart';
 import '../../../../core/utils/date_utils.dart';
 import '../../../inventory/data/providers/inventory_providers.dart';
+import '../../../locations/data/providers/location_providers.dart';
 import '../../../offline/data/providers/offline_providers.dart';
-import '../../../organizations/data/providers/organization_providers.dart';
 import '../models/sale.dart';
 import '../repositories/offline_sales_repository.dart';
 import '../repositories/sales_repository.dart';
 
 /// The active [SalesRepository] implementation.
 final salesRepositoryProvider = Provider<SalesRepository>((ref) {
-  final remote = SupabaseSalesRepository(ref.watch(currentTenantIdProvider));
+  final remote = SupabaseSalesRepository(ref.watch(dataScopeProvider).tenantId);
   final offline = ref.watch(offlineContextProvider);
   return offline == null ? remote : OfflineSalesRepository(remote, offline);
 });

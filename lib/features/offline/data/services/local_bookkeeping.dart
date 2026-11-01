@@ -396,10 +396,7 @@ class LocalBookkeeping {
                   bags /
                   (recipe['per_bags'] as num))
               .round();
-      final material = _snapshot.row(
-        'stock_items',
-        recipe['raw_material_item_id'] as String,
-      );
+      final material = _recipeMaterial(recipe);
       if (need > 0 && material != null) {
         materialCost += need * (material['average_cost'] as num? ?? 0);
         _takeStock(
@@ -758,6 +755,21 @@ class LocalBookkeeping {
       if (saleId != null) _noteSaleBatch(saleId, batch);
     }
     _movement(item, type, -quantity, note, saleId: saleId, runId: runId);
+  }
+
+  /// This device's own row for a recipe's raw material: recipes may name
+  /// another location's row, so it's matched by item_key, as the server's
+  /// item_at_location does.
+  Map<String, dynamic>? _recipeMaterial(Map<String, dynamic> recipe) {
+    final id = recipe['raw_material_item_id'] as String;
+    final direct = _snapshot.row('stock_items', id);
+    if (direct != null) return direct;
+    final key = (recipe['stock_items'] as Map?)?['item_key'] as String?;
+    if (key == null) return null;
+    for (final item in _snapshot.rows('stock_items')) {
+      if (item['item_key'] == key) return item;
+    }
+    return null;
   }
 
   /// Like the server's note_sale_batch: the sale remembers the batch

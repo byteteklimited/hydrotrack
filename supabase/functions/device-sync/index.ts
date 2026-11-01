@@ -8,7 +8,8 @@
 //
 // Actions:
 //   {"action": "pull", "device_key": "..."}
-//     -> the organization's data for offline use: staff (with offline
+//     -> the organization's data for offline use (per-location records:
+//        only the device's location): staff (with offline
 //        sign-in checks), products, stock, customers, drivers, vehicles, recipes,
 //        open flags, subscription status, permits, the sanitation
 //        checklist, machines and their maintenance tasks, open breakdowns,
@@ -58,12 +59,22 @@ async function fetchAll(query: Query): Promise<unknown[]> {
   }
 }
 
-async function pull(admin: SupabaseClient, deviceKey: string, tenantId: string) {
+async function pull(
+  admin: SupabaseClient,
+  deviceKey: string,
+  tenantId: string,
+  locationId: string,
+) {
   const since = new Date(Date.now() - HISTORY_DAYS * 86_400_000);
   const sinceTime = since.toISOString();
   const sinceDate = sinceTime.slice(0, 10);
   const t = (table: string, select = "*") =>
     admin.from(table).select(select).eq("tenant_id", tenantId);
+  // Tables kept per location: only the device's location.
+  const here = (table: string, select = "*") => t(table, select).eq("location_id", locationId);
+  // Stock rows: those of the device location's items.
+  const hereStock = (table: string, select = "*") =>
+    t(table, `${select}, stock_items!inner(location_id)`).eq("stock_items.location_id", locationId);
 
   const [
     organization,
@@ -72,6 +83,7 @@ async function pull(admin: SupabaseClient, deviceKey: string, tenantId: string) 
     lastCount,
     totals,
     subscription,
+    location,
   ] = await Promise.all([
     admin.from("tenants")
       .select(
@@ -82,13 +94,14 @@ async function pull(admin: SupabaseClient, deviceKey: string, tenantId: string) 
       .eq("id", tenantId).single(),
     admin.rpc("device_members", { p_device_key: deviceKey }),
     admin.rpc("device_finance_position", { p_device_key: deviceKey }),
-    t("stock_movements", "at").eq("type", "adjustment")
+    hereStock("stock_movements", "at").eq("type", "adjustment")
       .order("at", { ascending: false }).limit(1),
     admin.rpc("device_totals", { p_device_key: deviceKey }),
     admin.rpc("device_subscription", { p_device_key: deviceKey }),
+    admin.rpc("device_location", { p_device_key: deviceKey }),
   ]);
   for (
-    const result of [organization, members, financePosition, lastCount, totals, subscription]
+    const result of [organization, members, financePosition, lastCount, totals, subscription, location]
   ) {
     if (result.error) throw new Error(result.error.message);
   }
@@ -96,44 +109,45 @@ async function pull(admin: SupabaseClient, deviceKey: string, tenantId: string) 
   const tables: Record<string, Query> = {
     products: (a, b) => t("products").order("id").range(a, b),
     stock_items: (a, b) =>
-      t("stock_items", `*, ${PRODUCT}`).order("id").range(a, b),
+      here("stock_items", `*, ${PRODUCT}`).order("id").range(a, b),
     stock_batches: (a, b) =>
-      t("stock_batches")
+      hereStock("stock_batches")
         .or(`quantity_remaining.gt.0,received_at.gte.${sinceTime}`)
         .order("id").range(a, b),
     production_recipes: (a, b) =>
-      t("production_recipes", `*, stock_items(name, unit), ${PRODUCT}`)
+      t("production_recipes", `*, stock_items(name, unit, item_key), ${PRODUCT}`)
         .order("id").range(a, b),
-    customers: (a, b) => t("customers").order("id").range(a, b),
+    customers: (a, b) => here("customers").order("id").range(a, b),
     ledger_entries: (a, b) =>
-      t("ledger_entries", "*, customers(name)").gte("date", sinceDate)
+      t("ledger_entries", "*, customers!inner(name, location_id)")
+        .eq("customers.location_id", locationId).gte("date", sinceDate)
         .order("id").range(a, b),
     sales: (a, b) =>
-      t(
+      here(
         "sales",
         `*, sale_lines(*, ${PRODUCT}), profiles!recorded_by(full_name), ` +
           "voided_by_profile:profiles!voided_by(full_name)",
       ).gte("date_time", sinceTime).order("id").range(a, b),
     cash_entries: (a, b) =>
-      t("cash_entries", "*, profiles!recorded_by(full_name)")
+      here("cash_entries", "*, profiles!recorded_by(full_name)")
         .gte("date_time", sinceTime).order("id").range(a, b),
     expenses: (a, b) =>
-      t("expenses", "*, profiles!recorded_by(full_name)")
+      here("expenses", "*, profiles!recorded_by(full_name)")
         .gte("date", sinceDate).order("id").range(a, b),
     production_runs: (a, b) =>
-      t("production_runs", `*, ${PRODUCT}, profiles!recorded_by(full_name)`)
+      here("production_runs", `*, ${PRODUCT}, profiles!recorded_by(full_name)`)
         .gte("recorded_at", sinceTime).order("id").range(a, b),
     stock_movements: (a, b) =>
-      t("stock_movements", "*, profiles!by_whom(full_name)")
+      hereStock("stock_movements", "*, profiles!by_whom(full_name)")
         .gte("at", sinceTime).order("id").range(a, b),
     drivers: (a, b) => t("drivers").order("id").range(a, b),
     vehicles: (a, b) => t("vehicles").order("id").range(a, b),
     load_outs: (a, b) =>
-      t("load_outs", `*, ${PRODUCT}`).or(`status.eq.on_road,date_time.gte.${sinceTime}`)
+      here("load_outs", `*, ${PRODUCT}`).or(`status.eq.on_road,date_time.gte.${sinceTime}`)
         .order("id").range(a, b),
     sync_flags: (a, b) => t("sync_flags").is("checked_at", null).order("id").range(a, b),
     cash_counts: (a, b) =>
-      t("cash_counts", CASH_COUNT).gte("counted_at", sinceTime).order("id").range(a, b),
+      here("cash_counts", CASH_COUNT).gte("counted_at", sinceTime).order("id").range(a, b),
     water_tests: (a, b) =>
       t("water_tests", "*, profiles!recorded_by(full_name)")
         .gte("date", sinceDate).order("id").range(a, b),
@@ -173,6 +187,7 @@ async function pull(admin: SupabaseClient, deviceKey: string, tenantId: string) 
     finance_position: financePosition.data,
     totals: totals.data,
     subscription: subscription.data,
+    location: location.data,
     last_stock_count_at: (lastCount.data?.[0] as { at?: string } | undefined)?.at ?? null,
     tables: Object.fromEntries(names.map((name, i) => [name, results[i]])),
   };
@@ -226,7 +241,7 @@ Deno.serve(async (request) => {
 
   try {
     if (body.action === "pull") {
-      return json(await pull(admin, deviceKey, device.tenant_id));
+      return json(await pull(admin, deviceKey, device.tenant_id, device.location_id));
     }
     if (body.action === "push") {
       if (!Array.isArray(body.operations)) {

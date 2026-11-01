@@ -6,6 +6,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../../core/constants/app_routes.dart';
 import '../../../../core/utils/action_controller.dart';
 import '../../../auth/data/providers/auth_providers.dart';
+import '../../../locations/data/providers/location_providers.dart';
 import '../models/bank_details.dart';
 import '../models/business_header.dart';
 import '../models/business_profile.dart';
@@ -158,6 +159,7 @@ final organizationActionControllerProvider =
 /// organization (or their only one), otherwise the organization picker —
 /// which also covers "not in any organization yet".
 Future<void> enterApp(BuildContext context, WidgetRef ref) async {
+  forgetLocation(ref);
   ref.invalidate(myMembershipsProvider);
   final memberships = await ref.read(myMembershipsProvider.future);
   if (!context.mounted) return;
@@ -201,6 +203,7 @@ Future<void> openOrganization(
 /// Leaves the current organization's screens for the picker, without
 /// signing out.
 void switchOrganization(BuildContext context, WidgetRef ref) {
+  forgetLocation(ref);
   ref.invalidate(myMembershipsProvider);
   Navigator.of(
     context,

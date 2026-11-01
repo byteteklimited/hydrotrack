@@ -3,6 +3,11 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../../core/widgets/app_nav_section.dart';
 import '../../../../core/widgets/app_navigation_shell.dart';
+import '../../../../core/utils/action_error.dart';
+import '../../../../core/widgets/app_empty_state.dart';
+import '../../../../core/widgets/app_error_state.dart';
+import '../../../../core/widgets/app_loading.dart';
+import '../../../locations/data/providers/location_providers.dart';
 import '../../../auth/data/providers/auth_providers.dart';
 import '../../../debts/view/screens/customers_directory_screen.dart';
 import '../../../debts/view/screens/debts_screen.dart';
@@ -40,7 +45,32 @@ class AppHomeScreen extends ConsumerWidget {
     final hasMember = ref.watch(authStateProvider) != null;
     final hasOrganization = ref.watch(currentOrganizationProvider) != null;
     if (!hasMember || !hasOrganization) return const Scaffold();
-    return AppNavigationShell(pageBuilder: _buildPage);
+    // Every screen works in a location: wait until it's known.
+    return ref
+        .watch(locationOptionsProvider)
+        .when(
+          loading: () => const Scaffold(body: AppLoading()),
+          error: (error, stackTrace) => Scaffold(
+            body: AppErrorState(
+              message:
+                  readableErrorMessage(error) ??
+                  "Couldn't load your locations. Check your connection and "
+                      'try again.',
+              onRetry: () => ref.invalidate(locationOptionsProvider),
+            ),
+          ),
+          data: (options) => options.allowed.isEmpty
+              ? const Scaffold(
+                  body: AppEmptyState(
+                    icon: Icons.place_outlined,
+                    title: "You aren't assigned to a location",
+                    message:
+                        'Ask the owner to add you to a factory or depot under '
+                        'Organization → Locations, then open the app again.',
+                  ),
+                )
+              : AppNavigationShell(pageBuilder: _buildPage),
+        );
   }
 
   static Widget _buildPage(AppSection section) {

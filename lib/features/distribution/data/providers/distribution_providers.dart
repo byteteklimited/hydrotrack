@@ -4,8 +4,8 @@ import '../../../../core/constants/payment_channel.dart';
 import '../../../../core/utils/action_controller.dart';
 import '../../../../core/utils/date_utils.dart';
 import '../../../inventory/data/providers/inventory_providers.dart';
+import '../../../locations/data/providers/location_providers.dart';
 import '../../../offline/data/providers/offline_providers.dart';
-import '../../../organizations/data/providers/organization_providers.dart';
 import '../../../sales/data/models/sale.dart';
 import '../../../sales/data/providers/sales_providers.dart';
 import '../models/driver.dart';
@@ -17,7 +17,7 @@ import '../repositories/offline_distribution_repository.dart';
 /// The active [DistributionRepository] implementation.
 final distributionRepositoryProvider = Provider<DistributionRepository>((ref) {
   final remote = SupabaseDistributionRepository(
-    ref.watch(currentTenantIdProvider),
+    ref.watch(dataScopeProvider).tenantId,
   );
   final offline = ref.watch(offlineContextProvider);
   return offline == null

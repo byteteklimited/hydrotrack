@@ -2,7 +2,14 @@ import 'package:flutter/material.dart';
 
 /// What kind of event moved stock. [adjustment] is a count correction and
 /// can go either direction; the others have a fixed sign in [quantity].
-enum MovementType { stockIn, stockOut, adjustment, productionUse }
+enum MovementType {
+  stockIn,
+  stockOut,
+  adjustment,
+  productionUse,
+  transferOut,
+  transferIn,
+}
 
 extension MovementTypeMeta on MovementType {
   String get label => switch (this) {
@@ -10,6 +17,8 @@ extension MovementTypeMeta on MovementType {
     MovementType.stockOut => 'Stock out',
     MovementType.adjustment => 'Adjustment',
     MovementType.productionUse => 'Used in production',
+    MovementType.transferOut => 'Sent to another location',
+    MovementType.transferIn => 'Received from another location',
   };
 
   IconData get icon => switch (this) {
@@ -17,6 +26,8 @@ extension MovementTypeMeta on MovementType {
     MovementType.stockOut => Icons.remove_circle_outline,
     MovementType.adjustment => Icons.tune,
     MovementType.productionUse => Icons.factory_outlined,
+    MovementType.transferOut => Icons.north_east,
+    MovementType.transferIn => Icons.south_west,
   };
 }
 
@@ -79,6 +90,8 @@ MovementType _typeFromDb(String value) => switch (value) {
   'stock_out' => MovementType.stockOut,
   'adjustment' => MovementType.adjustment,
   'production_use' => MovementType.productionUse,
+  'transfer_out' => MovementType.transferOut,
+  'transfer_in' => MovementType.transferIn,
   _ => throw ArgumentError('Unknown movement type: $value'),
 };
 
@@ -87,4 +100,6 @@ String _typeToDb(MovementType type) => switch (type) {
   MovementType.stockOut => 'stock_out',
   MovementType.adjustment => 'adjustment',
   MovementType.productionUse => 'production_use',
+  MovementType.transferOut => 'transfer_out',
+  MovementType.transferIn => 'transfer_in',
 };

@@ -4,15 +4,17 @@ import '../../../../core/constants/payment_channel.dart';
 import '../../../../core/utils/action_controller.dart';
 import '../../../../core/utils/date_utils.dart';
 import '../../../expenses/data/providers/expenses_providers.dart';
+import '../../../locations/data/providers/location_providers.dart';
 import '../../../offline/data/providers/offline_providers.dart';
-import '../../../organizations/data/providers/organization_providers.dart';
 import '../models/payroll.dart';
 import '../models/worker.dart';
 import '../repositories/offline_payroll_repository.dart';
 import '../repositories/payroll_repository.dart';
 
 final payrollRepositoryProvider = Provider<PayrollRepository>((ref) {
-  final remote = SupabasePayrollRepository(ref.watch(currentTenantIdProvider));
+  final remote = SupabasePayrollRepository(
+    ref.watch(dataScopeProvider).tenantId,
+  );
   final offline = ref.watch(offlineContextProvider);
   return offline == null ? remote : OfflinePayrollRepository(remote, offline);
 });

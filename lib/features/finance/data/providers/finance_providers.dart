@@ -2,8 +2,8 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../../core/utils/action_controller.dart';
 import '../../../../core/utils/date_utils.dart';
+import '../../../locations/data/providers/location_providers.dart';
 import '../../../offline/data/providers/offline_providers.dart';
-import '../../../organizations/data/providers/organization_providers.dart';
 import '../models/cash_entry.dart';
 import '../models/finance_position.dart';
 import '../repositories/finance_repository.dart';
@@ -11,7 +11,9 @@ import '../repositories/offline_finance_repository.dart';
 
 /// The active [FinanceRepository] implementation.
 final financeRepositoryProvider = Provider<FinanceRepository>((ref) {
-  final remote = SupabaseFinanceRepository(ref.watch(currentTenantIdProvider));
+  final remote = SupabaseFinanceRepository(
+    ref.watch(dataScopeProvider).tenantId,
+  );
   final offline = ref.watch(offlineContextProvider);
   return offline == null ? remote : OfflineFinanceRepository(remote, offline);
 });

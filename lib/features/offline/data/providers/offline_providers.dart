@@ -8,6 +8,7 @@ import '../../../../core/utils/action_controller.dart';
 import '../../../../core/utils/connectivity.dart';
 import '../../../auth/data/providers/auth_providers.dart';
 import '../../../auth/data/repositories/sign_in_result.dart';
+import '../../../locations/data/providers/location_providers.dart';
 import '../../../organizations/data/models/organization.dart';
 import '../../../organizations/data/providers/organization_providers.dart';
 import '../models/registered_device.dart';
@@ -128,7 +129,7 @@ Future<bool> enterDeviceOrganization(
 
 final syncFlagsRepositoryProvider = Provider<SyncFlagsRepository>((ref) {
   final remote = SupabaseSyncFlagsRepository(
-    ref.watch(currentTenantIdProvider),
+    ref.watch(dataScopeProvider).tenantId,
   );
   final offline = ref.watch(offlineContextProvider);
   return offline == null ? remote : OfflineSyncFlagsRepository(remote, offline);
@@ -164,7 +165,7 @@ final syncFlagControllerProvider =
 final registeredDevicesProvider = FutureProvider<List<RegisteredDevice>>((ref) {
   return ref
       .watch(deviceSyncApiProvider)
-      .fetchDevices(ref.watch(currentTenantIdProvider));
+      .fetchDevices(ref.watch(dataScopeProvider).tenantId);
 });
 
 /// Setting this device up, syncing it, turning it off, and switching off

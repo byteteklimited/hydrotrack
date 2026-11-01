@@ -2,13 +2,15 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../../core/utils/action_controller.dart';
 import '../../../inventory/data/providers/inventory_providers.dart';
+import '../../../locations/data/providers/location_providers.dart';
 import '../../../offline/data/providers/offline_providers.dart';
-import '../../../organizations/data/providers/organization_providers.dart';
 import '../models/product.dart';
 import '../repositories/products_repository.dart';
 
 final productsRepositoryProvider = Provider<ProductsRepository>((ref) {
-  final remote = SupabaseProductsRepository(ref.watch(currentTenantIdProvider));
+  final remote = SupabaseProductsRepository(
+    ref.watch(dataScopeProvider).tenantId,
+  );
   final offline = ref.watch(offlineContextProvider);
   return offline == null ? remote : OfflineProductsRepository(remote, offline);
 });

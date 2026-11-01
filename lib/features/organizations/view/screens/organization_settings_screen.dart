@@ -7,6 +7,7 @@ import '../../../../core/widgets/app_card.dart';
 import '../../../../core/widgets/responsive_center.dart';
 import '../../../auth/data/models/staff_user.dart';
 import '../../../auth/data/providers/auth_providers.dart';
+import '../../../locations/view/screens/locations_screen.dart';
 import '../../../offline/view/widgets/offline_device_card.dart';
 import '../../../offline/view/widgets/registered_devices_card.dart';
 import '../../../subscriptions/view/widgets/subscription_card.dart';
@@ -41,6 +42,32 @@ class OrganizationSettingsScreen extends ConsumerWidget {
               crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
                 const SubscriptionCard(),
+                if (user.role.isAdminLevel) ...[
+                  AppCard(
+                    title: 'Locations',
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.stretch,
+                      children: [
+                        const Text(
+                          'Factories and depots, each with its own stock, '
+                          'sales, cash and customers, and who works where.',
+                        ),
+                        const SizedBox(height: AppSpacing.md),
+                        AppButton(
+                          label: 'Manage locations',
+                          variant: AppButtonVariant.secondary,
+                          leadingIcon: Icons.place_outlined,
+                          onPressed: () => Navigator.of(context).push(
+                            MaterialPageRoute<void>(
+                              builder: (_) => const LocationsScreen(),
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                  const SizedBox(height: AppSpacing.lg),
+                ],
                 BusinessProfileCard(organization: organization),
                 const SizedBox(height: AppSpacing.lg),
                 DebtRemindersCard(organization: organization),

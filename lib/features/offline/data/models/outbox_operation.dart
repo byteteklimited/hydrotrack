@@ -11,7 +11,9 @@ enum OperationType {
   stockCount('stock_count', 'Stock count'),
   loadOut('load_out', 'Load-out'),
   driverReturn('driver_return', 'Driver return'),
-  cashCount('cash_count', 'Cash count');
+  cashCount('cash_count', 'Cash count'),
+  waterTest('water_test', 'Water test'),
+  sanitationCheck('sanitation_check', 'Sanitation checklist');
 
   const OperationType(this.dbValue, this.label);
 

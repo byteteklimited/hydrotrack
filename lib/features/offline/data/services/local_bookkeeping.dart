@@ -1,4 +1,5 @@
 import '../../../finance/data/repositories/cash_count_repository.dart';
+import '../../../organizations/data/models/water_limits.dart';
 import '../models/offline_snapshot.dart';
 import '../models/outbox_operation.dart';
 
@@ -65,6 +66,10 @@ class LocalBookkeeping {
         _driverReturn();
       case OperationType.cashCount:
         _cashCount();
+      case OperationType.waterTest:
+        _waterTest();
+      case OperationType.sanitationCheck:
+        _sanitationCheck();
     }
   }
 
@@ -99,6 +104,7 @@ class LocalBookkeeping {
       'voided_at': null,
       'voided_by': null,
       'void_reason': null,
+      'batch_numbers': <String>[],
       'sale_lines': [
         for (final line in lines)
           {
@@ -410,6 +416,56 @@ class LocalBookkeeping {
     });
   }
 
+  void _waterTest() {
+    final ph = _p['ph'] as num;
+    final tds = _p['tds'] as num;
+    final chlorine = _p['chlorine'] as num;
+    final problems = WaterLimits.fromTenantJson(
+      _snapshot.organization,
+    ).problems(ph: ph, tds: tds, chlorine: chlorine);
+    _snapshot.rows('water_tests').add({
+      'id': _op.opId,
+      'tenant_id': _tenantId,
+      'date': _p['date'],
+      'shift': _p['shift'],
+      'tested_at': _at,
+      'ph': ph,
+      'tds': tds,
+      'chlorine': chlorine,
+      'passed': problems.isEmpty,
+      'problems': problems,
+      'note': _p['note'],
+      'recorded_by': _op.actorId,
+      'profiles': _recorder,
+      'local_op_id': _op.opId,
+    });
+  }
+
+  /// Ticks replace that day's earlier ticks for the same items.
+  void _sanitationCheck() {
+    final date = _p['date'] as String;
+    final rows = _snapshot.rows('sanitation_checks');
+    for (final item in _p['items'] as List) {
+      final tick = Map<String, dynamic>.from(item as Map);
+      rows
+        ..removeWhere(
+          (row) => row['date'] == date && row['item_id'] == tick['item_id'],
+        )
+        ..add({
+          'id': _childId(),
+          'tenant_id': _tenantId,
+          'date': date,
+          'item_id': tick['item_id'],
+          'done': tick['done'] ?? false,
+          'note': tick['note'],
+          'checked_by': _op.actorId,
+          'checked_at': _at,
+          'profiles': _recorder,
+          'local_op_id': _op.opId,
+        });
+    }
+  }
+
   // ---------------------------------------------------------------------
   // Shared pieces
   // ---------------------------------------------------------------------
@@ -520,8 +576,24 @@ class LocalBookkeeping {
           : batch['quantity_remaining'] as int;
       batch['quantity_remaining'] = (batch['quantity_remaining'] as int) - take;
       remaining -= take;
+      if (saleId != null) _noteSaleBatch(saleId, batch);
     }
     _movement(item, type, -quantity, note, saleId: saleId, runId: runId);
+  }
+
+  /// Like the server's note_sale_batch: the sale remembers the batch
+  /// number of each production run its bags came from.
+  void _noteSaleBatch(String saleId, Map<String, dynamic> batch) {
+    final runId = batch['production_run_id'] as String?;
+    final number = runId == null
+        ? null
+        : _snapshot.row('production_runs', runId)?['batch_number'] as String?;
+    final sale = _snapshot.row('sales', saleId);
+    if (number == null || sale == null) return;
+    final numbers = (sale['batch_numbers'] as List? ?? const [])
+        .cast<String>()
+        .toList();
+    if (!numbers.contains(number)) sale['batch_numbers'] = [...numbers, number];
   }
 
   void _addStock(

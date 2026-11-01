@@ -49,7 +49,11 @@ class ProductionRunTile extends StatelessWidget {
                   ),
                   const SizedBox(height: AppSpacing.xs),
                   Text(
-                    '${run.operatorName} · ${run.product.label}',
+                    [
+                      ?run.batchNumber,
+                      run.operatorName,
+                      run.product.label,
+                    ].join(' · '),
                     style: theme.textTheme.bodySmall?.copyWith(
                       color: theme.colorScheme.onSurfaceVariant,
                     ),

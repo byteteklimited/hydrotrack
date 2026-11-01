@@ -6,6 +6,7 @@ import '../models/bank_details.dart';
 import '../models/business_profile.dart';
 import '../models/membership.dart';
 import '../models/organization.dart';
+import '../models/water_limits.dart';
 
 /// Contract for the signed-in person's organizations: which ones they
 /// belong to, creating and joining one, and organization settings.
@@ -34,6 +35,12 @@ abstract class OrganizationRepository {
     required String organizationId,
     required String name,
     required BusinessProfile profile,
+  });
+
+  /// What water tests must read to pass (Owner/Admin, enforced by RLS).
+  Future<Organization> updateWaterLimits({
+    required String organizationId,
+    required WaterLimits limits,
   });
 
   /// Uploads a logo (PNG/JPEG/WebP, under 5 MB) and links it.
@@ -71,7 +78,8 @@ class SupabaseOrganizationRepository implements OrganizationRepository {
   static const _dismissedChecklistsKey = 'dismissed_setup_checklists';
   static const _organizationColumns =
       'id, name, logo_path, bank_name, bank_account_number, bank_account_name, '
-      'address, phone, email, rc_number, nafdac_number';
+      'address, phone, email, rc_number, nafdac_number, water_ph_min, '
+      'water_ph_max, water_tds_max, water_chlorine_min, water_chlorine_max';
   static const _bucket = 'tenant-files';
   static const _selectMembership =
       'role, is_active, user_id, tenants($_organizationColumns), '
@@ -131,6 +139,12 @@ class SupabaseOrganizationRepository implements OrganizationRepository {
     required String name,
     required BusinessProfile profile,
   }) => _update(organizationId, {'name': name, ...profile.toTenantJson()});
+
+  @override
+  Future<Organization> updateWaterLimits({
+    required String organizationId,
+    required WaterLimits limits,
+  }) => _update(organizationId, limits.toTenantJson());
 
   @override
   Future<Organization> uploadLogo({

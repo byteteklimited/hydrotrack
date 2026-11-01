@@ -124,7 +124,7 @@ begin
     'One summary per organization from 8 pm');
   return next is((select body from public.alerts where tenant_id = tests.id('a') and kind = 'daily_summary'),
     'Today: 0 bags produced, 10 bags sold. Collected NGN4,000 cash and NGN0 by transfer. '
-      || 'Money outside: NGN0. Cash counts short: 1 (NGN500).',
+      || 'Money outside: NGN0. Cash counts short: 1 (NGN500). Sanitation checklist not done.',
     'with the day''s production, sales, takings, money outside and shortages');
 end;
 $$;

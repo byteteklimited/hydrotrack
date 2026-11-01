@@ -240,6 +240,13 @@ class _ReceiptBodyState extends ConsumerState<_ReceiptBody> {
                     color: theme.colorScheme.onSurfaceVariant,
                   ),
                 ),
+                if (sale.batchNumbers.isNotEmpty)
+                  Text(
+                    'Batch ${sale.batchNumbers.join(', ')}',
+                    style: theme.textTheme.bodySmall?.copyWith(
+                      color: theme.colorScheme.onSurfaceVariant,
+                    ),
+                  ),
               ],
             ),
           ),

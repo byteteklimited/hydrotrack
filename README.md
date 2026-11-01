@@ -28,7 +28,7 @@ start if that file still holds placeholders.
   owners (throwaway account).
 - `./supabase/tests/run_linked.sh` — database suites (pgTAP: isolation,
   debt reminders, offline sync, products and prices, PIN reset, cash
-  counts, purchases and costs, alerts, subscriptions)
+  counts, purchases and costs, alerts, subscriptions, quality)
   against the linked hydrotrack project. Runs in one transaction and rolls
   back; nothing persists. With Docker: `supabase test db --linked`.
 - `python3 -I supabase/tests/api_isolation_test.py` — the same boundaries
@@ -168,3 +168,23 @@ Studio.app/Contents/jbr/Contents/Home"`, or upgrade Gradle.
   and the payment instructions owners see. **Set the price and payment
   instructions before going live.** The console gives no access to any
   organization's own records.
+
+## Phase D — operations
+
+1. **Quality and compliance** (More → Quality; owners, admins, managers,
+   store keepers):
+   - **Water tests** each shift (pH, TDS, residual chlorine) against the
+     organization's limits — NIS 554 by default (pH 6.5–8.5, TDS ≤ 500
+     mg/L, chlorine 0.2–0.25 mg/L), changed under Quality → settings. A
+     failed test is flagged and the owner alerted; production can still be
+     recorded. Works offline.
+   - **Batch numbers** on every production run (`261101-M-1` = date,
+     shift, run). Sales take stock oldest batch first and remember the
+     batches (printed on receipts); **Trace a batch** (owners, admins,
+     managers) lists every customer, phone and driver that got it.
+   - **Permits** (NAFDAC, SON, water board, fire…): the owner is alerted
+     60, 30 and 7 days before expiry and on the day.
+   - **Sanitation checklist**: each organization's own list (starts with 8
+     suggested items), ticked off daily. Works offline.
+   - The 8 pm summary adds failed or missing water tests and a missed
+     checklist.

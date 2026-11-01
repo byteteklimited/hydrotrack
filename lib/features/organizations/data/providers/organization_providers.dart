@@ -11,6 +11,7 @@ import '../models/business_header.dart';
 import '../models/business_profile.dart';
 import '../models/membership.dart';
 import '../models/organization.dart';
+import '../models/water_limits.dart';
 import '../repositories/organization_repository.dart';
 
 /// The active [OrganizationRepository] implementation.
@@ -84,6 +85,17 @@ class OrganizationActionController extends ActionController {
             name: name,
             profile: profile,
           ),
+    );
+  }
+
+  Future<Organization?> saveWaterLimits({
+    required String organizationId,
+    required WaterLimits limits,
+  }) {
+    return _updating(
+      () => _ref
+          .read(organizationRepositoryProvider)
+          .updateWaterLimits(organizationId: organizationId, limits: limits),
     );
   }
 

@@ -35,6 +35,7 @@ class ProductionRun {
     required this.recordedBy,
     required this.recordedAt,
     this.materialCost = 0,
+    this.batchNumber,
   });
 
   final String id;
@@ -44,6 +45,10 @@ class ProductionRun {
   final String operatorName;
   final Product product;
   final int quantityProduced;
+
+  /// e.g. 261101-M-1 (date, shift, run), given by the server; null for a
+  /// run made offline until it syncs (migration 0025).
+  final String? batchNumber;
 
   /// Raw material it used, at average cost (migration 0021).
   final num materialCost;
@@ -75,6 +80,7 @@ class ProductionRun {
     product: Product.fromRecord(json),
     quantityProduced: json['quantity_produced'] as int,
     materialCost: json['material_cost'] as num? ?? 0,
+    batchNumber: json['batch_number'] as String?,
     wastage: json['wastage'] as int,
     recordedBy:
         (json['profiles'] as Map<String, dynamic>?)?['full_name'] as String? ??
@@ -91,6 +97,7 @@ class ProductionRun {
     ...product.toRecordJson(),
     'quantity_produced': quantityProduced,
     'material_cost': materialCost,
+    'batch_number': batchNumber,
     'wastage': wastage,
     'recorded_by': recordedBy,
     'recorded_at': recordedAt.toIso8601String(),

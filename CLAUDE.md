@@ -282,3 +282,16 @@ supabase/
       (8), api_isolation (22), pin_reset (7), device_sync (9); 283 Flutter
       tests. Before launch: set the price and payment instructions in the
       console. Next: Phase D.
+- [ ] Phase D (2026-11-01), five parts, each committed (agreed rules in
+      the chat; README "Phase D"):
+      1. [x] Quality and compliance (0025): water tests per shift vs
+         per-organization limits (NIS 554 defaults; failure → owner
+         alert), automatic batch numbers (trigger; sales.batch_numbers via
+         note_sale_batch; trace_batch), permits (reminders 60/30/7/0 days
+         in generate_alerts, windowed so late additions still remind),
+         sanitation checklist (seeded, per organization), summary lines.
+         Water tests + checklist offline (apply_device_operation copied
+         from 0020 + 2 branches). Quality section (tabs, trace, settings).
+         Tests: quality.test.sql (39), 296 Flutter tests.
+      2. [ ] Machines and generator  3. [ ] Staff and payroll
+      4. [ ] Forecasting (stock run-out)  5. [ ] Factories and depots

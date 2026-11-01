@@ -1,5 +1,6 @@
 import 'bank_details.dart';
 import 'business_profile.dart';
+import 'water_limits.dart';
 
 /// One organization (tenant) — a water factory business using HydroTrack.
 /// Every business record belongs to exactly one organization.
@@ -10,6 +11,7 @@ class Organization {
     this.logoPath,
     this.bankDetails,
     this.profile = const BusinessProfile(),
+    this.waterLimits = const WaterLimits(),
   });
 
   final String id;
@@ -25,6 +27,9 @@ class Organization {
   /// Address, contacts and registration numbers for receipts and reports.
   final BusinessProfile profile;
 
+  /// What a water test must read to pass.
+  final WaterLimits waterLimits;
+
   factory Organization.fromJson(Map<String, dynamic> json) {
     return Organization(
       id: json['id'] as String,
@@ -32,6 +37,7 @@ class Organization {
       logoPath: json['logo_path'] as String?,
       bankDetails: BankDetails.fromTenantJson(json),
       profile: BusinessProfile.fromTenantJson(json),
+      waterLimits: WaterLimits.fromTenantJson(json),
     );
   }
 
@@ -42,6 +48,7 @@ class Organization {
       'logo_path': logoPath,
       ...BankDetails.toTenantJson(bankDetails),
       ...profile.toTenantJson(),
+      ...waterLimits.toTenantJson(),
     };
   }
 }

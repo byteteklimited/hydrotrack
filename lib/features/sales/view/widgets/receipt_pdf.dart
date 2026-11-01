@@ -85,6 +85,14 @@ Future<pw.Document> buildReceiptPdf(
               'Served by ${sale.recordedBy}',
               style: const pw.TextStyle(fontSize: 9, color: PdfColors.grey700),
             ),
+            if (sale.batchNumbers.isNotEmpty)
+              pw.Text(
+                'Batch ${sale.batchNumbers.join(', ')}',
+                style: const pw.TextStyle(
+                  fontSize: 9,
+                  color: PdfColors.grey700,
+                ),
+              ),
           ],
         );
       },

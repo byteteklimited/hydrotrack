@@ -58,6 +58,8 @@ Future<List<int>> buildEscPosReceipt(
     ...pair('Paid', naira(sale.amountPaid)),
     if (sale.balance > 0) ...pair('Balance', naira(sale.balance), bold: true),
     if (sale.isVoided) ...generator.text('VOIDED', styles: centered),
+    if (sale.batchNumbers.isNotEmpty)
+      ...generator.text('Batch ${sale.batchNumbers.join(', ')}'),
     ...generator.feed(1),
     ...generator.text('Thank you', styles: centered),
     ...generator.feed(2),

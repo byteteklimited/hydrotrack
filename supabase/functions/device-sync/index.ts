@@ -10,9 +10,11 @@
 //   {"action": "pull", "device_key": "..."}
 //     -> the organization's data for offline use: staff (with offline
 //        sign-in checks), products, stock, customers, drivers, vehicles, recipes,
-//        open flags, subscription status, and the last 90 days of sales, payments, cash,
-//        expenses, production, stock movements and load-outs, in the same
-//        shape the app's own queries return.
+//        open flags, subscription status, permits, the sanitation
+//        checklist, and the last 90 days of sales, payments, cash,
+//        expenses, production, stock movements, load-outs, water tests
+//        and sanitation checks, in the same shape the app's own queries
+//        return.
 //   {"action": "push", "device_key": "...", "operations": [...]}
 //     -> applies queued records in order (apply_device_operation) and
 //        returns each one's result. Stops at the first error that isn't
@@ -72,7 +74,8 @@ async function pull(admin: SupabaseClient, deviceKey: string, tenantId: string) 
     admin.from("tenants")
       .select(
         "id, name, logo_path, bank_name, bank_account_number, bank_account_name, " +
-          "address, phone, email, rc_number, nafdac_number",
+          "address, phone, email, rc_number, nafdac_number, water_ph_min, water_ph_max, " +
+          "water_tds_max, water_chlorine_min, water_chlorine_max",
       )
       .eq("id", tenantId).single(),
     admin.rpc("device_members", { p_device_key: deviceKey }),
@@ -129,6 +132,14 @@ async function pull(admin: SupabaseClient, deviceKey: string, tenantId: string) 
     sync_flags: (a, b) => t("sync_flags").is("checked_at", null).order("id").range(a, b),
     cash_counts: (a, b) =>
       t("cash_counts", CASH_COUNT).gte("counted_at", sinceTime).order("id").range(a, b),
+    water_tests: (a, b) =>
+      t("water_tests", "*, profiles!recorded_by(full_name)")
+        .gte("date", sinceDate).order("id").range(a, b),
+    sanitation_items: (a, b) => t("sanitation_items").order("id").range(a, b),
+    sanitation_checks: (a, b) =>
+      t("sanitation_checks", "*, profiles!checked_by(full_name)")
+        .gte("date", sinceDate).order("id").range(a, b),
+    permits: (a, b) => t("permits").order("id").range(a, b),
   };
 
   const names = Object.keys(tables);

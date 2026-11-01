@@ -128,6 +128,10 @@ class _RunDetailBody extends ConsumerWidget {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
+                    _DetailRow(
+                      label: 'Batch',
+                      value: run.batchNumber ?? 'Given once this run syncs',
+                    ),
                     _DetailRow(label: 'Shift', value: run.shift.label),
                     _DetailRow(label: 'Machine', value: run.machine),
                     _DetailRow(label: 'Product', value: run.product.label),

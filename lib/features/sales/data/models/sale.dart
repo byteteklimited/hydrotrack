@@ -69,6 +69,7 @@ class Sale {
     this.voidedAt,
     this.voidedBy,
     this.voidReason,
+    this.batchNumbers = const [],
   });
 
   final String id;
@@ -88,6 +89,10 @@ class Sale {
   final DateTime? voidedAt;
   final String? voidedBy;
   final String? voidReason;
+
+  /// Production batches its bags came from (oldest first), for tracing
+  /// a bad batch; printed on receipts (migration 0025).
+  final List<String> batchNumbers;
 
   bool get isVoided => voidedAt != null;
 
@@ -129,6 +134,10 @@ class Sale {
         (json['voided_by_profile'] as Map<String, dynamic>?)?['full_name']
             as String?,
     voidReason: json['void_reason'] as String?,
+    batchNumbers: [
+      for (final number in json['batch_numbers'] as List? ?? const [])
+        number as String,
+    ],
   );
 
   Map<String, dynamic> toJson() => {

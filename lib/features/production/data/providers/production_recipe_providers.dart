@@ -1,14 +1,23 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../../core/utils/action_controller.dart';
+import '../../../offline/data/providers/offline_providers.dart';
 import '../../../organizations/data/providers/organization_providers.dart';
 import '../models/production_recipe.dart';
+import '../repositories/offline_production_recipe_repository.dart';
 import '../repositories/production_recipe_repository.dart';
 
 /// The active [ProductionRecipeRepository] implementation.
 final productionRecipeRepositoryProvider = Provider<ProductionRecipeRepository>(
-  (ref) =>
-      SupabaseProductionRecipeRepository(ref.watch(currentTenantIdProvider)),
+  (ref) {
+    final remote = SupabaseProductionRecipeRepository(
+      ref.watch(currentTenantIdProvider),
+    );
+    final offline = ref.watch(offlineContextProvider);
+    return offline == null
+        ? remote
+        : OfflineProductionRecipeRepository(remote, offline);
+  },
 );
 
 /// Every recipe line, across all products.

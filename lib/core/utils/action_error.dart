@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
+import 'network_error.dart';
+
 /// Standard feedback for a failed write action (record sale, add stock,
 /// record payment, ...) — almost always means no connection right now,
 /// hence the default message. Pass [message] only when the failure is a
@@ -45,6 +47,8 @@ String? readableErrorMessage(Object? error) {
     PostgrestException(:final message) => message,
     AuthException(:final message) => message,
     FunctionException() => edgeFunctionErrorMessage(error),
+    NeedsInternetException(:final message) => message,
+    StateError(:final message) => message,
     _ => null,
   };
 }

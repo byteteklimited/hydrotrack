@@ -7,11 +7,12 @@ import 'core/constants/supabase_config.dart';
 import 'core/theme/app_theme.dart';
 import 'core/widgets/app_error_state.dart';
 import 'core/widgets/app_loading.dart';
-import 'core/widgets/connectivity_banner.dart';
 import 'features/auth/view/screens/join_with_invite_screen.dart';
 import 'features/auth/view/screens/login_screen.dart';
 import 'features/auth/view/screens/sign_up_screen.dart';
 import 'features/auth/view/screens/splash_screen.dart';
+import 'features/offline/view/screens/sync_status_screen.dart';
+import 'features/offline/view/widgets/offline_banner.dart';
 import 'features/organizations/view/screens/organizations_screen.dart';
 import 'features/reports/view/screens/app_home_screen.dart';
 
@@ -117,6 +118,9 @@ class _StatusApp extends StatelessWidget {
   }
 }
 
+/// Lets the app-wide banner (which sits above the navigator) open screens.
+final _navigatorKey = GlobalKey<NavigatorState>();
+
 /// Root of the HydroTrack app.
 class HydroTrackApp extends StatelessWidget {
   const HydroTrackApp({super.key});
@@ -144,9 +148,14 @@ class HydroTrackApp extends StatelessWidget {
         AppRoutes.organizations: (context) => const OrganizationsScreen(),
         AppRoutes.home: (context) => const AppHomeScreen(),
       },
+      navigatorKey: _navigatorKey,
       builder: (context, child) => Column(
         children: [
-          const ConnectivityBanner(),
+          OfflineBanner(
+            onOpenRecords: () => _navigatorKey.currentState?.push(
+              MaterialPageRoute<void>(builder: (_) => const SyncStatusScreen()),
+            ),
+          ),
           Expanded(child: child ?? const SizedBox.shrink()),
         ],
       ),

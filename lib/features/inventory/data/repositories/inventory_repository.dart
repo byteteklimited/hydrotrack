@@ -1,5 +1,6 @@
 import 'package:supabase_flutter/supabase_flutter.dart';
 
+import '../../../../core/utils/rpc_params.dart';
 import '../models/stock_batch.dart';
 import '../models/stock_item.dart';
 import '../models/stock_movement.dart';
@@ -144,15 +145,31 @@ class SupabaseInventoryRepository implements InventoryRepository {
   }) {
     return _client.rpc(
       'add_stock',
-      params: {
-        'p_tenant_id': _tenantId,
-        'p_item_id': itemId,
-        'p_quantity': quantity,
-        'p_note': note,
-        'p_expiry_date': expiryDate?.toIso8601String().split('T').first,
-      },
+      params: rpcParams(
+        _tenantId,
+        addStockPayload(
+          itemId: itemId,
+          quantity: quantity,
+          note: note,
+          expiryDate: expiryDate,
+        ),
+      ),
     );
   }
+
+  /// add_stock's values (without the `p_` prefix), shared with offline
+  /// mode.
+  static Map<String, dynamic> addStockPayload({
+    required String itemId,
+    required int quantity,
+    String? note,
+    DateTime? expiryDate,
+  }) => {
+    'item_id': itemId,
+    'quantity': quantity,
+    'note': note,
+    'expiry_date': expiryDate == null ? null : dateParam(expiryDate),
+  };
 
   @override
   Future<void> adjustCount({
@@ -162,12 +179,11 @@ class SupabaseInventoryRepository implements InventoryRepository {
   }) {
     return _client.rpc(
       'adjust_stock_count',
-      params: {
-        'p_tenant_id': _tenantId,
-        'p_item_id': itemId,
-        'p_new_count': newCount,
-        'p_note': note,
-      },
+      params: rpcParams(_tenantId, {
+        'item_id': itemId,
+        'new_count': newCount,
+        'note': note,
+      }),
     );
   }
 

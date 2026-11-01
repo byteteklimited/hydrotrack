@@ -1,6 +1,7 @@
 import 'package:supabase_flutter/supabase_flutter.dart';
 
 import '../../../../core/constants/payment_channel.dart';
+import '../../../../core/utils/rpc_params.dart';
 import '../models/sale.dart';
 
 /// Contract for reading and recording sales.
@@ -61,29 +62,40 @@ class SupabaseSalesRepository implements SalesRepository {
         .toList();
   }
 
+  /// record_sale's values (without the `p_` prefix), shared with offline
+  /// mode so both send exactly the same thing.
+  static Map<String, dynamic> recordSalePayload(
+    Sale sale,
+    PaymentChannel? paidChannel,
+  ) {
+    return {
+      'customer_type': sale.customerType.dbValue,
+      'customer_name': sale.customerName,
+      'total': sale.total,
+      'amount_paid': sale.amountPaid,
+      'payment_method': sale.paymentMethod.name,
+      'balance': sale.balance,
+      'lines': [
+        for (final line in sale.lines)
+          {
+            'product': line.product.name,
+            'quantity': line.quantity,
+            'unit_price': line.unitPrice,
+          },
+      ],
+      'paid_channel': paidChannel?.name,
+    };
+  }
+
   @override
   Future<Sale> recordSale(Sale sale, {PaymentChannel? paidChannel}) async {
     final saleId =
         await _client.rpc(
               'record_sale',
-              params: {
-                'p_tenant_id': _tenantId,
-                'p_customer_type': sale.customerType.dbValue,
-                'p_customer_name': sale.customerName,
-                'p_total': sale.total,
-                'p_amount_paid': sale.amountPaid,
-                'p_payment_method': sale.paymentMethod.name,
-                'p_balance': sale.balance,
-                'p_lines': [
-                  for (final line in sale.lines)
-                    {
-                      'product': line.product.name,
-                      'quantity': line.quantity,
-                      'unit_price': line.unitPrice,
-                    },
-                ],
-                'p_paid_channel': paidChannel?.name,
-              },
+              params: rpcParams(
+                _tenantId,
+                recordSalePayload(sale, paidChannel),
+              ),
             )
             as String;
 

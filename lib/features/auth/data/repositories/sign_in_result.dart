@@ -1,6 +1,11 @@
 /// Why a sign-in attempt failed. A typed reason, not an exception string,
 /// so the UI decides what to say without parsing text.
-enum SignInFailureReason { invalidCredentials }
+enum SignInFailureReason {
+  invalidCredentials,
+
+  /// The server couldn't be reached (no internet).
+  noConnection,
+}
 
 /// Outcome of an [AuthRepository.signIn] attempt. Signing in only proves
 /// who someone is; which organization they work in is chosen afterwards.

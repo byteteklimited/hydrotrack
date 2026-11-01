@@ -20,6 +20,9 @@ class _SignedOutAuth implements AuthRepository {
   bool get hasSession => false;
 
   @override
+  String? get signedInUserId => null;
+
+  @override
   Future<void> signOut() async {}
 
   @override

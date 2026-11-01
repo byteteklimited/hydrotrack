@@ -1,8 +1,13 @@
+import 'dart:async';
+
 import 'package:flutter/widgets.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../../core/constants/app_routes.dart';
 import '../../../../core/utils/action_controller.dart';
+import '../../../offline/data/providers/offline_providers.dart';
+import '../../../offline/data/services/offline_controller.dart';
+import '../../../organizations/data/models/organization.dart';
 import '../../../organizations/data/providers/organization_providers.dart';
 import '../models/staff_user.dart';
 import '../repositories/auth_repository.dart';
@@ -18,15 +23,25 @@ final authRepositoryProvider = Provider<AuthRepository>(
 /// chosen.
 final authStateProvider = StateProvider<StaffUser?>((ref) => null);
 
-/// Drives the sign-in form: loading while the request is in flight, error
-/// when credentials are rejected.
+/// How someone got in.
+enum SignInOutcome {
+  /// With the server; pick the organization with [enterApp].
+  online,
+
+  /// Without internet, on a device set up for offline use; already in
+  /// that device's organization.
+  offline,
+}
+
+/// Drives the sign-in form: loading while in flight; on failure the error
+/// is a [SignInFailureReason] or, offline, an [OfflineSignInFailure].
 class SignInController extends StateNotifier<AsyncValue<void>> {
   SignInController(this._ref) : super(const AsyncValue.data(null));
 
   final Ref _ref;
 
-  /// True when signed in; where to go next is [enterApp]'s decision.
-  Future<bool> signIn({
+  /// Null when refused.
+  Future<SignInOutcome?> signIn({
     required String identifier,
     required String secret,
   }) async {
@@ -36,13 +51,54 @@ class SignInController extends StateNotifier<AsyncValue<void>> {
         .signIn(identifier: identifier, secret: secret);
     switch (result) {
       case SignInSuccess():
+        rememberForOfflineSignIn(_ref, secret);
         state = const AsyncValue.data(null);
-        return true;
+        return SignInOutcome.online;
+      case SignInFailure(reason: SignInFailureReason.noConnection):
+        return _signInOffline(identifier: identifier, secret: secret);
       case SignInFailure(:final reason):
         state = AsyncValue.error(reason, StackTrace.current);
-        return false;
+        return null;
     }
   }
+
+  Future<SignInOutcome?> _signInOffline({
+    required String identifier,
+    required String secret,
+  }) async {
+    final offline = _ref.read(offlineControllerProvider.notifier);
+    await offline.ready;
+    final result = await offline.signIn(identifier: identifier, secret: secret);
+    switch (result) {
+      case OfflineSignInSuccess(:final member):
+        _ref.read(currentOrganizationProvider.notifier).state =
+            Organization.fromJson(offline.currentSnapshot!.organization);
+        _ref.read(authStateProvider.notifier).state = member.toStaffUser();
+        _ref.read(offlineSessionProvider.notifier).state = OfflineSession(
+          identifier: identifier,
+          secret: secret,
+        );
+        state = const AsyncValue.data(null);
+        return SignInOutcome.offline;
+      case OfflineSignInRefused(:final reason):
+        state = AsyncValue.error(reason, StackTrace.current);
+        return null;
+    }
+  }
+}
+
+/// After an online sign-in, saves a fresh offline sign-in check for this
+/// person (in the background; never blocks or fails the sign-in).
+void rememberForOfflineSignIn(Ref ref, String secret) {
+  unawaited(
+    ref
+        .read(offlineControllerProvider.notifier)
+        .saveCredential(secret)
+        .catchError(
+          (Object error) =>
+              debugPrint('Saving offline sign-in check failed: $error'),
+        ),
+  );
 }
 
 final signInControllerProvider =
@@ -84,6 +140,7 @@ class AccountSetupController extends ActionController {
         identifier: identifier,
         secret: pin,
       );
+      if (result is SignInSuccess) rememberForOfflineSignIn(_ref, pin);
       return result is SignInSuccess;
     });
     return joined ?? false;
@@ -115,5 +172,6 @@ Future<void> signOutAndReturnToLogin(
   }
   ref.read(authStateProvider.notifier).state = null;
   ref.read(currentOrganizationProvider.notifier).state = null;
+  ref.read(offlineSessionProvider.notifier).state = null;
   ref.invalidate(myMembershipsProvider);
 }

@@ -1,5 +1,6 @@
 import 'package:supabase_flutter/supabase_flutter.dart';
 
+import '../../../../core/utils/rpc_params.dart';
 import '../models/expense.dart';
 
 /// Contract for reading and recording expenses.
@@ -34,18 +35,21 @@ class SupabaseExpensesRepository implements ExpensesRepository {
         .toList();
   }
 
+  /// record_expense's values (without the `p_` prefix), shared with
+  /// offline mode.
+  static Map<String, dynamic> recordExpensePayload(Expense expense) => {
+    'date': dateParam(expense.date),
+    'category': expense.category.dbValue,
+    'description': expense.description,
+    'amount': expense.amount,
+    'method': expense.method.name,
+  };
+
   @override
   Future<void> recordExpense(Expense expense) {
     return _client.rpc(
       'record_expense',
-      params: {
-        'p_tenant_id': _tenantId,
-        'p_date': expense.date.toIso8601String().split('T').first,
-        'p_category': expense.category.dbValue,
-        'p_description': expense.description,
-        'p_amount': expense.amount,
-        'p_method': expense.method.name,
-      },
+      params: rpcParams(_tenantId, recordExpensePayload(expense)),
     );
   }
 }

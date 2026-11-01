@@ -2,6 +2,7 @@ import 'package:flutter/foundation.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
 import '../../../../core/utils/formatters.dart';
+import '../../../../core/utils/network_error.dart';
 import 'sign_in_result.dart';
 
 /// Contract for authentication. Proves who someone is; which organization
@@ -32,6 +33,9 @@ abstract class AuthRepository {
 
   bool get hasSession;
 
+  /// The account with an online session on this device, if any.
+  String? get signedInUserId;
+
   Future<void> signOut();
 }
 
@@ -60,6 +64,8 @@ class SupabaseAuthRepository implements AuthRepository {
       return response.user == null
           ? const SignInFailure(SignInFailureReason.invalidCredentials)
           : const SignInSuccess();
+    } on AuthRetryableFetchException {
+      return const SignInFailure(SignInFailureReason.noConnection);
     } on AuthException catch (error) {
       // The UI only ever shows a generic "incorrect" message (never one
       // that hints which half was wrong) — the real reason still goes to
@@ -69,6 +75,11 @@ class SupabaseAuthRepository implements AuthRepository {
         '(status: ${error.statusCode}, code: ${error.code})',
       );
       return const SignInFailure(SignInFailureReason.invalidCredentials);
+    } catch (error) {
+      if (isNetworkError(error)) {
+        return const SignInFailure(SignInFailureReason.noConnection);
+      }
+      rethrow;
     }
   }
 
@@ -105,5 +116,16 @@ class SupabaseAuthRepository implements AuthRepository {
   bool get hasSession => _client.auth.currentSession != null;
 
   @override
-  Future<void> signOut() => _client.auth.signOut();
+  String? get signedInUserId => _client.auth.currentUser?.id;
+
+  @override
+  Future<void> signOut() async {
+    try {
+      await _client.auth.signOut();
+    } catch (error) {
+      // Offline: the server can't be told, but the session on this device
+      // is still cleared by the client.
+      if (!isNetworkError(error)) rethrow;
+    }
+  }
 }

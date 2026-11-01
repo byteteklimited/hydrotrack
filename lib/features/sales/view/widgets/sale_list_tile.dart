@@ -5,6 +5,7 @@ import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_spacing.dart';
 import '../../../../core/utils/formatters.dart';
 import '../../../../core/widgets/app_status_tag.dart';
+import '../../../offline/view/widgets/needs_checking_tag.dart';
 import '../../data/models/sale.dart';
 import 'sale_payment_status_badge.dart';
 
@@ -70,6 +71,7 @@ class SaleListTile extends StatelessWidget {
                         color: AppColors.moneyOut,
                       )
                     : SalePaymentStatusBadge(sale: sale),
+                NeedsCheckingTag(saleId: sale.id),
               ],
             ),
           ],

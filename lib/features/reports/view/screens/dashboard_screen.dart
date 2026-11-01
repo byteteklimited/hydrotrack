@@ -4,6 +4,7 @@ import 'package:intl/intl.dart';
 
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_spacing.dart';
+import '../../../../core/utils/formatters.dart';
 import '../../../../core/widgets/app_error_state.dart';
 import '../../../../core/widgets/app_loading.dart';
 import '../../../../core/widgets/app_modal.dart';
@@ -11,12 +12,12 @@ import '../../../../core/widgets/app_navigation_shell.dart';
 import '../../../../core/widgets/app_stat_strip.dart';
 import '../../../../core/widgets/app_stat_tile.dart';
 import '../../../../core/widgets/app_stat_tile_grid.dart';
-import '../../../../core/utils/formatters.dart';
 import '../../../auth/data/models/staff_user.dart';
 import '../../../auth/data/providers/auth_providers.dart';
+import '../../../debts/view/screens/debts_screen.dart';
+import '../../../offline/view/widgets/needs_checking_card.dart';
 import '../../../organizations/data/providers/organization_providers.dart';
 import '../../../organizations/view/widgets/account_menu_button.dart';
-import '../../../debts/view/screens/debts_screen.dart';
 import '../../data/providers/dashboard_providers.dart';
 import '../widgets/dashboard_activity_card.dart';
 import '../widgets/dashboard_cash_flow_chart.dart';
@@ -88,6 +89,7 @@ class DashboardScreen extends ConsumerWidget {
                     ),
                   ],
                   const SizedBox(height: AppSpacing.lg),
+                  if (user?.role.canManage ?? false) const NeedsCheckingCard(),
                   AppStatStrip(
                     items: [
                       AppStatStripItem(

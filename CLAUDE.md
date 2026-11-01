@@ -205,3 +205,25 @@ supabase/
       Next agreed phase: offline daily recording (sales, debt payments,
       expenses, production; credit sales allowed offline, flagged on
       sync if over limit).
+- [x] Offline phase (2026-11-01): installed apps and web. Owner/Admin sets
+      a device up (`register_device`; device key, hash only on server);
+      `device-sync` Edge Function (`--no-verify-jwt`) pulls the org data
+      (90 days of history, all customers/stock/staff) and pushes queued
+      records; `apply_device_operation` replays each one exactly once as
+      its recorder (role checks apply), at its offline time; short stock /
+      raw material and over-credit-limit are recorded and flagged
+      (`sync_flags`, "Needs checking" on Home + tags on records); refused
+      records kept (`device_operations` + device list with Retry/Remove).
+      Offline sign-in via `offline_credentials` (PBKDF2-SHA256, 60k
+      iterations, saved after each online sign-in). App: offline-aware
+      repositories (server when reachable, device copy otherwise; daily
+      records always saved on device first), sembast storage
+      (IndexedDB/web, file elsewhere), offline banner, device card,
+      "Records on this device" screen. Online only: staff, settings,
+      voids, edits, deletes, recipes, new drivers/vehicles/items.
+      Tests: offline_sync.test.sql (52), device_sync_test.py (8 live),
+      29 new Flutter tests (246 total). Termii secrets left unset
+      (reminders send nothing until configured).
+      Next agreed: Phase A (password/PIN reset, products & prices per
+      organization, full organization profile, paged lists, setup
+      checklist), then B, C, D.

@@ -3,18 +3,26 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../../core/constants/payment_channel.dart';
 import '../../../../core/utils/action_controller.dart';
 import '../../../inventory/data/providers/inventory_providers.dart';
+import '../../../offline/data/providers/offline_providers.dart';
+import '../../../organizations/data/providers/organization_providers.dart';
 import '../../../sales/data/models/sale.dart';
 import '../../../sales/data/providers/sales_providers.dart';
-import '../../../organizations/data/providers/organization_providers.dart';
 import '../models/driver.dart';
 import '../models/load_out.dart';
 import '../models/vehicle.dart';
 import '../repositories/distribution_repository.dart';
+import '../repositories/offline_distribution_repository.dart';
 
 /// The active [DistributionRepository] implementation.
-final distributionRepositoryProvider = Provider<DistributionRepository>(
-  (ref) => SupabaseDistributionRepository(ref.watch(currentTenantIdProvider)),
-);
+final distributionRepositoryProvider = Provider<DistributionRepository>((ref) {
+  final remote = SupabaseDistributionRepository(
+    ref.watch(currentTenantIdProvider),
+  );
+  final offline = ref.watch(offlineContextProvider);
+  return offline == null
+      ? remote
+      : OfflineDistributionRepository(remote, offline);
+});
 
 final driversProvider = FutureProvider<List<Driver>>((ref) {
   return ref.watch(distributionRepositoryProvider).fetchDrivers();

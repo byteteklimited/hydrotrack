@@ -5,6 +5,7 @@ import '../../../../core/constants/app_routes.dart';
 import '../../../../core/theme/app_brand.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_spacing.dart';
+import '../../../offline/data/providers/offline_providers.dart';
 import '../../../organizations/data/providers/organization_providers.dart';
 import '../../data/providers/auth_providers.dart';
 
@@ -34,8 +35,11 @@ class _SplashScreenState extends ConsumerState<SplashScreen> {
     try {
       await enterApp(context, ref);
     } catch (_) {
-      // Couldn't load organizations (usually no connection) — the picker
-      // shows the error with a retry.
+      // Couldn't load organizations (usually no connection): carry on
+      // offline if this device holds their organization; otherwise the
+      // picker shows the error with a retry.
+      if (!mounted) return;
+      if (await enterDeviceOrganization(context, ref)) return;
       if (!mounted) return;
       Navigator.of(context).pushReplacementNamed(AppRoutes.organizations);
     }

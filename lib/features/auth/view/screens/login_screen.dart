@@ -7,8 +7,10 @@ import '../../../../core/utils/validators.dart';
 import '../../../../core/widgets/app_button.dart';
 import '../../../../core/widgets/app_inline_alert.dart';
 import '../../../../core/widgets/app_text_field.dart';
+import '../../../offline/data/services/offline_controller.dart';
 import '../../../organizations/data/providers/organization_providers.dart';
 import '../../data/providers/auth_providers.dart';
+import '../../data/repositories/sign_in_result.dart';
 import '../widgets/auth_page_layout.dart';
 
 /// Sign in. Staff use their phone number and PIN; organization owners who
@@ -37,7 +39,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
 
   Future<void> _submit() async {
     if (!(_formKey.currentState?.validate() ?? false)) return;
-    final signedIn = await ref
+    final outcome = await ref
         .read(signInControllerProvider.notifier)
         .signIn(
           identifier: _identifierController.text.trim(),
@@ -45,7 +47,13 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
               ? _secretController.text
               : _secretController.text.trim(),
         );
-    if (!signedIn || !mounted) return;
+    if (outcome == null || !mounted) return;
+    if (outcome == SignInOutcome.offline) {
+      Navigator.of(
+        context,
+      ).pushNamedAndRemoveUntil(AppRoutes.home, (route) => false);
+      return;
+    }
     try {
       await enterApp(context, ref);
     } catch (_) {
@@ -85,10 +93,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
             ),
             if (signInState.hasError) ...[
               const SizedBox(height: AppSpacing.lg),
-              const AppInlineAlert(
-                message:
-                    'Those sign-in details are incorrect. Check and try again.',
-              ),
+              AppInlineAlert(message: signInErrorMessage(signInState.error)),
             ],
             const SizedBox(height: AppSpacing.xxl),
             AppButton(
@@ -115,4 +120,22 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
       ),
     );
   }
+}
+
+/// What to tell someone whose sign-in didn't work, online or offline.
+String signInErrorMessage(Object? reason) {
+  return switch (reason) {
+    SignInFailureReason.noConnection || OfflineSignInFailure.deviceNotSetUp =>
+      "No internet connection. Connect to sign in. (This device isn't set "
+          'up for offline use; an owner or admin can set it up under '
+          'Organization.)',
+    OfflineSignInFailure.noOfflineCheck =>
+      "No internet connection, and you haven't signed in online since "
+          'offline sign-in was turned on. Connect once to sign in; after '
+          'that you can sign in on this device without internet.',
+    OfflineSignInFailure.deactivated =>
+      'Your access to this organization has been switched off. Ask the '
+          'owner or an admin.',
+    _ => 'Those sign-in details are incorrect. Check and try again.',
+  };
 }

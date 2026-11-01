@@ -1,5 +1,6 @@
 import 'package:supabase_flutter/supabase_flutter.dart';
 
+import '../../../../core/utils/rpc_params.dart';
 import '../models/customer.dart';
 import '../models/ledger_entry.dart';
 import '../models/recent_payment.dart';
@@ -113,6 +114,27 @@ class SupabaseDebtsRepository implements DebtsRepository {
     );
   }
 
+  /// record_customer_payment's values (without the `p_` prefix), shared
+  /// with offline mode.
+  static Map<String, dynamic> recordPaymentPayload({
+    required String customerId,
+    required num amount,
+    required PaymentChannel channel,
+    required DateTime date,
+    String? note,
+  }) {
+    final entryNote = (note == null || note.trim().isEmpty)
+        ? '${channel.label} payment'
+        : '${channel.label} — ${note.trim()}';
+    return {
+      'customer_id': customerId,
+      'amount': amount,
+      'channel': channel.name,
+      'date': dateParam(date),
+      'note': entryNote,
+    };
+  }
+
   @override
   Future<Customer> recordPayment({
     required String customerId,
@@ -121,20 +143,18 @@ class SupabaseDebtsRepository implements DebtsRepository {
     required DateTime date,
     String? note,
   }) async {
-    final entryNote = (note == null || note.trim().isEmpty)
-        ? '${channel.label} payment'
-        : '${channel.label} — ${note.trim()}';
-
     final row = await _client.rpc(
       'record_customer_payment',
-      params: {
-        'p_tenant_id': _tenantId,
-        'p_customer_id': customerId,
-        'p_amount': amount,
-        'p_channel': channel.name,
-        'p_date': date.toIso8601String().split('T').first,
-        'p_note': entryNote,
-      },
+      params: rpcParams(
+        _tenantId,
+        recordPaymentPayload(
+          customerId: customerId,
+          amount: amount,
+          channel: channel,
+          date: date,
+          note: note,
+        ),
+      ),
     );
     return Customer.fromJson(row as Map<String, dynamic>);
   }

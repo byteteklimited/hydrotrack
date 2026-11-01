@@ -1,5 +1,6 @@
 import 'package:supabase_flutter/supabase_flutter.dart';
 
+import '../../../../core/utils/rpc_params.dart';
 import '../models/production_run.dart';
 
 /// Contract for reading, recording, and correcting production runs.
@@ -49,6 +50,22 @@ class SupabaseProductionRepository implements ProductionRepository {
         .toList();
   }
 
+  /// record_production_run's values (without the `p_` prefix), shared
+  /// with offline mode.
+  static Map<String, dynamic> recordRunPayload(
+    ProductionRun run,
+    DateTime? expiryDate,
+  ) => {
+    'date': dateParam(run.date),
+    'shift': run.shift.name,
+    'machine': run.machine,
+    'operator_name': run.operatorName,
+    'product': run.product.name,
+    'quantity_produced': run.quantityProduced,
+    'wastage': run.wastage,
+    'expiry_date': expiryDate == null ? null : dateParam(expiryDate),
+  };
+
   @override
   Future<ProductionRun> recordRun(
     ProductionRun run, {
@@ -56,18 +73,9 @@ class SupabaseProductionRepository implements ProductionRepository {
   }) async {
     final runId = await _client.rpc(
       'record_production_run',
-      params: {
-        'p_tenant_id': _tenantId,
-        'p_date': run.date.toIso8601String().split('T').first,
-        'p_shift': run.shift.name,
-        'p_machine': run.machine,
-        'p_operator_name': run.operatorName,
-        'p_product': run.product.name,
-        'p_quantity_produced': run.quantityProduced,
-        'p_wastage': run.wastage,
-        'p_expiry_date': expiryDate?.toIso8601String().split('T').first,
-      },
+      params: rpcParams(_tenantId, recordRunPayload(run, expiryDate)),
     );
+
     final row = await _client
         .from('production_runs')
         .select(_selectWithRecorder)

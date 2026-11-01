@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 
 import '../../../../core/constants/production_thresholds.dart';
 import '../../../../core/theme/app_spacing.dart';
+import '../../../offline/view/widgets/needs_checking_tag.dart';
 import '../../data/models/production_run.dart';
 
 /// One row within a day's group: shift + machine, operator, and the
@@ -74,6 +75,7 @@ class ProductionRunTile extends StatelessWidget {
                         theme.colorScheme.onSurfaceVariant,
                   ),
                 ),
+                NeedsCheckingTag(productionRunId: run.id),
               ],
             ),
           ],

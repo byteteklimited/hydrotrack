@@ -1,14 +1,20 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../../core/utils/action_controller.dart';
+import '../../../offline/data/providers/offline_providers.dart';
 import '../../../organizations/data/providers/organization_providers.dart';
 import '../models/stock_item.dart';
 import '../repositories/inventory_repository.dart';
+import '../repositories/offline_inventory_repository.dart';
 
 /// The active [InventoryRepository] implementation.
-final inventoryRepositoryProvider = Provider<InventoryRepository>(
-  (ref) => SupabaseInventoryRepository(ref.watch(currentTenantIdProvider)),
-);
+final inventoryRepositoryProvider = Provider<InventoryRepository>((ref) {
+  final remote = SupabaseInventoryRepository(
+    ref.watch(currentTenantIdProvider),
+  );
+  final offline = ref.watch(offlineContextProvider);
+  return offline == null ? remote : OfflineInventoryRepository(remote, offline);
+});
 
 /// All stock items, raw materials and finished goods together.
 final stockItemsProvider = FutureProvider((ref) {

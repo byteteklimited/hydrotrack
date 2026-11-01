@@ -9,6 +9,8 @@ import '../../../../core/widgets/app_modal.dart';
 import '../../../../core/widgets/responsive_center.dart';
 import '../../../auth/data/models/staff_user.dart';
 import '../../../auth/data/providers/auth_providers.dart';
+import '../../../offline/view/widgets/offline_device_card.dart';
+import '../../../offline/view/widgets/registered_devices_card.dart';
 import '../../data/models/organization.dart';
 import '../../data/providers/organization_providers.dart';
 import '../widgets/debt_reminders_card.dart';
@@ -87,6 +89,9 @@ class OrganizationSettingsScreen extends ConsumerWidget {
                 ),
                 const SizedBox(height: AppSpacing.lg),
                 DebtRemindersCard(organization: organization),
+                const SizedBox(height: AppSpacing.lg),
+                OfflineDeviceCard(organization: organization),
+                const RegisteredDevicesCard(),
                 const SizedBox(height: AppSpacing.lg),
                 AppCard(
                   title: 'Your access',

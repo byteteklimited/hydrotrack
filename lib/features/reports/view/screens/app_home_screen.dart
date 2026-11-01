@@ -10,6 +10,7 @@ import '../../../distribution/view/screens/distribution_screen.dart';
 import '../../../expenses/view/screens/expenses_screen.dart';
 import '../../../finance/view/screens/finance_screen.dart';
 import '../../../inventory/view/screens/inventory_screen.dart';
+import '../../../offline/data/providers/offline_providers.dart';
 import '../../../organizations/data/providers/organization_providers.dart';
 import '../../../organizations/view/screens/organization_settings_screen.dart';
 import '../../../production/view/screens/production_list_screen.dart';
@@ -29,6 +30,8 @@ class AppHomeScreen extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    // Signs someone who got in offline back in online once connected.
+    ref.watch(onlineSessionRestorerProvider);
     final hasMember = ref.watch(authStateProvider) != null;
     final hasOrganization = ref.watch(currentOrganizationProvider) != null;
     if (!hasMember || !hasOrganization) return const Scaffold();

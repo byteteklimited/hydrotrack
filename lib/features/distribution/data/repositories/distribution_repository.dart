@@ -1,6 +1,7 @@
 import 'package:supabase_flutter/supabase_flutter.dart';
 
 import '../../../../core/constants/payment_channel.dart';
+import '../../../../core/utils/rpc_params.dart';
 import '../../../sales/data/models/sale.dart';
 import '../models/driver.dart';
 import '../models/load_out.dart';
@@ -109,19 +110,50 @@ class SupabaseDistributionRepository implements DistributionRepository {
         .toList();
   }
 
+  /// record_load_out's values (without the `p_` prefix), shared with
+  /// offline mode.
+  static Map<String, dynamic> recordLoadOutPayload(LoadOut loadOut) => {
+    'driver_id': loadOut.driverId,
+    'vehicle_id': loadOut.vehicleId,
+    'product': loadOut.product.name,
+    'bags_loaded': loadOut.bagsLoaded,
+    'note': loadOut.note,
+  };
+
+  /// settle_load_out's values apart from the trip itself (without the
+  /// `p_` prefix), shared with offline mode.
+  static Map<String, dynamic> settleTripPayload({
+    required int bagsSold,
+    required int bagsReturned,
+    required int bagsDamaged,
+    required num cashReturned,
+    String? discrepancyNote,
+    CustomerType customerType = CustomerType.walkIn,
+    String? customerName,
+    num? unitPrice,
+    num? amountPaid,
+    PaymentMethod paymentMethod = PaymentMethod.cash,
+    PaymentChannel? paidChannel,
+  }) => {
+    'bags_sold': bagsSold,
+    'bags_returned': bagsReturned,
+    'bags_damaged': bagsDamaged,
+    'cash_returned': cashReturned,
+    'discrepancy_note': discrepancyNote,
+    'customer_type': customerType.dbValue,
+    'customer_name': customerName,
+    'unit_price': unitPrice,
+    'amount_paid': amountPaid,
+    'payment_method': paymentMethod.name,
+    'paid_channel': paidChannel?.name,
+  };
+
   @override
   Future<LoadOut> recordLoadOut(LoadOut loadOut) async {
     final loadOutId =
         await _client.rpc(
               'record_load_out',
-              params: {
-                'p_tenant_id': _tenantId,
-                'p_driver_id': loadOut.driverId,
-                'p_vehicle_id': loadOut.vehicleId,
-                'p_product': loadOut.product.name,
-                'p_bags_loaded': loadOut.bagsLoaded,
-                'p_note': loadOut.note,
-              },
+              params: rpcParams(_tenantId, recordLoadOutPayload(loadOut)),
             )
             as String;
 
@@ -151,21 +183,22 @@ class SupabaseDistributionRepository implements DistributionRepository {
   }) async {
     final row = await _client.rpc(
       'settle_load_out',
-      params: {
-        'p_tenant_id': _tenantId,
-        'p_load_out_id': loadOutId,
-        'p_bags_sold': bagsSold,
-        'p_bags_returned': bagsReturned,
-        'p_bags_damaged': bagsDamaged,
-        'p_cash_returned': cashReturned,
-        'p_discrepancy_note': discrepancyNote,
-        'p_customer_type': customerType.dbValue,
-        'p_customer_name': customerName,
-        'p_unit_price': unitPrice,
-        'p_amount_paid': amountPaid,
-        'p_payment_method': paymentMethod.name,
-        'p_paid_channel': paidChannel?.name,
-      },
+      params: rpcParams(_tenantId, {
+        'load_out_id': loadOutId,
+        ...settleTripPayload(
+          bagsSold: bagsSold,
+          bagsReturned: bagsReturned,
+          bagsDamaged: bagsDamaged,
+          cashReturned: cashReturned,
+          discrepancyNote: discrepancyNote,
+          customerType: customerType,
+          customerName: customerName,
+          unitPrice: unitPrice,
+          amountPaid: amountPaid,
+          paymentMethod: paymentMethod,
+          paidChannel: paidChannel,
+        ),
+      }),
     );
     return LoadOut.fromJson(row as Map<String, dynamic>);
   }

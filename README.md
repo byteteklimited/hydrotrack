@@ -19,7 +19,10 @@ start if that file still holds placeholders.
 ## Tests
 
 - `flutter test` — models, formatters, validators, aggregation logic.
-- `./supabase/tests/run_linked.sh` — database isolation suite (pgTAP)
+- `python3 -I supabase/tests/device_sync_test.py` — live check of offline
+  device sync (throwaway organization, always deleted).
+- `./supabase/tests/run_linked.sh` — database suites (pgTAP: isolation,
+  debt reminders, offline sync)
   against the linked hydrotrack project. Runs in one transaction and rolls
   back; nothing persists. With Docker: `supabase test db --linked`.
 - `python3 -I supabase/tests/api_isolation_test.py` — the same boundaries
@@ -51,3 +54,32 @@ One-time setup per Supabase project (never commit these values):
 
 Until step 4 is done the function sends nothing and uses up no
 customer's reminders.
+
+## Offline use
+
+An owner or admin sets a device up under Organization → "Offline use on
+this device" (web or installed app). The device downloads the
+organization's data, staff list and each member's offline sign-in check
+(a salted PBKDF2 hash, never the PIN/password) through the `device-sync`
+Edge Function using its own device key.
+
+- Staff sign in on that device without internet with their usual phone +
+  PIN (or email + password). Someone must have signed in online once since
+  this feature shipped for their offline check to exist.
+- Offline: sales, debt payments, expenses, production, new customers,
+  stock in, stock counts, load-outs and driver returns. Online only:
+  staff, settings, voids, edits and deletes.
+- Records are saved on the device first and sent automatically (in order,
+  exactly once, as the staff member who made them, at the time they were
+  made) whenever there's internet; then fresh data is downloaded.
+- Sales/production that synced with stock or raw material short, or a
+  credit sale that took a customer over their limit, are saved and shown
+  under "Needs checking" on Home for owners/admins/managers.
+- A record the server refuses is kept on the device ("Records on this
+  device") and in `device_operations`, to retry or remove.
+- In a browser, records waiting to sync are lost if the site data is
+  cleared; prefer the installed app on devices that are often offline.
+- Admins can switch off a lost device in Organization settings.
+
+Server: `supabase/migrations/0015_offline_devices.sql`,
+`supabase/functions/device-sync` (deploy with `--no-verify-jwt`).

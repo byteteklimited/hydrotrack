@@ -12,8 +12,10 @@
 // a web-only gap.
 export const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
+  // x-location-id: the app sends its current location with every request
+  // (migration 0029), so the browser asks before sending it here too.
   "Access-Control-Allow-Headers":
-    "authorization, x-client-info, apikey, content-type",
+    "authorization, x-client-info, apikey, content-type, x-location-id",
   "Access-Control-Allow-Methods": "POST, OPTIONS",
 };
 

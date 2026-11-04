@@ -5,6 +5,7 @@ import 'package:supabase_flutter/supabase_flutter.dart';
 import 'core/constants/app_routes.dart';
 import 'core/constants/supabase_config.dart';
 import 'core/theme/app_theme.dart';
+import 'core/theme/brand_palette.dart';
 import 'core/widgets/app_error_state.dart';
 import 'core/widgets/app_loading.dart';
 import 'features/admin/view/screens/admin_console_screen.dart';
@@ -18,6 +19,7 @@ import 'features/auth/view/screens/splash_screen.dart';
 import 'features/auth/view/widgets/password_recovery_listener.dart';
 import 'features/offline/view/screens/sync_status_screen.dart';
 import 'features/offline/view/widgets/offline_banner.dart';
+import 'features/organizations/data/providers/organization_providers.dart';
 import 'features/organizations/view/screens/organizations_screen.dart';
 import 'features/reports/view/screens/app_home_screen.dart';
 import 'features/subscriptions/view/screens/subscription_screen.dart';
@@ -128,16 +130,23 @@ class _StatusApp extends StatelessWidget {
 /// Lets the app-wide banner (which sits above the navigator) open screens.
 final _navigatorKey = GlobalKey<NavigatorState>();
 
-/// Root of the HydroTrack app.
-class HydroTrackApp extends StatelessWidget {
+/// Root of the HydroTrack app. Inside an organization the whole app wears
+/// its brand (colors, and its name in the browser tab); outside one —
+/// splash, sign-in, the organization picker — HydroTrack's own.
+class HydroTrackApp extends ConsumerWidget {
   const HydroTrackApp({super.key});
 
+  /// Built once per palette, not on every rebuild.
+  static final _themes = <BrandPalette, ThemeData>{};
+
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
+    final organization = ref.watch(currentOrganizationProvider);
+    final palette = organization?.palette ?? BrandPalette.hydrotrack;
     return MaterialApp(
-      title: 'HydroTrack',
+      title: organization?.name ?? 'HydroTrack',
       debugShowCheckedModeBanner: false,
-      theme: AppTheme.light,
+      theme: _themes.putIfAbsent(palette, () => AppTheme.forBrand(palette)),
       // Always start at the splash screen, whatever the browser's URL says
       // (a reload on `#/home` would otherwise open Home before the session
       // and organization are restored).

@@ -7,7 +7,7 @@ import '../../data/models/subscription.dart';
 
 extension SubscriptionStatusColor on SubscriptionStatus {
   Color get color => switch (this) {
-    SubscriptionStatus.trial => AppColors.brandNavy,
+    SubscriptionStatus.trial => AppColors.textSecondary,
     SubscriptionStatus.active => AppColors.successFg,
     SubscriptionStatus.grace => AppColors.warningFg,
     SubscriptionStatus.expired ||
@@ -41,7 +41,7 @@ String subscriptionSummary(Subscription subscription, DateTime now) {
           'viewed and exported, but nothing new can be recorded until it is '
           'renewed',
     SubscriptionStatus.suspended =>
-      'Suspended by HydroTrack: ${subscription.suspendedReason ?? 'no reason given'}',
+      'Suspended: ${subscription.suspendedReason ?? 'no reason given'}',
   };
 }
 

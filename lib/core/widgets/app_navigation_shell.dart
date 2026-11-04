@@ -5,14 +5,15 @@ import '../../features/admin/data/providers/admin_providers.dart';
 import '../../features/auth/data/models/staff_user.dart';
 import '../../features/auth/data/providers/auth_providers.dart';
 import '../../features/organizations/data/providers/organization_providers.dart';
+import '../../features/organizations/view/widgets/organization_logo.dart';
 import '../constants/app_routes.dart';
-import '../theme/app_brand.dart';
 import '../theme/app_breakpoints.dart';
 import '../theme/app_colors.dart';
 import '../theme/app_spacing.dart';
 import 'app_card.dart';
 import 'app_coming_soon_page.dart';
 import 'app_nav_section.dart';
+import '../theme/brand_palette.dart';
 
 /// Below this width: NavigationBar at the bottom. At or above: a sidebar
 /// down the side, matching Material's medium/expanded breakpoint. Public
@@ -184,11 +185,7 @@ class _Sidebar extends ConsumerWidget {
               padding: const EdgeInsets.symmetric(horizontal: AppSpacing.md),
               child: Align(
                 alignment: showLabels ? Alignment.centerLeft : Alignment.center,
-                child: Image.asset(
-                  AppBrand.logo,
-                  height: 28,
-                  fit: BoxFit.contain,
-                ),
+                child: _OrganizationHeader(showName: showLabels),
               ),
             ),
           ),
@@ -239,7 +236,9 @@ class _SidebarItem extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final color = selected ? AppColors.brandNavy : AppColors.textSecondary;
+    final color = selected
+        ? context.brand.primaryText
+        : AppColors.textSecondary;
 
     final row = Padding(
       padding: const EdgeInsets.symmetric(
@@ -249,12 +248,12 @@ class _SidebarItem extends StatelessWidget {
       child: ClipRRect(
         borderRadius: BorderRadius.circular(AppRadius.button),
         child: Material(
-          color: selected ? AppColors.cyanTint10 : Colors.transparent,
+          color: selected ? context.brand.accentTint : Colors.transparent,
           child: Stack(
             children: [
               InkWell(
                 hoverColor: selected
-                    ? AppColors.cyanTint10
+                    ? context.brand.accentTint
                     : AppColors.hoverNeutral,
                 onTap: onTap,
                 child: Container(
@@ -291,12 +290,12 @@ class _SidebarItem extends StatelessWidget {
               // accent bar; the actual meaning (which item is active)
               // reads through the navy icon/label above, not the bar.
               if (selected)
-                const Positioned(
+                Positioned(
                   left: 0,
                   top: 0,
                   bottom: 0,
                   width: 3,
-                  child: ColoredBox(color: AppColors.brandCyan),
+                  child: ColoredBox(color: context.brand.accent),
                 ),
             ],
           ),
@@ -320,10 +319,12 @@ class _SidebarFooter extends ConsumerWidget {
     final organizationName = ref.watch(currentOrganizationProvider)?.name ?? '';
     final avatar = CircleAvatar(
       radius: 16,
-      backgroundColor: AppColors.cyanTint10,
+      backgroundColor: context.brand.accentTint,
       child: Text(
         user.initials,
-        style: textTheme.labelMedium?.copyWith(color: AppColors.brandNavy),
+        style: textTheme.labelMedium?.copyWith(
+          color: context.brand.primaryText,
+        ),
       ),
     );
     final isPlatformAdmin =
@@ -451,6 +452,36 @@ class _MoreSheetRow extends StatelessWidget {
           ],
         ),
       ),
+    );
+  }
+}
+
+/// The sidebar's header: the organization's logo (or initials badge) and
+/// name — its brand, not HydroTrack's.
+class _OrganizationHeader extends ConsumerWidget {
+  const _OrganizationHeader({required this.showName});
+
+  final bool showName;
+
+  static const _logoSize = 32.0;
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final name = ref.watch(currentOrganizationProvider)?.name ?? '';
+    if (!showName) return const OrganizationLogo(size: _logoSize);
+    return Row(
+      children: [
+        const OrganizationLogo(size: _logoSize),
+        const SizedBox(width: AppSpacing.sm),
+        Expanded(
+          child: Text(
+            name,
+            style: Theme.of(context).textTheme.titleSmall,
+            maxLines: 1,
+            overflow: TextOverflow.ellipsis,
+          ),
+        ),
+      ],
     );
   }
 }

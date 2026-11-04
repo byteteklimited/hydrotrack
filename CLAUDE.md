@@ -83,7 +83,14 @@ supabase/
   "load-out", "driver returns", "wastage"). Buttons say what they do.
 - Empty states say exactly what to do; errors say what went wrong and how
   to fix it.
-- Logo: `AppBrand.logo` — currently a generated PLACEHOLDER.
+- Logo: `AppBrand.logo` — currently a generated PLACEHOLDER; it shows only
+  before an organization is open (splash, sign-in).
+- White label: inside an organization the theme is
+  `AppTheme.forBrand(organization.palette)`. Read brand colors from
+  `context.brand` (`primary`, `primaryText` for text/icons on white,
+  `onPrimary`, `accent`, `accentTint`), never `AppColors.brandNavy/
+  brandCyan` in widgets. The organization's logo/badge is
+  `OrganizationLogo`.
 
 ## Progress
 
@@ -335,3 +342,18 @@ supabase/
          provider on organization + location and sets the header.
          Tests: locations.test.sql (35), 321 Flutter tests.
       Phase D complete.
+- [x] Branding / white label (2026-11-04; agreed: main + accent color,
+      HydroTrack logo on splash/sign-in, small "Powered by HydroTrack" on
+      sign-in and settings, setup wizard after creating + settings).
+      0035: tenants.brand_primary/brand_accent (#RRGGBB check). BrandPalette
+      theme extension (derived hover/pressed/disabled, readable text color
+      via WCAG contrast, tints); AppTheme.forBrand; MaterialApp theme and
+      tab title follow the current organization; 12 widgets moved off
+      fixed brand colors to context.brand. OrganizationLogo falls back to
+      an initials badge in the brand color (sidebar header, phone Home
+      header, organization list). Branding screen (logo, name, swatches +
+      hex, live preview), shared LogoUploadButtons, AppTextField.onChanged.
+      Shared texts and PDF file names use the organization's name.
+      Tests: 328 Flutter tests (brand palette, contrast, theme, preview);
+      live branding check (3) + api_isolation 22, device_sync 9,
+      subscriptions 8.

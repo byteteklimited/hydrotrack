@@ -4,6 +4,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../../core/theme/app_spacing.dart';
 import '../../../../core/widgets/app_button.dart';
 import '../../../../core/widgets/app_card.dart';
+import '../../../../core/widgets/powered_by.dart';
 import '../../../../core/widgets/responsive_center.dart';
 import '../../../auth/data/models/staff_user.dart';
 import '../../../auth/data/providers/auth_providers.dart';
@@ -13,6 +14,7 @@ import '../../../offline/view/widgets/registered_devices_card.dart';
 import '../../../subscriptions/view/widgets/subscription_card.dart';
 import '../../data/providers/organization_providers.dart';
 import '../widgets/business_profile_card.dart';
+import 'branding_screen.dart';
 import '../widgets/debt_reminders_card.dart';
 
 /// Organization settings (Owner/Admin): the subscription, the business
@@ -43,6 +45,30 @@ class OrganizationSettingsScreen extends ConsumerWidget {
               children: [
                 const SubscriptionCard(),
                 if (user.role.isAdminLevel) ...[
+                  AppCard(
+                    title: 'Branding',
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.stretch,
+                      children: [
+                        const Text(
+                          'Your name, logo and colors: the app, receipts and '
+                          'reports all carry your brand.',
+                        ),
+                        const SizedBox(height: AppSpacing.md),
+                        AppButton(
+                          label: 'Edit branding',
+                          variant: AppButtonVariant.secondary,
+                          leadingIcon: Icons.palette_outlined,
+                          onPressed: () => Navigator.of(context).push(
+                            MaterialPageRoute<void>(
+                              builder: (_) => const BrandingScreen(),
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                  const SizedBox(height: AppSpacing.lg),
                   AppCard(
                     title: 'Locations',
                     child: Column(
@@ -94,6 +120,7 @@ class OrganizationSettingsScreen extends ConsumerWidget {
                     ],
                   ),
                 ),
+                const PoweredBy(),
               ],
             ),
           ),

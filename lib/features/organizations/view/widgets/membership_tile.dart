@@ -5,6 +5,7 @@ import '../../../../core/theme/app_spacing.dart';
 import '../../../../core/widgets/app_status_tag.dart';
 import '../../../auth/data/models/staff_user.dart';
 import '../../data/models/membership.dart';
+import 'organization_logo.dart';
 
 /// One organization on the picker: name, your role there, and a
 /// "Deactivated" tag (not tappable) when an admin has switched your access
@@ -33,14 +34,9 @@ class MembershipTile extends StatelessWidget {
         padding: const EdgeInsets.symmetric(vertical: AppSpacing.md),
         child: Row(
           children: [
-            CircleAvatar(
-              radius: 18,
-              backgroundColor: AppColors.cyanTint10,
-              child: Icon(
-                Icons.business_outlined,
-                size: 18,
-                color: enabled ? AppColors.brandNavy : AppColors.textTertiary,
-              ),
+            OrganizationBadge(
+              organization: membership.organization,
+              enabled: enabled,
             ),
             const SizedBox(width: AppSpacing.md),
             Expanded(

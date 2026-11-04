@@ -33,7 +33,7 @@ class SubscriptionBanner extends ConsumerWidget {
       SubscriptionStatus.expired =>
         'Subscription ended · read-only, nothing new can be recorded.$renew',
       SubscriptionStatus.suspended =>
-        'Suspended by HydroTrack · read-only. '
+        'Subscription suspended · read-only. '
                 '${subscription.suspendedReason ?? ''}'
             .trim(),
       SubscriptionStatus.grace when canManage =>

@@ -85,3 +85,12 @@ String formatPlain(num value) {
   if (!text.contains('.')) return text;
   return text.replaceFirst(RegExp(r'\.?0+$'), '');
 }
+
+/// A name made safe for a file name: "Sunny Water Ltd." → "sunny-water-ltd".
+String fileSlug(String name) {
+  final slug = name
+      .toLowerCase()
+      .replaceAll(RegExp(r'[^a-z0-9]+'), '-')
+      .replaceAll(RegExp(r'^-+|-+$'), '');
+  return slug.isEmpty ? 'records' : slug;
+}

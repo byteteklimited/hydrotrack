@@ -1,3 +1,4 @@
+import '../../../../core/theme/brand_palette.dart';
 import 'bank_details.dart';
 import 'business_profile.dart';
 import 'water_limits.dart';
@@ -12,6 +13,8 @@ class Organization {
     this.bankDetails,
     this.profile = const BusinessProfile(),
     this.waterLimits = const WaterLimits(),
+    this.brandPrimary,
+    this.brandAccent,
   });
 
   final String id;
@@ -30,6 +33,24 @@ class Organization {
   /// What a water test must read to pass.
   final WaterLimits waterLimits;
 
+  /// The organization's own colors, `#RRGGBB`; null = HydroTrack's.
+  final String? brandPrimary;
+  final String? brandAccent;
+
+  /// The app's colors inside this organization.
+  BrandPalette get palette => BrandPalette(
+    primary:
+        BrandPalette.parseHex(brandPrimary) ?? BrandPalette.hydrotrack.primary,
+    accent:
+        BrandPalette.parseHex(brandAccent) ?? BrandPalette.hydrotrack.accent,
+  );
+
+  /// Two letters for a badge when there's no logo, e.g. "SW".
+  String get initials {
+    final words = name.trim().split(RegExp(r'\s+')).where((w) => w.isNotEmpty);
+    return words.take(2).map((w) => w[0].toUpperCase()).join();
+  }
+
   factory Organization.fromJson(Map<String, dynamic> json) {
     return Organization(
       id: json['id'] as String,
@@ -38,6 +59,8 @@ class Organization {
       bankDetails: BankDetails.fromTenantJson(json),
       profile: BusinessProfile.fromTenantJson(json),
       waterLimits: WaterLimits.fromTenantJson(json),
+      brandPrimary: json['brand_primary'] as String?,
+      brandAccent: json['brand_accent'] as String?,
     );
   }
 
@@ -49,6 +72,8 @@ class Organization {
       ...BankDetails.toTenantJson(bankDetails),
       ...profile.toTenantJson(),
       ...waterLimits.toTenantJson(),
+      'brand_primary': brandPrimary,
+      'brand_accent': brandAccent,
     };
   }
 }

@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:printing/printing.dart';
 
+import '../../../../core/utils/formatters.dart';
 import '../../../../core/theme/app_spacing.dart';
 import '../../../../core/utils/action_error.dart';
 import '../../../../core/widgets/app_button.dart';
@@ -33,6 +34,11 @@ class _ReportExportRowState extends ConsumerState<ReportExportRow> {
   /// Exports carry the organization's own logo, name and profile.
   Future<BusinessHeader> get _header => ref.read(businessHeaderProvider.future);
 
+  /// e.g. "sunny-water-report-2026-11" — the organization's name, not the
+  /// platform's.
+  String get _fileBase =>
+      '${fileSlug(ref.read(currentOrganizationProvider)?.name ?? '')}-report-$_fileNameDate';
+
   String get _fileNameDate => DateTime.now().toIso8601String().split('T').first;
 
   Future<void> _exportPdf() async {
@@ -41,7 +47,7 @@ class _ReportExportRowState extends ConsumerState<ReportExportRow> {
       final doc = await buildReportPdf(widget.summary, header: await _header);
       await Printing.sharePdf(
         bytes: await doc.save(),
-        filename: 'hydrotrack-report-$_fileNameDate.pdf',
+        filename: '$_fileBase.pdf',
       );
     } catch (_) {
       if (mounted) {
@@ -60,7 +66,7 @@ class _ReportExportRowState extends ConsumerState<ReportExportRow> {
     try {
       final bytes = buildReportCsv(widget.summary, header: await _header);
       await FileSaver.instance.saveFile(
-        name: 'hydrotrack-report-$_fileNameDate',
+        name: _fileBase,
         bytes: bytes,
         fileExtension: 'csv',
         mimeType: MimeType.csv,

@@ -7,6 +7,7 @@ import '../../../admin/data/providers/admin_providers.dart';
 import '../../../auth/data/models/staff_user.dart';
 import '../../../auth/data/providers/auth_providers.dart';
 import '../../data/providers/organization_providers.dart';
+import '../../../../core/theme/brand_palette.dart';
 
 enum _AccountAction { adminConsole, switchOrganization, signOut }
 
@@ -82,10 +83,12 @@ class AccountMenuButton extends ConsumerWidget {
         padding: const EdgeInsets.symmetric(horizontal: 12),
         child: CircleAvatar(
           radius: 16,
-          backgroundColor: AppColors.cyanTint10,
+          backgroundColor: context.brand.accentTint,
           child: Text(
             user.initials,
-            style: textTheme.labelMedium?.copyWith(color: AppColors.brandNavy),
+            style: textTheme.labelMedium?.copyWith(
+              color: context.brand.primaryText,
+            ),
           ),
         ),
       ),

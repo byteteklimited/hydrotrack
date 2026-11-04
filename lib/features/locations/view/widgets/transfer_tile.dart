@@ -11,6 +11,7 @@ import '../../../../core/widgets/app_card.dart';
 import '../../../../core/widgets/app_status_tag.dart';
 import '../../data/models/stock_transfer.dart';
 import '../../data/providers/transfer_providers.dart';
+import '../../../../core/theme/brand_palette.dart';
 
 /// One transfer: where from/to, what, and "Receive" when it's on its way
 /// here.
@@ -40,7 +41,7 @@ class TransferTile extends ConsumerWidget {
         ? ('Received', AppColors.successFg)
         : transfer.incoming
         ? ('On its way here', AppColors.warningFg)
-        : ('Sent', AppColors.brandNavy);
+        : ('Sent', context.brand.primaryText);
     final secondary = Theme.of(
       context,
     ).textTheme.bodySmall?.copyWith(color: AppColors.textSecondary);

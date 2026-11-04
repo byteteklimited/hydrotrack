@@ -251,3 +251,32 @@ Studio.app/Contents/jbr/Contents/Home"`, or upgrade Gradle.
      admins) can sign in on it.
    - Stock forecasts and low-stock alerts are per location (alerts name
      the location when there are several).
+
+## Branding (white label)
+
+Each organization wears its own brand inside the app:
+
+- **Name, logo, main and accent color** — set in a short skippable setup
+  right after creating an organization ("Make it yours", then business
+  details), and any time under Organization → Branding (owners/admins),
+  with a live preview. Colors come from ready-made swatches or a typed
+  `#RRGGBB` code; text in the main color is darkened automatically when
+  needed so it stays readable, and text on buttons switches to dark on
+  light colors.
+- **Where it shows**: the whole app's colors (buttons, menus, highlights,
+  charts), the sidebar and phone Home header (logo — or initials on the
+  brand color until a logo is uploaded — and name), the organization list,
+  the browser tab title, receipts, report and payslip PDFs, and shared
+  file names. Invite and PIN-reset messages name the organization.
+- **HydroTrack itself** appears only on the splash and sign-in screens
+  (before an organization is known), as a small "Powered by HydroTrack"
+  line on sign-in and in settings, and on the owner's Subscription screen
+  (billing).
+- **Not per organization**: the installed app's icon and home-screen name
+  are fixed when the app is built; branding those per customer needs a
+  separate build for each.
+
+Storage: `tenants.brand_primary` / `brand_accent` (migration 0035; null =
+HydroTrack's navy and cyan). In code: `BrandPalette` (core/theme) is a
+theme extension built from the organization's colors; widgets read
+`context.brand`, never fixed brand colors.

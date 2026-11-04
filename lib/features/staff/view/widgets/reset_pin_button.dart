@@ -8,8 +8,10 @@ import '../../../../core/theme/app_spacing.dart';
 import '../../../../core/utils/action_error.dart';
 import '../../../../core/utils/validators.dart';
 import '../../../../core/widgets/app_button.dart';
+import '../../../organizations/data/providers/organization_providers.dart';
 import '../../data/models/staff_member.dart';
 import '../../data/providers/staff_providers.dart';
+import '../../../../core/theme/brand_palette.dart';
 
 /// Owner/Admin, on a staff member who signs in with phone + PIN: issues a
 /// one-time reset code and shows it, with a message to send them.
@@ -36,7 +38,8 @@ class ResetPinButton extends ConsumerWidget {
       'd MMM, h:mm a',
     ).format(reset.expiresAt.toLocal());
     final message =
-        'Hi ${staff.fullName}, your HydroTrack PIN reset code is '
+        'Hi ${staff.fullName}, your '
+        '${ref.read(currentOrganizationProvider)?.name ?? ''} PIN reset code is '
         '${reset.code}. On the sign-in screen tap "Forgot your PIN?", enter '
         'the code and choose a new ${Validators.pinLength}-digit PIN. It '
         'works once and expires $expires.';
@@ -51,7 +54,7 @@ class ResetPinButton extends ConsumerWidget {
             SelectableText(
               reset.code,
               style: Theme.of(dialogContext).textTheme.headlineMedium?.copyWith(
-                color: AppColors.brandNavy,
+                color: context.brand.primaryText,
                 letterSpacing: 2,
               ),
             ),

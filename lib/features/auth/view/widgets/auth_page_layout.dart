@@ -4,6 +4,7 @@ import '../../../../core/theme/app_brand.dart';
 import '../../../../core/theme/app_breakpoints.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_spacing.dart';
+import '../../../../core/widgets/powered_by.dart';
 import '../../../../core/widgets/responsive_center.dart';
 
 /// Shared page shell for every signed-out screen (sign in, create
@@ -49,6 +50,7 @@ class AuthPageLayout extends StatelessWidget {
         ),
         const SizedBox(height: AppSpacing.xxl),
         child,
+        const PoweredBy(),
       ],
     );
 

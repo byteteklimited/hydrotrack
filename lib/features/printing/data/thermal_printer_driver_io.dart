@@ -45,7 +45,7 @@ class ThermalPrinterDriver {
     }
     if (!await PrintBluetoothThermal.isPermissionBluetoothGranted) {
       throw const PrinterException(
-        'Allow HydroTrack to use "Nearby devices" (Bluetooth) in the phone\'s '
+        'Allow this app to use "Nearby devices" (Bluetooth) in the phone\'s '
         'app settings, then try again.',
       );
     }

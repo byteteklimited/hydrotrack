@@ -85,7 +85,7 @@ void main() {
           _subscription('suspended', suspendedAt: _now),
           _now,
         ),
-        'Suspended by HydroTrack: Cheque bounced',
+        'Suspended: Cheque bounced',
       );
     });
   });

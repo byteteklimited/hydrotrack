@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'app_colors.dart';
 import 'app_spacing.dart';
 import 'app_typography.dart';
+import 'brand_palette.dart';
 
 /// Single source of the app's [ThemeData]. Light theme only — this is a
 /// factory-floor app used in daylight; dark theme is out of scope until
@@ -10,23 +11,28 @@ import 'app_typography.dart';
 class AppTheme {
   AppTheme._();
 
-  static ThemeData get light {
-    final scheme = AppColors.scheme;
+  /// HydroTrack's own colors (sign-in, splash, outside an organization).
+  static ThemeData get light => forBrand(BrandPalette.hydrotrack);
+
+  /// The app in an organization's colors.
+  static ThemeData forBrand(BrandPalette brand) {
+    final scheme = brand.scheme;
     final textTheme = AppTypography.textTheme;
 
     return ThemeData(
       useMaterial3: true,
       colorScheme: scheme,
+      extensions: [brand],
       textTheme: textTheme,
       scaffoldBackgroundColor: AppColors.background,
       splashFactory: InkSparkle.splashFactory,
       // Kills Material 3's automatic color-tint-on-elevation everywhere —
       // every surface stays the exact flat color it's given, not a
       // tinted-toward-primary variant of it.
-      splashColor: AppColors.cyanTint10,
-      highlightColor: AppColors.cyanTint10.withValues(alpha: 0.5),
+      splashColor: brand.accentTint,
+      highlightColor: brand.accentTint.withValues(alpha: 0.5),
       hoverColor: AppColors.hoverNeutral,
-      focusColor: AppColors.cyanTint10,
+      focusColor: brand.accentTint,
 
       appBarTheme: AppBarTheme(
         backgroundColor: AppColors.background,
@@ -74,7 +80,7 @@ class AppTheme {
         ),
         focusedBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(AppRadius.input),
-          borderSide: const BorderSide(color: AppColors.brandNavy, width: 2),
+          borderSide: BorderSide(color: brand.primaryText, width: 2),
         ),
         errorBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(AppRadius.input),
@@ -104,17 +110,17 @@ class AppTheme {
         style: ButtonStyle(
           backgroundColor: WidgetStateProperty.resolveWith((states) {
             if (states.contains(WidgetState.disabled)) {
-              return AppColors.navyDisabled;
+              return brand.primaryDisabled;
             }
             if (states.contains(WidgetState.pressed)) {
-              return AppColors.navyPressed;
+              return brand.primaryPressed;
             }
             if (states.contains(WidgetState.hovered)) {
-              return AppColors.navyHover;
+              return brand.primaryHover;
             }
-            return AppColors.brandNavy;
+            return brand.primary;
           }),
-          foregroundColor: WidgetStatePropertyAll(AppColors.surfaceWhite),
+          foregroundColor: WidgetStatePropertyAll(brand.onPrimary),
           elevation: const WidgetStatePropertyAll(0),
           minimumSize: const WidgetStatePropertyAll(Size(64, 40)),
           padding: const WidgetStatePropertyAll(
@@ -137,17 +143,17 @@ class AppTheme {
         style: ButtonStyle(
           backgroundColor: WidgetStateProperty.resolveWith((states) {
             if (states.contains(WidgetState.disabled)) {
-              return AppColors.navyDisabled;
+              return brand.primaryDisabled;
             }
             if (states.contains(WidgetState.pressed)) {
-              return AppColors.navyPressed;
+              return brand.primaryPressed;
             }
             if (states.contains(WidgetState.hovered)) {
-              return AppColors.navyHover;
+              return brand.primaryHover;
             }
-            return AppColors.brandNavy;
+            return brand.primary;
           }),
-          foregroundColor: WidgetStatePropertyAll(AppColors.surfaceWhite),
+          foregroundColor: WidgetStatePropertyAll(brand.onPrimary),
           elevation: const WidgetStatePropertyAll(0),
           minimumSize: const WidgetStatePropertyAll(Size(64, 40)),
           padding: const WidgetStatePropertyAll(
@@ -164,7 +170,7 @@ class AppTheme {
 
       outlinedButtonTheme: OutlinedButtonThemeData(
         style: OutlinedButton.styleFrom(
-          foregroundColor: AppColors.brandNavy,
+          foregroundColor: brand.primaryText,
           side: const BorderSide(color: AppColors.borderStrong),
           minimumSize: const Size(64, 40),
           padding: const EdgeInsets.symmetric(horizontal: AppSpacing.lg),
@@ -172,28 +178,28 @@ class AppTheme {
             borderRadius: BorderRadius.circular(AppRadius.button),
           ),
           textStyle: textTheme.labelLarge,
-          overlayColor: AppColors.cyanTint10,
+          overlayColor: brand.accentTint,
         ),
       ),
 
       textButtonTheme: TextButtonThemeData(
         style: TextButton.styleFrom(
-          foregroundColor: AppColors.brandNavy,
+          foregroundColor: brand.primaryText,
           minimumSize: const Size(64, 40),
           padding: const EdgeInsets.symmetric(horizontal: AppSpacing.md),
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(AppRadius.button),
           ),
           textStyle: textTheme.labelLarge,
-          overlayColor: AppColors.cyanTint10,
+          overlayColor: brand.accentTint,
         ),
       ),
 
       segmentedButtonTheme: SegmentedButtonThemeData(
         style: SegmentedButton.styleFrom(
           foregroundColor: AppColors.textSecondary,
-          selectedForegroundColor: AppColors.brandNavy,
-          selectedBackgroundColor: AppColors.cyanTint10,
+          selectedForegroundColor: brand.primaryText,
+          selectedBackgroundColor: brand.accentTint,
           side: const BorderSide(color: AppColors.border),
           textStyle: textTheme.labelLarge,
         ),
@@ -202,7 +208,7 @@ class AppTheme {
       navigationBarTheme: NavigationBarThemeData(
         backgroundColor: AppColors.surfaceWhite,
         surfaceTintColor: Colors.transparent,
-        indicatorColor: AppColors.cyanTint10,
+        indicatorColor: brand.accentTint,
         indicatorShape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(AppRadius.button),
         ),
@@ -211,13 +217,13 @@ class AppTheme {
         iconTheme: WidgetStateProperty.resolveWith((states) {
           final selected = states.contains(WidgetState.selected);
           return IconThemeData(
-            color: selected ? AppColors.brandNavy : AppColors.textSecondary,
+            color: selected ? brand.primaryText : AppColors.textSecondary,
           );
         }),
         labelTextStyle: WidgetStateProperty.resolveWith((states) {
           final selected = states.contains(WidgetState.selected);
           return textTheme.labelMedium?.copyWith(
-            color: selected ? AppColors.brandNavy : AppColors.textSecondary,
+            color: selected ? brand.primaryText : AppColors.textSecondary,
             fontWeight: selected ? FontWeight.w700 : FontWeight.w500,
           );
         }),
@@ -225,17 +231,17 @@ class AppTheme {
 
       navigationRailTheme: NavigationRailThemeData(
         backgroundColor: AppColors.surfaceWhite,
-        indicatorColor: AppColors.cyanTint10,
+        indicatorColor: brand.accentTint,
         indicatorShape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(AppRadius.button),
         ),
         useIndicator: true,
-        selectedIconTheme: const IconThemeData(color: AppColors.brandNavy),
+        selectedIconTheme: IconThemeData(color: brand.primaryText),
         unselectedIconTheme: const IconThemeData(
           color: AppColors.textSecondary,
         ),
         selectedLabelTextStyle: textTheme.labelLarge?.copyWith(
-          color: AppColors.brandNavy,
+          color: brand.primaryText,
         ),
         unselectedLabelTextStyle: textTheme.labelLarge?.copyWith(
           color: AppColors.textSecondary,
@@ -243,11 +249,11 @@ class AppTheme {
       ),
 
       tabBarTheme: TabBarThemeData(
-        labelColor: AppColors.brandNavy,
+        labelColor: brand.primaryText,
         unselectedLabelColor: AppColors.textSecondary,
         labelStyle: textTheme.labelLarge,
         unselectedLabelStyle: textTheme.labelLarge,
-        indicatorColor: AppColors.brandNavy,
+        indicatorColor: brand.primaryText,
         dividerColor: AppColors.border,
       ),
 

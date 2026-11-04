@@ -21,6 +21,7 @@ import '../../../locations/view/widgets/location_switcher.dart';
 import '../../../machines/view/widgets/maintenance_due_card.dart';
 import '../../../offline/view/widgets/needs_checking_card.dart';
 import '../../../organizations/data/providers/organization_providers.dart';
+import '../../../organizations/view/widgets/organization_logo.dart';
 import '../../../organizations/view/widgets/account_menu_button.dart';
 import '../../../organizations/view/widgets/setup_checklist_card.dart';
 import '../../data/providers/dashboard_providers.dart';
@@ -53,7 +54,21 @@ class DashboardScreen extends ConsumerWidget {
 
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Home'),
+        // Phones: the organization's own logo and name up top.
+        title: hasSidebar
+            ? const Text('Home')
+            : Row(
+                children: [
+                  const OrganizationLogo(size: 32),
+                  const SizedBox(width: AppSpacing.sm),
+                  Expanded(
+                    child: Text(
+                      organization?.name ?? 'Home',
+                      overflow: TextOverflow.ellipsis,
+                    ),
+                  ),
+                ],
+              ),
         // On phones there's no sidebar footer, so the account menu
         // (organization, switch, sign out) lives here.
         actions: [

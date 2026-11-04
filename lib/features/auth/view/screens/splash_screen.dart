@@ -8,6 +8,7 @@ import '../../../../core/theme/app_spacing.dart';
 import '../../../offline/data/providers/offline_providers.dart';
 import '../../../organizations/data/providers/organization_providers.dart';
 import '../../data/providers/auth_providers.dart';
+import '../../../../core/theme/brand_palette.dart';
 
 /// Brief branded pause on launch, then routes to login — or, if a session
 /// is already active, into the right organization.
@@ -61,12 +62,12 @@ class _SplashScreenState extends ConsumerState<SplashScreen> {
           children: [
             Image.asset(AppBrand.logo, height: 120),
             const SizedBox(height: AppSpacing.xxl),
-            const SizedBox(
+            SizedBox(
               width: 22,
               height: 22,
               child: CircularProgressIndicator(
                 strokeWidth: 2.5,
-                color: AppColors.brandNavy,
+                color: context.brand.primaryText,
               ),
             ),
           ],

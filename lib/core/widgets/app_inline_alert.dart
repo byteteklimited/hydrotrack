@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 
 import '../theme/app_colors.dart';
 import '../theme/app_spacing.dart';
+import '../theme/brand_palette.dart';
 
 /// Meaning of an [AppInlineAlert] — picks its color and icon. Ties
 /// directly to the app's color rules: red is destructive/failure only,
@@ -40,13 +41,13 @@ class AppInlineAlert extends StatelessWidget {
         AppColors.moneyIn,
         Icons.check_circle_outline,
       ),
-      AppAlertSeverity.info => (AppColors.infoFg, Icons.info_outline),
+      AppAlertSeverity.info => (context.brand.primaryText, Icons.info_outline),
     };
     // Info's background is the brand's own cyan tint, not a generic
     // 10%-of-the-foreground-color blend the other three severities use —
     // navy at 10% isn't the same color as the brand's actual info wash.
     final background = severity == AppAlertSeverity.info
-        ? AppColors.infoBg
+        ? context.brand.accentTint
         : color.withValues(alpha: 0.1);
 
     return Container(

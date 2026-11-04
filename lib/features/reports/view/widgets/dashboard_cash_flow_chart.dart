@@ -7,6 +7,7 @@ import '../../../../core/theme/app_spacing.dart';
 import '../../../../core/utils/formatters.dart';
 import '../../../../core/widgets/app_card.dart';
 import '../../data/models/dashboard_snapshot.dart';
+import '../../../../core/theme/brand_palette.dart';
 
 final _compactNaira = NumberFormat.compactCurrency(
   locale: 'en_NG',
@@ -116,7 +117,7 @@ class DashboardCashFlowChart extends StatelessWidget {
                       barRods: [
                         BarChartRodData(
                           toY: days[i].moneyIn.toDouble(),
-                          color: AppColors.brandNavy,
+                          color: context.brand.primaryText,
                           width: 8,
                           borderRadius: BorderRadius.circular(2),
                         ),
@@ -158,10 +159,10 @@ class _CashFlowLegend extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return const Row(
+    return Row(
       mainAxisSize: MainAxisSize.min,
       children: [
-        _LegendDot(color: AppColors.brandNavy, label: 'In'),
+        _LegendDot(color: context.brand.primaryText, label: 'In'),
         SizedBox(width: AppSpacing.md),
         _LegendDot(color: AppColors.dangerFg, label: 'Out'),
       ],

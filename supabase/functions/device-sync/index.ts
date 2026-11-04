@@ -89,7 +89,7 @@ async function pull(
       .select(
         "id, name, logo_path, bank_name, bank_account_number, bank_account_name, " +
           "address, phone, email, rc_number, nafdac_number, water_ph_min, water_ph_max, " +
-          "water_tds_max, water_chlorine_min, water_chlorine_max",
+          "water_tds_max, water_chlorine_min, water_chlorine_max, brand_primary, brand_accent",
       )
       .eq("id", tenantId).single(),
     admin.rpc("device_members", { p_device_key: deviceKey }),

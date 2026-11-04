@@ -89,6 +89,24 @@ class OrganizationActionController extends ActionController {
     );
   }
 
+  Future<Organization?> saveBranding({
+    required String organizationId,
+    required String name,
+    required String? primaryHex,
+    required String? accentHex,
+  }) {
+    return _updating(
+      () => _ref
+          .read(organizationRepositoryProvider)
+          .updateBranding(
+            organizationId: organizationId,
+            name: name,
+            primaryHex: primaryHex,
+            accentHex: accentHex,
+          ),
+    );
+  }
+
   Future<Organization?> saveWaterLimits({
     required String organizationId,
     required WaterLimits limits,

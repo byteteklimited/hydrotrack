@@ -90,7 +90,8 @@ class _ReceiptBodyState extends ConsumerState<_ReceiptBody> {
       await Printing.sharePdf(
         bytes: await doc.save(),
         filename:
-            'hydrotrack-receipt-${sale.dateTime.toIso8601String().split('T').first}.pdf',
+            '${fileSlug(ref.read(currentOrganizationProvider)?.name ?? '')}-receipt-'
+            '${sale.dateTime.toIso8601String().split('T').first}.pdf',
       );
     } finally {
       if (mounted) setState(() => _isSharing = false);

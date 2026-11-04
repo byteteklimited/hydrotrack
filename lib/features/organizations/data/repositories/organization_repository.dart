@@ -37,6 +37,15 @@ abstract class OrganizationRepository {
     required BusinessProfile profile,
   });
 
+  /// Name and brand colors (`#RRGGBB`, null = HydroTrack's) — Owner/Admin,
+  /// enforced by RLS.
+  Future<Organization> updateBranding({
+    required String organizationId,
+    required String name,
+    required String? primaryHex,
+    required String? accentHex,
+  });
+
   /// What water tests must read to pass (Owner/Admin, enforced by RLS).
   Future<Organization> updateWaterLimits({
     required String organizationId,
@@ -79,7 +88,8 @@ class SupabaseOrganizationRepository implements OrganizationRepository {
   static const _organizationColumns =
       'id, name, logo_path, bank_name, bank_account_number, bank_account_name, '
       'address, phone, email, rc_number, nafdac_number, water_ph_min, '
-      'water_ph_max, water_tds_max, water_chlorine_min, water_chlorine_max';
+      'water_ph_max, water_tds_max, water_chlorine_min, water_chlorine_max, '
+      'brand_primary, brand_accent';
   static const _bucket = 'tenant-files';
   static const _selectMembership =
       'role, is_active, user_id, tenants($_organizationColumns), '
@@ -139,6 +149,18 @@ class SupabaseOrganizationRepository implements OrganizationRepository {
     required String name,
     required BusinessProfile profile,
   }) => _update(organizationId, {'name': name, ...profile.toTenantJson()});
+
+  @override
+  Future<Organization> updateBranding({
+    required String organizationId,
+    required String name,
+    required String? primaryHex,
+    required String? accentHex,
+  }) => _update(organizationId, {
+    'name': name,
+    'brand_primary': primaryHex,
+    'brand_accent': accentHex,
+  });
 
   @override
   Future<Organization> updateWaterLimits({

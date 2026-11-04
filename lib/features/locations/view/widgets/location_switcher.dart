@@ -4,6 +4,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../data/models/location.dart';
 import '../../data/providers/location_providers.dart';
+import '../../../../core/theme/brand_palette.dart';
 
 /// Which location the app is working in, and a menu to switch when the
 /// person may work at more than one. Hidden otherwise.
@@ -34,10 +35,10 @@ class LocationSwitcher extends ConsumerWidget {
         child: Row(
           mainAxisSize: MainAxisSize.min,
           children: [
-            const Icon(
+            Icon(
               Icons.place_outlined,
               size: 18,
-              color: AppColors.brandNavy,
+              color: context.brand.primaryText,
             ),
             const SizedBox(width: 4),
             Text(current.name, style: theme.textTheme.titleSmall),

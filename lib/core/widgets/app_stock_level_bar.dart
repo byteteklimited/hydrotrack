@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import '../theme/app_colors.dart';
+import '../theme/brand_palette.dart';
 
 /// A thin neutral track with a cyan fill showing quantity-on-hand
 /// against some reference ceiling, plus a small tick marking the reorder
@@ -57,7 +58,7 @@ class AppStockLevelBar extends StatelessWidget {
                       Container(color: AppColors.hoverNeutral),
                       FractionallySizedBox(
                         widthFactor: fraction.clamp(0.0, 1.0),
-                        child: Container(color: AppColors.brandCyan),
+                        child: Container(color: context.brand.accent),
                       ),
                     ],
                   ),

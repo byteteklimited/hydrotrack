@@ -15,6 +15,7 @@ import '../../../auth/data/providers/auth_providers.dart';
 import '../../data/models/membership.dart';
 import '../../data/providers/organization_providers.dart';
 import '../widgets/membership_tile.dart';
+import 'branding_screen.dart';
 import '../widgets/single_field_action_screen.dart';
 
 /// Pick which organization to work in — and, for someone in none yet,
@@ -28,15 +29,26 @@ class OrganizationsScreen extends ConsumerWidget {
   Future<void> _openCreatedOrJoined(
     BuildContext context,
     WidgetRef ref,
-    String? organizationId,
-  ) async {
+    String? organizationId, {
+    bool created = false,
+  }) async {
     if (organizationId == null) return;
+    // Kept: this screen is gone once the organization opens.
+    final navigator = Navigator.of(context);
     final memberships = await ref.refresh(myMembershipsProvider.future);
     final membership = memberships
         .where((m) => m.organization.id == organizationId && m.isActive)
         .firstOrNull;
     if (membership != null && context.mounted) {
       await openOrganization(context, ref, membership);
+      // A new organization starts with its own brand set-up (skippable).
+      if (created) {
+        await navigator.push(
+          MaterialPageRoute<void>(
+            builder: (_) => const BrandingScreen(setup: true),
+          ),
+        );
+      }
     }
   }
 
@@ -56,7 +68,9 @@ class OrganizationsScreen extends ConsumerWidget {
                 ?.id,
       ),
     );
-    if (context.mounted) await _openCreatedOrJoined(context, ref, id);
+    if (context.mounted) {
+      await _openCreatedOrJoined(context, ref, id, created: true);
+    }
   }
 
   Future<void> _joinOrganization(BuildContext context, WidgetRef ref) async {

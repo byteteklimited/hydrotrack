@@ -1,0 +1,16 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1024 1024" width="1024" height="1024">
+<rect width="1024" height="1024" fill="#002179"/>
+<g transform="translate(264.6441558441559 204.56) scale(1.649038961038961)">
+  <defs><clipPath id="dc264.6441558441559204.56"><path id="d" d="M150 0 C 175 38 300 140 300 235 A150 150 0 0 1 0 235 C 0 140 125 38 150 0 Z"/></clipPath></defs>
+  <path d="M150 0 C 175 38 300 140 300 235 A150 150 0 0 1 0 235 C 0 140 125 38 150 0 Z" fill="#FFFFFF"/>
+  <g clip-path="url(#dc264.6441558441559204.56)">
+    <path d="M-20 318 C 60 360 130 330 190 285 C 230 255 265 240 320 240 L320 420 L-20 420 Z" fill="#002179"/>
+    <path d="M-20 340 C 60 378 135 350 195 305 C 235 275 270 260 320 258 L320 420 L-20 420 Z" fill="#02BDFB"/>
+  </g>
+  <polyline points="38,282 108,205 152,247 228,160" fill="none" stroke="#002179" stroke-width="15" stroke-linecap="round" stroke-linejoin="round"/>
+  <circle cx="38" cy="282" r="10" fill="#002179"/>
+  <circle cx="108" cy="205" r="18" fill="#002179"/>
+  <circle cx="152" cy="247" r="18" fill="#002179"/>
+  <circle cx="228" cy="160" r="21" fill="#002179"/>
+</g>
+</svg>

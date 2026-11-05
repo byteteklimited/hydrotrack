@@ -107,6 +107,9 @@ class SupabaseAuthRepository implements AuthRepository {
       email: email.toLowerCase(),
       password: password,
       data: {'full_name': fullName},
+      // On the web, the confirmation link comes back to the address the
+      // owner signed up on (it must be in Supabase's Redirect URLs).
+      emailRedirectTo: kIsWeb ? '${Uri.base.origin}/' : null,
     );
     return response.session == null
         ? SignUpOutcome.confirmEmail

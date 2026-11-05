@@ -276,6 +276,7 @@ class _RecordProductionScreenState
         onChanged: (value) => setState(() => _chosenProduct = value),
       ),
       AppTextField(
+        hint: 'e.g. Sani',
         label: 'Operator',
         controller: _operatorController,
         validator: (value) => (value == null || value.trim().isEmpty)
@@ -283,6 +284,7 @@ class _RecordProductionScreenState
             : null,
       ),
       AppTextField.quantity(
+        hint: 'e.g. 250',
         label: 'Bags produced',
         controller: _quantityController,
         validator: (value) => (value == null || value.isEmpty)
@@ -290,6 +292,7 @@ class _RecordProductionScreenState
             : null,
       ),
       AppTextField.quantity(
+        hint: 'e.g. 3',
         label: 'Wastage (bags)',
         controller: _wastageController,
         validator: (value) => (value == null || value.isEmpty)

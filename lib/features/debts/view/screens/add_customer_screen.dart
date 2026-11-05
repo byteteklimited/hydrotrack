@@ -70,6 +70,7 @@ class _AddCustomerScreenState extends ConsumerState<AddCustomerScreen> {
 
     final fields = [
       AppTextField(
+        hint: 'e.g. Musa Ibrahim',
         label: 'Name',
         controller: _nameController,
         validator: (value) => (value == null || value.trim().isEmpty)
@@ -77,6 +78,7 @@ class _AddCustomerScreenState extends ConsumerState<AddCustomerScreen> {
             : null,
       ),
       AppTextField(
+        hint: 'e.g. 08031234567',
         label: 'Phone number',
         controller: _phoneController,
         keyboardType: TextInputType.phone,
@@ -89,6 +91,7 @@ class _AddCustomerScreenState extends ConsumerState<AddCustomerScreen> {
             : null,
       ),
       AppTextField(
+        hint: 'e.g. Sabon Gari',
         label: 'Area',
         controller: _areaController,
         helperText: 'e.g. Kubwa, Nyanya, Lugbe',
@@ -96,6 +99,7 @@ class _AddCustomerScreenState extends ConsumerState<AddCustomerScreen> {
             (value == null || value.trim().isEmpty) ? 'Enter the area.' : null,
       ),
       AppTextField.naira(
+        hint: 'e.g. 50,000',
         label: 'Credit limit',
         controller: _creditLimitController,
         validator: (value) =>

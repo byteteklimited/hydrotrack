@@ -97,7 +97,8 @@ class _BrandColorPickerState extends State<BrandColorPicker> {
         ),
         const SizedBox(height: AppSpacing.sm),
         AppTextField(
-          label: 'Or type a color code, e.g. #1D4ED8',
+          hint: 'e.g. #1D4ED8',
+          label: 'Or type a color code',
           controller: _hex,
           prefixIcon: Padding(
             padding: const EdgeInsets.all(AppSpacing.sm),

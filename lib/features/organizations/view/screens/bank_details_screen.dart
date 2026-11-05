@@ -88,6 +88,7 @@ class _BankDetailsScreenState extends ConsumerState<BankDetailsScreen> {
               crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
                 AppTextField(
+                  hint: 'e.g. GTBank',
                   label: 'Bank',
                   controller: _bankName,
                   helperText: 'e.g. GTBank, Access Bank, Moniepoint',
@@ -96,6 +97,7 @@ class _BankDetailsScreenState extends ConsumerState<BankDetailsScreen> {
                 ),
                 const SizedBox(height: AppSpacing.lg),
                 AppTextField(
+                  hint: '10 digits, e.g. 0123456789',
                   label: 'Account number',
                   controller: _accountNumber,
                   keyboardType: TextInputType.number,
@@ -109,6 +111,7 @@ class _BankDetailsScreenState extends ConsumerState<BankDetailsScreen> {
                 ),
                 const SizedBox(height: AppSpacing.lg),
                 AppTextField(
+                  hint: 'e.g. Sunny Water Ltd',
                   label: 'Account name',
                   controller: _accountName,
                   helperText: 'Exactly as the bank shows it',

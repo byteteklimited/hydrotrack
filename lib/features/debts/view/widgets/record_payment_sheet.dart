@@ -110,6 +110,7 @@ class _RecordPaymentSheetState extends ConsumerState<RecordPaymentSheet> {
                 ),
                 const SizedBox(height: AppSpacing.md),
                 AppTextField.naira(
+                  hint: 'e.g. 5,000',
                   label: 'Amount',
                   controller: _amountController,
                   validator: (value) => (value == null || value.isEmpty)
@@ -134,6 +135,7 @@ class _RecordPaymentSheetState extends ConsumerState<RecordPaymentSheet> {
                 ),
                 const SizedBox(height: AppSpacing.md),
                 AppTextField(
+                  hint: 'e.g. Paid by his son',
                   label: 'Note (optional)',
                   controller: _noteController,
                 ),

@@ -83,8 +83,13 @@ class _AdjustLineDialogState extends ConsumerState<_AdjustLineDialog> {
           onSelectionChanged: (selection) =>
               setState(() => _direction = selection.single),
         ),
-        AppTextField.naira(label: 'Amount', controller: _amount),
+        AppTextField.naira(
+          hint: 'e.g. 2,000',
+          label: 'Amount',
+          controller: _amount,
+        ),
         AppTextField(
+          hint: 'e.g. Overtime on Saturday',
           label: 'Reason',
           controller: _note,
           validator: (v) =>

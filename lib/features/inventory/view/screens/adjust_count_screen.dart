@@ -69,12 +69,14 @@ class _AdjustCountScreenState extends ConsumerState<AdjustCountScreen> {
 
     final fields = [
       AppTextField.quantity(
+        hint: 'e.g. 18',
         label: 'Actual count (${widget.item.unit})',
         controller: _newCountController,
         validator: (value) =>
             (value == null || value.isEmpty) ? 'Enter the actual count.' : null,
       ),
       AppTextField(
+        hint: 'e.g. 2 rolls damaged by rain',
         label: 'Reason for adjustment',
         controller: _noteController,
         helperText: 'Required — explain the discrepancy',

@@ -3,7 +3,8 @@ import 'package:pdf/pdf.dart';
 import 'package:pdf/widgets.dart' as pw;
 
 import '../../../../core/utils/pdf_business_header.dart';
-import '../../../../core/utils/pdf_formatters.dart';
+import '../../../../core/utils/formatters.dart';
+import '../../../../core/utils/pdf_document.dart';
 import '../../../organizations/data/models/business_header.dart';
 import '../../../sales/data/models/sale.dart';
 import '../../data/models/report_summary.dart';
@@ -17,7 +18,7 @@ Future<pw.Document> buildReportPdf(
   ReportSummary summary, {
   required BusinessHeader header,
 }) async {
-  final doc = pw.Document();
+  final doc = await newPdfDocument();
   final comparisonLabel = summary.period.comparisonLabel;
 
   doc.addPage(
@@ -43,10 +44,13 @@ Future<pw.Document> buildReportPdf(
             _section(
               'Profit',
               [
-                _row('Revenue', pdfNaira(summary.profit.revenue)),
-                _row('Cost of bags sold', pdfNaira(summary.profit.costOfSales)),
-                _row('Expenses', pdfNaira(summary.profit.expenses)),
-                _row('Profit', pdfNaira(summary.profit.profit), bold: true),
+                _row('Revenue', formatNaira(summary.profit.revenue)),
+                _row(
+                  'Cost of bags sold',
+                  formatNaira(summary.profit.costOfSales),
+                ),
+                _row('Expenses', formatNaira(summary.profit.expenses)),
+                _row('Profit', formatNaira(summary.profit.profit), bold: true),
               ],
               formatReportComparison(
                 current: summary.profit.profit,
@@ -58,9 +62,12 @@ Future<pw.Document> buildReportPdf(
               'Sales',
               [
                 _row('Bags sold', '${summary.sales.bagsSold}'),
-                _row('Revenue', pdfNaira(summary.sales.revenue)),
+                _row('Revenue', formatNaira(summary.sales.revenue)),
                 for (final entry in summary.sales.revenueByMethod.entries)
-                  _row('Revenue — ${entry.key.label}', pdfNaira(entry.value)),
+                  _row(
+                    'Revenue — ${entry.key.label}',
+                    formatNaira(entry.value),
+                  ),
               ],
               formatReportComparison(
                 current: summary.sales.revenue,
@@ -85,11 +92,11 @@ Future<pw.Document> buildReportPdf(
             _section(
               'Cash',
               [
-                _row('Cash in', pdfNaira(summary.cash.cashIn)),
-                _row('Cash out', pdfNaira(summary.cash.cashOut)),
+                _row('Cash in', formatNaira(summary.cash.cashIn)),
+                _row('Cash out', formatNaira(summary.cash.cashOut)),
                 _row(
                   'Closing cash in hand',
-                  pdfNaira(summary.cash.closingCash),
+                  formatNaira(summary.cash.closingCash),
                   bold: true,
                 ),
               ],
@@ -102,10 +109,10 @@ Future<pw.Document> buildReportPdf(
             _section(
               'Money outside',
               [
-                _row('Opening', pdfNaira(summary.moneyOutside.opening)),
+                _row('Opening', formatNaira(summary.moneyOutside.opening)),
                 _row(
                   'Closing',
-                  pdfNaira(summary.moneyOutside.closing),
+                  formatNaira(summary.moneyOutside.closing),
                   bold: true,
                 ),
               ],

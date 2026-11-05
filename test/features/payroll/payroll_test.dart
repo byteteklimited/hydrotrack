@@ -23,6 +23,8 @@ Map<String, dynamic> _line(Map<String, dynamic> overrides) => {
 };
 
 void main() {
+  TestWidgetsFlutterBinding.ensureInitialized();
+
   test('pay types and attendance read their database values', () {
     expect(PayType.fromDb('per_bag'), PayType.perBag);
     expect(PayType.perBag.dbValue, 'per_bag');

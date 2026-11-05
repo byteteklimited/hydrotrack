@@ -98,6 +98,7 @@ class _AddRecipeLineScreenState extends ConsumerState<AddRecipeLineScreen> {
     final fields = <Widget>[
       if (_isEditing)
         AppTextField(
+          hint: 'e.g. 50cl sachet',
           label: 'Product',
           controller: TextEditingController(text: _product!.label),
           enabled: false,
@@ -112,6 +113,7 @@ class _AddRecipeLineScreenState extends ConsumerState<AddRecipeLineScreen> {
         ),
       if (_isEditing)
         AppTextField(
+          hint: 'e.g. Nylon roll',
           label: 'Raw material',
           controller: TextEditingController(
             text: widget.existingLine!.rawMaterialName,
@@ -129,6 +131,7 @@ class _AddRecipeLineScreenState extends ConsumerState<AddRecipeLineScreen> {
           onChanged: (value) => setState(() => _rawMaterialItemId = value),
         ),
       AppTextField.decimal(
+        hint: 'e.g. 1',
         label: 'Quantity used',
         controller: _quantityUsedController,
         helperText: selectedUnit == null ? null : 'In $selectedUnit',
@@ -140,6 +143,7 @@ class _AddRecipeLineScreenState extends ConsumerState<AddRecipeLineScreen> {
         },
       ),
       AppTextField.quantity(
+        hint: 'e.g. 40',
         label: 'Makes how many bags',
         controller: _perBagsController,
         helperText: 'Produced + wastage, combined',

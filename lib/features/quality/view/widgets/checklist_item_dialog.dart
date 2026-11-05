@@ -47,7 +47,8 @@ class _ChecklistItemDialogState extends State<_ChecklistItemDialog> {
       content: Form(
         key: _formKey,
         child: AppTextField(
-          label: 'What should be checked, e.g. "Bottles rinsed"',
+          hint: 'e.g. Bottles rinsed',
+          label: 'What should be checked',
           controller: _name,
           validator: (v) =>
               (v ?? '').trim().isEmpty ? 'Enter what to check' : null,

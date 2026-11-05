@@ -58,6 +58,7 @@ class OrganizationsScreen extends ConsumerWidget {
       builder: (_) => SingleFieldActionScreen<String>(
         title: 'Create organization',
         fieldLabel: 'Business name',
+        fieldHint: 'e.g. Sunny Water',
         helperText: 'You can change this later',
         submitLabel: 'Create organization',
         emptyMessage: 'Enter your business name',
@@ -79,6 +80,7 @@ class OrganizationsScreen extends ConsumerWidget {
       builder: (_) => SingleFieldActionScreen<String>(
         title: 'Join with invite code',
         fieldLabel: 'Invite code',
+        fieldHint: 'The code from your manager, e.g. K7P2QXM4RT',
         helperText:
             'The code must have been sent to the phone number or email you signed in with',
         submitLabel: 'Join organization',

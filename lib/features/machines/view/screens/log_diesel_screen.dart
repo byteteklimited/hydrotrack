@@ -102,6 +102,7 @@ class _LogDieselScreenState extends ConsumerState<LogDieselScreen> {
               ),
               const SizedBox(height: AppSpacing.md),
               AppTextField.decimal(
+                hint: 'e.g. 25',
                 label: 'Litres',
                 controller: _litres,
                 unit: 'litres',
@@ -120,12 +121,17 @@ class _LogDieselScreenState extends ConsumerState<LogDieselScreen> {
               ),
               const SizedBox(height: AppSpacing.md),
               AppTextField.decimal(
+                hint: 'e.g. 8',
                 label: 'Hours run since last fill (optional)',
                 controller: _hours,
                 unit: 'hours',
               ),
               const SizedBox(height: AppSpacing.md),
-              AppTextField(label: 'Note (optional)', controller: _note),
+              AppTextField(
+                hint: 'e.g. Bought at Total, Zoo Road',
+                label: 'Note (optional)',
+                controller: _note,
+              ),
               const SizedBox(height: AppSpacing.lg),
               AppButton(
                 label: 'Save diesel',

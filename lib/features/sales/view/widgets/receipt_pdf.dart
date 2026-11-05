@@ -3,7 +3,8 @@ import 'package:pdf/pdf.dart';
 import 'package:pdf/widgets.dart' as pw;
 
 import '../../../../core/utils/pdf_business_header.dart';
-import '../../../../core/utils/pdf_formatters.dart';
+import '../../../../core/utils/formatters.dart';
+import '../../../../core/utils/pdf_document.dart';
 import '../../../organizations/data/models/business_header.dart';
 import '../../data/models/sale.dart';
 
@@ -15,7 +16,7 @@ Future<pw.Document> buildReceiptPdf(
   Sale sale, {
   required BusinessHeader header,
 }) async {
-  final doc = pw.Document();
+  final doc = await newPdfDocument();
 
   doc.addPage(
     pw.Page(
@@ -53,7 +54,7 @@ Future<pw.Document> buildReceiptPdf(
                     ),
                   ),
                   pw.Text(
-                    pdfNaira(line.lineTotal),
+                    formatNaira(line.lineTotal),
                     style: const pw.TextStyle(fontSize: 10),
                   ),
                 ],
@@ -63,11 +64,11 @@ Future<pw.Document> buildReceiptPdf(
             pw.SizedBox(height: 4),
             pw.Divider(),
             pw.SizedBox(height: 4),
-            _pdfRow('Total', pdfNaira(sale.total), bold: true),
-            _pdfRow('Paid', pdfNaira(sale.amountPaid)),
+            _pdfRow('Total', formatNaira(sale.total), bold: true),
+            _pdfRow('Paid', formatNaira(sale.amountPaid)),
             _pdfRow(
               'Balance',
-              pdfNaira(sale.balance),
+              formatNaira(sale.balance),
               // Mirrors ReceiptScreen's own fix: a zero balance (paid)
               // stays neutral, and a part-paid balance reads amber, not
               // red — matching SalePaymentStatusBadge's status colors

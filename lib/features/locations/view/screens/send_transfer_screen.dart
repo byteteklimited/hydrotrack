@@ -111,6 +111,7 @@ class _SendTransferScreenState extends ConsumerState<SendTransferScreen> {
                 Padding(
                   padding: const EdgeInsets.only(bottom: AppSpacing.md),
                   child: AppTextField.quantity(
+                    hint: 'e.g. 50',
                     label: item.displayName,
                     controller: _field(item.id),
                     unit: item.unit,
@@ -122,7 +123,11 @@ class _SendTransferScreenState extends ConsumerState<SendTransferScreen> {
                         : null,
                   ),
                 ),
-              AppTextField(label: 'Note (optional)', controller: _note),
+              AppTextField(
+                hint: 'e.g. Sent with the evening bus',
+                label: 'Note (optional)',
+                controller: _note,
+              ),
               const SizedBox(height: AppSpacing.lg),
               AppButton(
                 label: 'Send stock',

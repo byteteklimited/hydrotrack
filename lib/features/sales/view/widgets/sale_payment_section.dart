@@ -49,6 +49,7 @@ class SalePaymentSection extends StatelessWidget {
         ),
         const SizedBox(height: AppSpacing.md),
         AppTextField.naira(
+          hint: 'e.g. 6,000',
           label: 'Amount paid',
           controller: amountPaidController,
           enabled: paymentMethod == PaymentMethod.part,

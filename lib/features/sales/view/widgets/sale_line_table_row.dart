@@ -54,6 +54,7 @@ class SaleLineTableRow extends StatelessWidget {
           Expanded(
             flex: 2,
             child: AppTextField.quantity(
+              hint: 'e.g. 20',
               label: 'Quantity (${line.product?.unit ?? 'bags'})',
               controller: line.quantityController,
               validator: (value) =>
@@ -64,6 +65,7 @@ class SaleLineTableRow extends StatelessWidget {
           Expanded(
             flex: 2,
             child: AppTextField.naira(
+              hint: 'e.g. 300',
               label: 'Unit price',
               controller: line.unitPriceController,
               enabled: priceEditable,

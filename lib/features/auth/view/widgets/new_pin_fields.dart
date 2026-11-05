@@ -30,6 +30,7 @@ class NewPinFields extends StatelessWidget {
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
         AppTextField(
+          hint: '6 digits',
           label: label,
           controller: pinController,
           keyboardType: TextInputType.number,
@@ -40,6 +41,7 @@ class NewPinFields extends StatelessWidget {
         ),
         const SizedBox(height: AppSpacing.lg),
         AppTextField(
+          hint: 'Type the PIN again',
           label: 'Confirm PIN',
           controller: confirmController,
           keyboardType: TextInputType.number,

@@ -73,6 +73,7 @@ class _SetNewPasswordScreenState extends ConsumerState<SetNewPasswordScreen> {
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
             AppTextField(
+              hint: 'At least 8 characters',
               label: 'New password',
               controller: _password,
               obscureText: true,
@@ -80,6 +81,7 @@ class _SetNewPasswordScreenState extends ConsumerState<SetNewPasswordScreen> {
             ),
             const SizedBox(height: AppSpacing.lg),
             AppTextField(
+              hint: 'Type the new password again',
               label: 'Confirm password',
               controller: _confirm,
               obscureText: true,

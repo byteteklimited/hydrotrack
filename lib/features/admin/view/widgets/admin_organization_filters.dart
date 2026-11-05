@@ -82,6 +82,7 @@ class _SearchFieldState extends State<_SearchField> {
 
   @override
   Widget build(BuildContext context) => AppTextField(
+    hint: 'e.g. Sunny Water or 08031234567',
     label: 'Search by organization, owner, phone or email',
     controller: _controller,
     prefixIcon: const Icon(Icons.search),

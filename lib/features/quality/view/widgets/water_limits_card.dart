@@ -117,17 +117,20 @@ class _WaterLimitsCardState extends ConsumerState<WaterLimitsCard> {
             _pair(
               'pH',
               AppTextField.decimal(
+                hint: 'e.g. 6.5',
                 label: 'Minimum',
                 controller: _phMin,
                 validator: _number,
               ),
               AppTextField.decimal(
+                hint: 'e.g. 8.5',
                 label: 'Maximum',
                 controller: _phMax,
                 validator: (_) => _below(_phMin, _phMax),
               ),
             ),
             AppTextField.decimal(
+              hint: 'e.g. 500',
               label: 'TDS maximum',
               controller: _tdsMax,
               unit: 'mg/L',
@@ -137,11 +140,13 @@ class _WaterLimitsCardState extends ConsumerState<WaterLimitsCard> {
             _pair(
               'Residual chlorine (mg/L)',
               AppTextField.decimal(
+                hint: 'e.g. 0.2',
                 label: 'Minimum',
                 controller: _chlorineMin,
                 validator: _number,
               ),
               AppTextField.decimal(
+                hint: 'e.g. 0.5',
                 label: 'Maximum',
                 controller: _chlorineMax,
                 validator: (_) => _below(_chlorineMin, _chlorineMax),

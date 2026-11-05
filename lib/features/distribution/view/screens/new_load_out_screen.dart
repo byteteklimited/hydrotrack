@@ -185,6 +185,7 @@ class _NewLoadOutScreenState extends ConsumerState<NewLoadOutScreen> {
                   onChanged: (product) => setState(() => _product = product),
                 ),
                 AppTextField.quantity(
+                  hint: 'e.g. 120',
                   label: 'Bags loaded',
                   controller: _bagsController,
                   validator: (value) => (value == null || value.isEmpty)
@@ -192,6 +193,7 @@ class _NewLoadOutScreenState extends ConsumerState<NewLoadOutScreen> {
                       : null,
                 ),
                 AppTextField(
+                  hint: 'e.g. Kofar Mata route',
                   label: 'Note (optional)',
                   controller: _noteController,
                 ),

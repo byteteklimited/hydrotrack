@@ -118,6 +118,7 @@ class _CashCountScreenState extends ConsumerState<CashCountScreen> {
                     ),
                     const SizedBox(height: AppSpacing.lg),
                     AppTextField.naira(
+                      hint: 'e.g. 45,000',
                       label: 'Cash you counted',
                       controller: _counted,
                       validator: (v) =>
@@ -125,6 +126,7 @@ class _CashCountScreenState extends ConsumerState<CashCountScreen> {
                     ),
                     const SizedBox(height: AppSpacing.lg),
                     AppTextField(
+                      hint: 'e.g. Gave ₦2,000 change to a customer',
                       label: mismatch
                           ? 'What happened? (required)'
                           : 'Note (optional)',

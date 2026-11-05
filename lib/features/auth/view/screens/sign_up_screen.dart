@@ -75,6 +75,7 @@ class _SignUpScreenState extends ConsumerState<SignUpScreen> {
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
             AppTextField(
+              hint: 'e.g. Aisha Bello',
               label: 'Your full name',
               controller: _nameController,
               validator: (value) =>
@@ -82,6 +83,7 @@ class _SignUpScreenState extends ConsumerState<SignUpScreen> {
             ),
             const SizedBox(height: AppSpacing.lg),
             AppTextField(
+              hint: 'e.g. you@yourbusiness.com',
               label: 'Email',
               controller: _emailController,
               keyboardType: TextInputType.emailAddress,
@@ -89,6 +91,7 @@ class _SignUpScreenState extends ConsumerState<SignUpScreen> {
             ),
             const SizedBox(height: AppSpacing.lg),
             AppTextField(
+              hint: 'At least 8 characters',
               label: 'Password',
               controller: _passwordController,
               obscureText: true,

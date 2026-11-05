@@ -65,6 +65,7 @@ class _EditCreditLimitDialogState extends ConsumerState<EditCreditLimitDialog> {
     return AlertDialog(
       title: const Text('Edit credit limit'),
       content: AppTextField.naira(
+        hint: 'e.g. 50,000',
         label: 'Credit limit',
         controller: _controller,
       ),

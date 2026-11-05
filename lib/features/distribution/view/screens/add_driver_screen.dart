@@ -55,6 +55,7 @@ class _AddDriverScreenState extends ConsumerState<AddDriverScreen> {
 
     final fields = [
       AppTextField(
+        hint: 'e.g. Sani Musa',
         label: 'Name',
         controller: _nameController,
         validator: (value) => (value == null || value.trim().isEmpty)
@@ -62,6 +63,7 @@ class _AddDriverScreenState extends ConsumerState<AddDriverScreen> {
             : null,
       ),
       AppTextField(
+        hint: 'e.g. 08031234567',
         label: 'Phone number',
         controller: _phoneController,
         keyboardType: TextInputType.phone,

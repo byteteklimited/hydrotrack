@@ -109,19 +109,22 @@ class _RecordPaymentDialogState extends ConsumerState<_RecordPaymentDialog> {
           ),
       fields: [
         AppTextField.quantity(
+          hint: 'e.g. 1',
           label: 'Months paid for',
           controller: _months,
           unit: 'months',
           validator: (v) => _wholeNumberBetween(v, 1, _maxMonths, 'months'),
         ),
         AppTextField.naira(
+          hint: 'e.g. 15,000',
           label: 'Amount received',
           controller: _amount,
           validator: (v) =>
               (v ?? '').trim().isEmpty ? 'Enter the amount' : null,
         ),
         AppTextField(
-          label: 'Note (optional), e.g. transfer ref',
+          hint: 'e.g. GTBank transfer, ref 12345',
+          label: 'Note (optional)',
           controller: _note,
         ),
       ],
@@ -170,12 +173,17 @@ class _FreeDaysDialogState extends ConsumerState<_FreeDaysDialog> {
           ),
       fields: [
         AppTextField.quantity(
+          hint: 'e.g. 7',
           label: 'Free days',
           controller: _days,
           unit: 'days',
           validator: (v) => _wholeNumberBetween(v, 1, _maxFreeDays, 'days'),
         ),
-        AppTextField(label: 'Note (optional)', controller: _note),
+        AppTextField(
+          hint: 'e.g. Goodwill for the outage',
+          label: 'Note (optional)',
+          controller: _note,
+        ),
       ],
     );
   }
@@ -222,6 +230,7 @@ class _SuspendDialogState extends ConsumerState<_SuspendDialog> {
           ),
       fields: [
         AppTextField(
+          hint: 'e.g. Payment reversed by the bank',
           label: 'Reason',
           controller: _reason,
           validator: (v) =>

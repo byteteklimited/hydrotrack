@@ -69,12 +69,14 @@ class _InviteStaffScreenState extends ConsumerState<InviteStaffScreen> {
 
     final fields = [
       AppTextField(
+        hint: 'e.g. Aisha Bello',
         label: 'Full name',
         controller: _nameController,
         validator: (value) =>
             Validators.required(value, "Enter the staff member's name"),
       ),
       AppTextField(
+        hint: 'e.g. 08031234567',
         label: 'Phone number',
         controller: _phoneController,
         keyboardType: TextInputType.phone,

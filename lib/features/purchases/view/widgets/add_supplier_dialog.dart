@@ -65,6 +65,7 @@ class _AddSupplierDialogState extends ConsumerState<_AddSupplierDialog> {
           mainAxisSize: MainAxisSize.min,
           children: [
             AppTextField(
+              hint: 'e.g. Bello Plastics',
               label: 'Name',
               controller: _name,
               validator: (v) =>
@@ -72,6 +73,7 @@ class _AddSupplierDialogState extends ConsumerState<_AddSupplierDialog> {
             ),
             const SizedBox(height: AppSpacing.md),
             AppTextField(
+              hint: 'e.g. 08031234567',
               label: 'Phone (optional)',
               controller: _phone,
               keyboardType: TextInputType.phone,

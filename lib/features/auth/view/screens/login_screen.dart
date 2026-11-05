@@ -75,6 +75,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
             AppTextField(
+              hint: 'e.g. 08031234567 or you@yourbusiness.com',
               label: 'Phone number or email',
               controller: _identifierController,
               keyboardType: TextInputType.emailAddress,
@@ -83,6 +84,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
             ),
             const SizedBox(height: AppSpacing.lg),
             AppTextField(
+              hint: 'Your PIN or password',
               label: 'PIN or password',
               controller: _secretController,
               obscureText: true,

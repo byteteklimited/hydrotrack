@@ -60,6 +60,7 @@ class _AddVehicleScreenState extends ConsumerState<AddVehicleScreen> {
                   child: Column(
                     children: [
                       AppTextField(
+                        hint: 'e.g. Bus 1 or KAN 123 AB',
                         label: 'Name / plate number',
                         controller: _nameController,
                         helperText: 'e.g. "Blue Dyna — ABJ 342 XA"',

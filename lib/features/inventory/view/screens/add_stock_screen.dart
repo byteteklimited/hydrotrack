@@ -71,6 +71,7 @@ class _AddStockScreenState extends ConsumerState<AddStockScreen> {
 
     final fields = [
       AppTextField.quantity(
+        hint: 'e.g. 20',
         label: 'Quantity received (${widget.item.unit})',
         controller: _quantityController,
         validator: (value) => (value == null || value.isEmpty)
@@ -78,6 +79,7 @@ class _AddStockScreenState extends ConsumerState<AddStockScreen> {
             : null,
       ),
       AppTextField(
+        hint: 'e.g. Delivered by Bello Plastics',
         label: 'Note (optional)',
         controller: _noteController,
         helperText: 'e.g. supplier or delivery reference',

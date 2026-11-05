@@ -41,6 +41,7 @@ class AppDropdownField<T> extends StatelessWidget {
         const SizedBox(height: AppSpacing.xs),
         DropdownButtonFormField<T>(
           initialValue: value,
+          hint: const Text('Choose one'),
           items: [
             for (final item in items)
               DropdownMenuItem(value: item, child: Text(itemLabel(item))),

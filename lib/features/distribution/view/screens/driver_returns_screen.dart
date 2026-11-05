@@ -223,6 +223,7 @@ class _DriverReturnsScreenState extends ConsumerState<DriverReturnsScreen> {
                       if (_isDistributorSale) ...[
                         const SizedBox(height: AppSpacing.md),
                         AppTextField.naira(
+                          hint: 'e.g. 300',
                           label: 'Price per bag',
                           controller: _unitPriceController,
                         ),
@@ -234,6 +235,7 @@ class _DriverReturnsScreenState extends ConsumerState<DriverReturnsScreen> {
                       children: [
                         Expanded(
                           child: AppTextField.naira(
+                            hint: 'e.g. 30,000',
                             label: 'Cash returned',
                             controller: _cashController,
                           ),
@@ -278,6 +280,7 @@ class _DriverReturnsScreenState extends ConsumerState<DriverReturnsScreen> {
                     ],
                     const SizedBox(height: AppSpacing.md),
                     AppTextField(
+                      hint: 'e.g. 2 bags burst on the road',
                       label: 'Note (optional)',
                       controller: _noteController,
                     ),
@@ -318,12 +321,18 @@ class _ReconciliationFields extends StatelessWidget {
     return LayoutBuilder(
       builder: (context, constraints) {
         final fields = [
-          AppTextField.quantity(label: 'Bags sold', controller: soldController),
           AppTextField.quantity(
+            hint: 'e.g. 100',
+            label: 'Bags sold',
+            controller: soldController,
+          ),
+          AppTextField.quantity(
+            hint: 'e.g. 10',
             label: 'Bags returned',
             controller: returnedController,
           ),
           AppTextField.quantity(
+            hint: 'e.g. 2',
             label: 'Bags damaged',
             controller: damagedController,
           ),

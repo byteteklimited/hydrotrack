@@ -93,6 +93,7 @@ class _RecordEntryScreenState extends ConsumerState<RecordEntryScreen> {
         onChanged: (source) => setState(() => _source = source!),
       ),
       AppTextField.naira(
+        hint: 'e.g. 10,000',
         label: 'Amount',
         controller: _amountController,
         validator: (value) =>
@@ -105,7 +106,11 @@ class _RecordEntryScreenState extends ConsumerState<RecordEntryScreen> {
         itemLabel: (method) => method.label,
         onChanged: (method) => setState(() => _method = method!),
       ),
-      AppTextField(label: 'Note', controller: _noteController),
+      AppTextField(
+        hint: 'e.g. Paid into the bank',
+        label: 'Note',
+        controller: _noteController,
+      ),
     ];
 
     return Scaffold(

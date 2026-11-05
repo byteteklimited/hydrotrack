@@ -76,6 +76,7 @@ class _VoidSaleDialogState extends ConsumerState<VoidSaleDialog> {
             ),
             const SizedBox(height: AppSpacing.md),
             AppTextField(
+              hint: 'e.g. Entered the wrong quantity',
               label: 'Reason',
               controller: _reasonController,
               validator: (value) => (value == null || value.trim().isEmpty)

@@ -72,6 +72,7 @@ class _DistributorPickerSheetState extends State<_DistributorPickerSheet> {
             ),
             const SizedBox(height: AppSpacing.md),
             AppTextField(
+              hint: 'e.g. Musa or Sabon Gari',
               label: 'Search distributors',
               controller: _searchController,
               prefixIcon: const Icon(Icons.search),

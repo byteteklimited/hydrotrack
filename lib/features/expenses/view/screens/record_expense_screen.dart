@@ -86,6 +86,7 @@ class _RecordExpenseScreenState extends ConsumerState<RecordExpenseScreen> {
         onChanged: (category) => setState(() => _category = category!),
       ),
       AppTextField(
+        hint: 'e.g. Fuel for the bus',
         label: 'What was it for?',
         controller: _descriptionController,
         validator: (value) => (value == null || value.trim().isEmpty)
@@ -93,6 +94,7 @@ class _RecordExpenseScreenState extends ConsumerState<RecordExpenseScreen> {
             : null,
       ),
       AppTextField.naira(
+        hint: 'e.g. 5,000',
         label: 'Amount',
         controller: _amountController,
         validator: (value) =>

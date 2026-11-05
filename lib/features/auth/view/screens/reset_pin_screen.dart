@@ -72,6 +72,7 @@ class _ResetPinScreenState extends ConsumerState<ResetPinScreen> {
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
             AppTextField(
+              hint: 'The code from your manager',
               label: 'Reset code',
               controller: _code,
               prefixIcon: const Icon(Icons.vpn_key_outlined),

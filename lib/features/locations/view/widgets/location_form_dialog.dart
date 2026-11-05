@@ -57,7 +57,8 @@ class _LocationFormDialogState extends ConsumerState<_LocationFormDialog> {
         ),
     fields: [
       AppTextField(
-        label: 'Name, e.g. "Kano depot"',
+        hint: 'e.g. Kano depot',
+        label: 'Name',
         controller: _name,
         validator: (v) => (v ?? '').trim().isEmpty ? 'Enter a name' : null,
       ),

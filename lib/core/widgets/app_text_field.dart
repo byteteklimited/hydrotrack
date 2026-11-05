@@ -17,6 +17,7 @@ class AppTextField extends StatefulWidget {
   const AppTextField({
     super.key,
     required this.label,
+    required this.hint,
     this.controller,
     this.validator,
     this.keyboardType,
@@ -33,6 +34,10 @@ class AppTextField extends StatefulWidget {
   });
 
   final String label;
+
+  /// Example text shown in the empty box — what to type, e.g. "e.g. 120"
+  /// or "Your 4-digit PIN". Every field has one.
+  final String hint;
   final TextEditingController? controller;
   final FormFieldValidator<String>? validator;
   final TextInputType? keyboardType;
@@ -59,6 +64,7 @@ class AppTextField extends StatefulWidget {
   factory AppTextField.naira({
     Key? key,
     required String label,
+    required String hint,
     TextEditingController? controller,
     FormFieldValidator<String>? validator,
     String? helperText,
@@ -67,6 +73,7 @@ class AppTextField extends StatefulWidget {
     return AppTextField(
       key: key,
       label: label,
+      hint: hint,
       controller: controller,
       validator: validator,
       helperText: helperText,
@@ -82,6 +89,7 @@ class AppTextField extends StatefulWidget {
   factory AppTextField.quantity({
     Key? key,
     required String label,
+    required String hint,
     TextEditingController? controller,
     FormFieldValidator<String>? validator,
     String? helperText,
@@ -91,6 +99,7 @@ class AppTextField extends StatefulWidget {
     return AppTextField(
       key: key,
       label: label,
+      hint: hint,
       controller: controller,
       validator: validator,
       helperText: helperText,
@@ -107,6 +116,7 @@ class AppTextField extends StatefulWidget {
   factory AppTextField.decimal({
     Key? key,
     required String label,
+    required String hint,
     TextEditingController? controller,
     FormFieldValidator<String>? validator,
     String? helperText,
@@ -116,6 +126,7 @@ class AppTextField extends StatefulWidget {
     return AppTextField(
       key: key,
       label: label,
+      hint: hint,
       controller: controller,
       validator: validator,
       helperText: helperText,
@@ -160,6 +171,7 @@ class _AppTextFieldState extends State<AppTextField> {
           maxLines: widget.obscureText ? 1 : widget.maxLines,
           onChanged: widget.onChanged,
           decoration: InputDecoration(
+            hintText: widget.hint,
             helperText: widget.helperText,
             prefixIcon: widget.prefixIcon,
             suffixIcon: widget.obscureText

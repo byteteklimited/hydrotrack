@@ -42,6 +42,7 @@ class _DeviceNameDialogState extends State<_DeviceNameDialog> {
       content: Form(
         key: _formKey,
         child: AppTextField(
+          hint: 'e.g. Front desk phone',
           label: 'Device name',
           controller: _name,
           helperText: 'e.g. Front desk phone, Depot tablet',

@@ -80,6 +80,7 @@ class _CustomerPickerSheetState extends State<_CustomerPickerSheet> {
             ),
             const SizedBox(height: AppSpacing.md),
             AppTextField(
+              hint: 'e.g. Musa or Sabon Gari',
               label: 'Search by name or area',
               controller: _searchController,
               prefixIcon: const Icon(Icons.search),

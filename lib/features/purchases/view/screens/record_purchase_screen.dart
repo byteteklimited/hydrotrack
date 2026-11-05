@@ -193,6 +193,7 @@ class _RecordPurchaseScreenState extends ConsumerState<RecordPurchaseScreen> {
                 AppStat(label: 'Total', value: formatNaira(_total)),
                 const SizedBox(height: AppSpacing.lg),
                 AppTextField.naira(
+                  hint: 'e.g. 20,000',
                   label: 'Paid now (leave 0 if bought on credit)',
                   controller: _paid,
                   validator: (_) => _paidValue > _total
@@ -214,7 +215,11 @@ class _RecordPurchaseScreenState extends ConsumerState<RecordPurchaseScreen> {
                   Text('${formatNaira(owed)} will be owed to the supplier.'),
                 ],
                 const SizedBox(height: AppSpacing.md),
-                AppTextField(label: 'Note (optional)', controller: _note),
+                AppTextField(
+                  hint: 'e.g. Invoice 0457',
+                  label: 'Note (optional)',
+                  controller: _note,
+                ),
                 if (error != null) ...[
                   const SizedBox(height: AppSpacing.lg),
                   AppInlineAlert(message: error),

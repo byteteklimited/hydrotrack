@@ -371,3 +371,11 @@ supabase/
       links return to the signing-up address. Pending: Termii sender ID +
       secrets, Supabase Pro, root-domain redirect rule, rotate the
       Cloudflare API token.
+- [x] Fixes after first live test (2026-11-05): every AppTextField has a
+      required `hint` (example text in the empty box; dropdowns say
+      "Choose one"); logo upload uses core/utils/image_picker.dart (any
+      image, web waits for the file instead of giving up on focus — fixes
+      iPhones); PDFs use bundled Roboto (assets/fonts, Apache 2.0) via
+      `newPdfDocument()` so ₦ prints; phone tab bar is AppBottomNavBar
+      (one-line labels that shrink to fit, fixed slots so icons line up).
+      330 Flutter tests.

@@ -101,12 +101,14 @@ class _BusinessProfileScreenState extends ConsumerState<BusinessProfileScreen> {
                 AppFormGrid(
                   fields: [
                     AppTextField(
+                      hint: 'e.g. Sunny Water',
                       label: 'Business name',
                       controller: _name,
                       validator: (v) =>
                           Validators.required(v, 'Enter your business name'),
                     ),
                     AppTextField(
+                      hint: 'e.g. 08031234567',
                       label: 'Phone (optional)',
                       controller: _phone,
                       keyboardType: TextInputType.phone,
@@ -114,10 +116,12 @@ class _BusinessProfileScreenState extends ConsumerState<BusinessProfileScreen> {
                           (v ?? '').trim().isEmpty ? null : Validators.phone(v),
                     ),
                     AppTextField(
+                      hint: 'e.g. 12 Zoo Road, Kano',
                       label: 'Address (optional)',
                       controller: _address,
                     ),
                     AppTextField(
+                      hint: 'e.g. hello@sunnywater.ng',
                       label: 'Email (optional)',
                       controller: _email,
                       keyboardType: TextInputType.emailAddress,
@@ -125,10 +129,12 @@ class _BusinessProfileScreenState extends ConsumerState<BusinessProfileScreen> {
                           (v ?? '').trim().isEmpty ? null : Validators.email(v),
                     ),
                     AppTextField(
+                      hint: 'e.g. RC 1234567',
                       label: 'CAC / RC number (optional)',
                       controller: _rc,
                     ),
                     AppTextField(
+                      hint: 'e.g. A1-1234',
                       label: 'NAFDAC number (optional)',
                       controller: _nafdac,
                     ),

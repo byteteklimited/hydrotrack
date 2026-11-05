@@ -115,6 +115,7 @@ class _BagsFormState extends ConsumerState<_BagsForm> {
           Padding(
             padding: const EdgeInsets.only(bottom: AppSpacing.md),
             child: AppTextField.quantity(
+              hint: 'e.g. 300',
               label: worker.name,
               controller: _fields[worker.id],
               unit: 'bags',

@@ -112,6 +112,7 @@ class _CustomersDirectoryScreenState
                   ),
                   children: [
                     AppTextField(
+                      hint: 'e.g. Musa or Sabon Gari',
                       label: 'Search by name or area',
                       controller: _searchController,
                       prefixIcon: const Icon(Icons.search),

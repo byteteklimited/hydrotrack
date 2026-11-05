@@ -87,6 +87,7 @@ class _WriteOffDialogState extends ConsumerState<WriteOffDialog> {
             ),
             const SizedBox(height: AppSpacing.md),
             AppTextField.naira(
+              hint: 'e.g. 2,000',
               label: 'Amount',
               controller: _amountController,
               validator: (value) {
@@ -100,6 +101,7 @@ class _WriteOffDialogState extends ConsumerState<WriteOffDialog> {
             ),
             const SizedBox(height: AppSpacing.md),
             AppTextField(
+              hint: 'e.g. Customer moved away',
               label: 'Reason',
               controller: _reasonController,
               validator: (value) => (value == null || value.trim().isEmpty)

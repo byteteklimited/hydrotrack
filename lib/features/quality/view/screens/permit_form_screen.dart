@@ -108,13 +108,18 @@ class _PermitFormScreenState extends ConsumerState<PermitFormScreen> {
           padding: const EdgeInsets.all(AppSpacing.lg),
           children: [
             AppTextField(
-              label: 'Name, e.g. NAFDAC licence',
+              hint: 'e.g. NAFDAC licence',
+              label: 'Name',
               controller: _name,
               validator: (v) =>
                   (v ?? '').trim().isEmpty ? 'Enter the permit name' : null,
             ),
             const SizedBox(height: AppSpacing.md),
-            AppTextField(label: 'Number (optional)', controller: _number),
+            AppTextField(
+              hint: 'e.g. A1-1234',
+              label: 'Number (optional)',
+              controller: _number,
+            ),
             const SizedBox(height: AppSpacing.md),
             AppOptionalDateField(
               label: 'Expires on',
@@ -130,7 +135,11 @@ class _PermitFormScreenState extends ConsumerState<PermitFormScreen> {
                 ).textTheme.bodySmall?.copyWith(color: AppColors.dangerFg),
               ),
             const SizedBox(height: AppSpacing.md),
-            AppTextField(label: 'Note (optional)', controller: _note),
+            AppTextField(
+              hint: 'e.g. Renewal filed in March',
+              label: 'Note (optional)',
+              controller: _note,
+            ),
             const SizedBox(height: AppSpacing.lg),
             AppButton(
               label: editing ? 'Save permit' : 'Add permit',

@@ -96,6 +96,7 @@ class _PlatformSettingsFormState extends ConsumerState<PlatformSettingsForm> {
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
           AppTextField.naira(
+            hint: 'e.g. 15,000',
             label: 'Monthly price',
             controller: _price,
             validator: (v) =>
@@ -103,6 +104,7 @@ class _PlatformSettingsFormState extends ConsumerState<PlatformSettingsForm> {
           ),
           const SizedBox(height: AppSpacing.md),
           AppTextField.quantity(
+            hint: 'e.g. 14',
             label: 'Free trial',
             controller: _trialDays,
             unit: 'days',
@@ -111,6 +113,7 @@ class _PlatformSettingsFormState extends ConsumerState<PlatformSettingsForm> {
           ),
           const SizedBox(height: AppSpacing.md),
           AppTextField.quantity(
+            hint: 'e.g. 7',
             label: 'Grace period',
             controller: _graceDays,
             unit: 'days',
@@ -121,6 +124,8 @@ class _PlatformSettingsFormState extends ConsumerState<PlatformSettingsForm> {
           ),
           const SizedBox(height: AppSpacing.md),
           AppTextField(
+            hint:
+                'e.g. Pay to GTBank 0123456789 (ByteTek Ltd), then send the receipt on WhatsApp',
             label: 'How to pay',
             controller: _instructions,
             maxLines: 4,

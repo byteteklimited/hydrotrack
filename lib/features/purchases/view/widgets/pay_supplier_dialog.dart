@@ -77,6 +77,7 @@ class _PaySupplierDialogState extends ConsumerState<_PaySupplierDialog> {
             Text('We owe ${formatNaira(widget.supplier.balance)}.'),
             const SizedBox(height: AppSpacing.md),
             AppTextField.naira(
+              hint: 'e.g. 10,000',
               label: 'Amount',
               controller: _amount,
               validator: (v) =>
@@ -91,7 +92,11 @@ class _PaySupplierDialogState extends ConsumerState<_PaySupplierDialog> {
               onChanged: (c) => setState(() => _channel = c!),
             ),
             const SizedBox(height: AppSpacing.md),
-            AppTextField(label: 'Note (optional)', controller: _note),
+            AppTextField(
+              hint: 'e.g. Paid by transfer',
+              label: 'Note (optional)',
+              controller: _note,
+            ),
           ],
         ),
       ),

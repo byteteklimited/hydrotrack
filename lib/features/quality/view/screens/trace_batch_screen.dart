@@ -53,7 +53,8 @@ class _TraceBatchScreenState extends ConsumerState<TraceBatchScreen> {
               crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
                 AppTextField(
-                  label: 'Batch number, e.g. 261101-M-1',
+                  hint: 'e.g. 261101-M-1',
+                  label: 'Batch number',
                   controller: _number,
                   helperText:
                       'Printed on receipts and shown on each '

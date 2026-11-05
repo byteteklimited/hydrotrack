@@ -19,6 +19,7 @@ class SingleFieldActionScreen<T> extends ConsumerStatefulWidget {
     super.key,
     required this.title,
     required this.fieldLabel,
+    required this.fieldHint,
     required this.submitLabel,
     required this.emptyMessage,
     required this.onSubmit,
@@ -28,6 +29,7 @@ class SingleFieldActionScreen<T> extends ConsumerStatefulWidget {
 
   final String title;
   final String fieldLabel;
+  final String fieldHint;
   final String submitLabel;
 
   /// Shown under the field when it's left blank.
@@ -80,6 +82,7 @@ class _SingleFieldActionScreenState<T>
               crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
                 AppTextField(
+                  hint: widget.fieldHint,
                   label: widget.fieldLabel,
                   controller: _controller,
                   helperText: widget.helperText,

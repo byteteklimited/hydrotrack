@@ -1,9 +1,9 @@
-import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../../core/theme/app_spacing.dart';
 import '../../../../core/utils/action_error.dart';
+import '../../../../core/utils/image_picker.dart';
 import '../../../../core/widgets/app_button.dart';
 import '../../data/models/organization.dart';
 import '../../data/providers/organization_providers.dart';
@@ -16,19 +16,33 @@ class LogoUploadButtons extends ConsumerWidget {
   final Organization organization;
 
   /// Storage accepts these, up to 5 MB.
-  static const _logoExtensions = ['png', 'jpg', 'jpeg', 'webp'];
+  static const _logoExtensions = {'png', 'jpg', 'jpeg', 'webp'};
   static const _maxLogoBytes = 5 * 1024 * 1024;
 
   Future<void> _pickLogo(BuildContext context, WidgetRef ref) async {
-    final picked = await FilePicker.pickFiles(
-      type: FileType.custom,
-      allowedExtensions: _logoExtensions,
-    );
-    final file = picked.firstOrNull;
-    if (file == null) return;
-    final bytes = await file.readAsBytes();
-    if (!context.mounted) return;
-    if (bytes.length > _maxLogoBytes) {
+    final PickedImage? image;
+    try {
+      image = await pickImage();
+    } catch (_) {
+      if (context.mounted) {
+        showActionErrorSnackBar(
+          context,
+          message:
+              'Could not open your photos. Allow this site to access files '
+              'in your browser settings, then try again.',
+        );
+      }
+      return;
+    }
+    if (image == null || !context.mounted) return;
+    if (!_logoExtensions.contains(image.extension)) {
+      showActionErrorSnackBar(
+        context,
+        message: 'Choose a PNG, JPG or WebP image.',
+      );
+      return;
+    }
+    if (image.bytes.length > _maxLogoBytes) {
       showActionErrorSnackBar(
         context,
         message: 'That image is over 5 MB. Choose a smaller one.',
@@ -39,10 +53,8 @@ class LogoUploadButtons extends ConsumerWidget {
         .read(organizationActionControllerProvider.notifier)
         .uploadLogo(
           organizationId: organization.id,
-          bytes: bytes,
-          extension: (file.extension ?? '.png')
-              .replaceFirst('.', '')
-              .toLowerCase(),
+          bytes: image.bytes,
+          extension: image.extension,
         );
     if (!context.mounted) return;
     _report(context, ref, updated != null ? 'Logo updated.' : null);
@@ -82,7 +94,8 @@ class LogoUploadButtons extends ConsumerWidget {
           label: organization.logoPath == null ? 'Upload logo' : 'Change logo',
           leadingIcon: Icons.image_outlined,
           variant: AppButtonVariant.secondary,
-          onPressed: busy ? null : () => _pickLogo(context, ref),
+          isLoading: busy,
+          onPressed: () => _pickLogo(context, ref),
         ),
         if (organization.logoPath != null)
           AppButton(

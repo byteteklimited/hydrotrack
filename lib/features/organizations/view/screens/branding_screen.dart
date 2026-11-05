@@ -132,6 +132,7 @@ class _BrandingScreenState extends ConsumerState<BrandingScreen> {
                         ),
                         const SizedBox(height: AppSpacing.md),
                         AppTextField(
+                          hint: 'e.g. Sunny Water',
                           label: 'Business name',
                           controller: _name,
                           onChanged: (_) => setState(() {}),

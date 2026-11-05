@@ -33,6 +33,7 @@ class CostPaidByFields extends StatelessWidget {
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
         AppTextField.naira(
+          hint: 'e.g. 15,000',
           label: label,
           controller: cost,
           helperText: helperText,

@@ -109,6 +109,7 @@ class _AddOpeningBalanceDialogState
             ),
             const SizedBox(height: AppSpacing.md),
             AppTextField.naira(
+              hint: 'e.g. 12,000',
               label: 'Amount',
               controller: _amountController,
               validator: (value) =>
@@ -116,6 +117,7 @@ class _AddOpeningBalanceDialogState
             ),
             const SizedBox(height: AppSpacing.md),
             AppTextField(
+              hint: 'e.g. Balance from the old notebook',
               label: 'Reason',
               controller: _reasonController,
               validator: (value) => (value == null || value.trim().isEmpty)

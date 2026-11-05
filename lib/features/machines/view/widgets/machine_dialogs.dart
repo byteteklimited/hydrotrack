@@ -113,7 +113,11 @@ class _FixBreakdownDialogState extends ConsumerState<_FixBreakdownDialog>
         onChannelChanged: (c) => setState(() => _channel = c),
         helperText: 'Recorded as a maintenance expense',
       ),
-      AppTextField(label: 'What was done (optional)', controller: _note),
+      AppTextField(
+        hint: 'e.g. Replaced the heating element',
+        label: 'What was done (optional)',
+        controller: _note,
+      ),
     ],
   );
 }
@@ -167,7 +171,11 @@ class _MaintenanceDoneDialogState extends ConsumerState<_MaintenanceDoneDialog>
         onChannelChanged: (c) => setState(() => _channel = c),
         helperText: 'Recorded as a maintenance expense',
       ),
-      AppTextField(label: 'Note (optional)', controller: _note),
+      AppTextField(
+        hint: 'e.g. Fixed by the technician',
+        label: 'Note (optional)',
+        controller: _note,
+      ),
     ],
   );
 }
@@ -213,11 +221,13 @@ class _TaskFormDialogState extends ConsumerState<_TaskFormDialog>
     ),
     fields: [
       AppTextField(
-        label: 'Task, e.g. "Change filter"',
+        hint: 'e.g. Change filter',
+        label: 'Task',
         controller: _name,
         validator: (v) => (v ?? '').trim().isEmpty ? 'Enter the task' : null,
       ),
       AppTextField.quantity(
+        hint: 'e.g. 30',
         label: 'Every',
         controller: _every,
         unit: 'days',
@@ -266,7 +276,8 @@ class _MachineFormDialogState extends ConsumerState<_MachineFormDialog>
     ),
     fields: [
       AppTextField(
-        label: 'Name, e.g. "Machine 3" or "Borehole pump"',
+        hint: 'e.g. Machine 3 or Borehole pump',
+        label: 'Name',
         controller: _name,
         validator: (v) => (v ?? '').trim().isEmpty ? 'Enter a name' : null,
       ),

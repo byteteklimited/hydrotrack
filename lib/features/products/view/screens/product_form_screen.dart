@@ -96,12 +96,14 @@ class _ProductFormScreenState extends ConsumerState<ProductFormScreen> {
                 AppFormGrid(
                   fields: [
                     AppTextField(
+                      hint: 'e.g. 50cl sachet',
                       label: 'Name',
                       controller: _name,
                       helperText: 'e.g. 50cl Sachet, 19L Dispenser Bottle',
                       validator: (v) => Validators.required(v, 'Enter a name'),
                     ),
                     AppTextField(
+                      hint: 'e.g. bags',
                       label: 'Sold in',
                       controller: _unit,
                       helperText: 'e.g. bags, packs, bottles',
@@ -109,11 +111,13 @@ class _ProductFormScreenState extends ConsumerState<ProductFormScreen> {
                           Validators.required(v, 'Enter the unit'),
                     ),
                     AppTextField.naira(
+                      hint: 'e.g. 300',
                       label: 'Walk-in price',
                       controller: _walkIn,
                       validator: price,
                     ),
                     AppTextField.naira(
+                      hint: 'e.g. 250',
                       label: 'Distributor price',
                       controller: _distributor,
                       validator: price,

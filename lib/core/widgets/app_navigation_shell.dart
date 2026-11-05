@@ -12,10 +12,11 @@ import '../theme/app_colors.dart';
 import '../theme/app_spacing.dart';
 import 'app_card.dart';
 import 'app_coming_soon_page.dart';
+import 'app_bottom_nav_bar.dart';
 import 'app_nav_section.dart';
 import '../theme/brand_palette.dart';
 
-/// Below this width: NavigationBar at the bottom. At or above: a sidebar
+/// Below this width: a tab bar at the bottom. At or above: a sidebar
 /// down the side, matching Material's medium/expanded breakpoint. Public
 /// so screens know when the sidebar (and its account footer) isn't there.
 const double wideNavBreakpoint = 700;
@@ -45,14 +46,11 @@ class _AppNavigationShellState extends ConsumerState<AppNavigationShell> {
     if (user == null) return const SizedBox.shrink();
 
     final config = RoleNavConfig.forRole(user.role);
-    final destinations = [
+    final tabs = [
       for (final section in config.primary)
-        NavigationDestination(icon: Icon(section.icon), label: section.label),
+        AppBottomNavItem(icon: section.icon, label: section.label),
       if (config.overflow.isNotEmpty)
-        const NavigationDestination(
-          icon: Icon(Icons.more_horiz),
-          label: 'More',
-        ),
+        const AppBottomNavItem(icon: Icons.more_horiz, label: 'More'),
     ];
     final pages = [
       for (final section in config.primary)
@@ -75,10 +73,10 @@ class _AppNavigationShellState extends ConsumerState<AppNavigationShell> {
         if (!isWide) {
           return Scaffold(
             body: body,
-            bottomNavigationBar: NavigationBar(
+            bottomNavigationBar: AppBottomNavBar(
+              items: tabs,
               selectedIndex: _selectedIndex,
-              onDestinationSelected: onSelect,
-              destinations: destinations,
+              onSelect: onSelect,
             ),
           );
         }

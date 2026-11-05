@@ -57,6 +57,7 @@ class SaleLineEditor extends StatelessWidget {
           children: [
             Expanded(
               child: AppTextField.quantity(
+                hint: 'e.g. 20',
                 label: 'Quantity (${product?.unit ?? 'bags'})',
                 controller: quantityController,
                 validator: (value) => (value == null || value.isEmpty)
@@ -67,6 +68,7 @@ class SaleLineEditor extends StatelessWidget {
             const SizedBox(width: AppSpacing.md),
             Expanded(
               child: AppTextField.naira(
+                hint: 'e.g. 300',
                 label: 'Unit price',
                 controller: unitPriceController,
                 enabled: priceEditable,

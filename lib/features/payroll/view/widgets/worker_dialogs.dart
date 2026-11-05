@@ -94,12 +94,18 @@ class _WorkerFormDialogState extends ConsumerState<_WorkerFormDialog>
       ),
       fields: [
         AppTextField(
+          hint: 'e.g. Aisha Bello',
           label: 'Name',
           controller: _name,
           validator: (v) => (v ?? '').trim().isEmpty ? 'Enter a name' : null,
         ),
-        AppTextField(label: 'Job, e.g. Packer (optional)', controller: _job),
         AppTextField(
+          hint: 'e.g. Packer',
+          label: 'Job (optional)',
+          controller: _job,
+        ),
+        AppTextField(
+          hint: 'e.g. 08031234567',
           label: 'Phone (optional)',
           controller: _phone,
           keyboardType: TextInputType.phone,
@@ -112,6 +118,7 @@ class _WorkerFormDialogState extends ConsumerState<_WorkerFormDialog>
           onChanged: (type) => setState(() => _payType = type!),
         ),
         AppTextField.naira(
+          hint: 'e.g. 3,000',
           label: 'Rate (${_payType.per})',
           controller: _rate,
           validator: (v) => (v ?? '').trim().isEmpty ? 'Enter the rate' : null,
@@ -177,6 +184,7 @@ class _AdvanceDialogState extends ConsumerState<_AdvanceDialog>
     ),
     fields: [
       AppTextField.naira(
+        hint: 'e.g. 5,000',
         label: 'Amount',
         controller: _amount,
         validator: (v) =>
@@ -189,7 +197,11 @@ class _AdvanceDialogState extends ConsumerState<_AdvanceDialog>
         itemLabel: (c) => c.label,
         onChanged: (c) => setState(() => _channel = c!),
       ),
-      AppTextField(label: 'Note (optional)', controller: _note),
+      AppTextField(
+        hint: 'e.g. For school fees',
+        label: 'Note (optional)',
+        controller: _note,
+      ),
     ],
   );
 }

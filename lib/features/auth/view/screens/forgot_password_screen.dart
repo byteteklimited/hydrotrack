@@ -59,6 +59,7 @@ class _ForgotPasswordScreenState extends ConsumerState<ForgotPasswordScreen> {
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
             AppTextField(
+              hint: 'e.g. you@yourbusiness.com',
               label: 'Email',
               controller: _email,
               keyboardType: TextInputType.emailAddress,

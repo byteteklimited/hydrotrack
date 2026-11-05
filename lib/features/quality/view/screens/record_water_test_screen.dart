@@ -96,6 +96,7 @@ class _RecordWaterTestScreenState extends ConsumerState<RecordWaterTestScreen> {
             ),
             const SizedBox(height: AppSpacing.md),
             AppTextField.decimal(
+              hint: 'e.g. 7.2',
               label: 'pH',
               controller: _ph,
               helperText:
@@ -104,6 +105,7 @@ class _RecordWaterTestScreenState extends ConsumerState<RecordWaterTestScreen> {
             ),
             const SizedBox(height: AppSpacing.md),
             AppTextField.decimal(
+              hint: 'e.g. 120',
               label: 'TDS',
               controller: _tds,
               unit: 'mg/L',
@@ -112,6 +114,7 @@ class _RecordWaterTestScreenState extends ConsumerState<RecordWaterTestScreen> {
             ),
             const SizedBox(height: AppSpacing.md),
             AppTextField.decimal(
+              hint: 'e.g. 0.3',
               label: 'Residual chlorine',
               controller: _chlorine,
               unit: 'mg/L',
@@ -121,7 +124,11 @@ class _RecordWaterTestScreenState extends ConsumerState<RecordWaterTestScreen> {
               validator: _reading,
             ),
             const SizedBox(height: AppSpacing.md),
-            AppTextField(label: 'Note (optional)', controller: _note),
+            AppTextField(
+              hint: 'e.g. Tested after backwash',
+              label: 'Note (optional)',
+              controller: _note,
+            ),
             const SizedBox(height: AppSpacing.lg),
             AppButton(
               label: 'Save water test',

@@ -89,6 +89,7 @@ class _ReportBreakdownScreenState extends ConsumerState<ReportBreakdownScreen> {
               ),
               const SizedBox(height: AppSpacing.md),
               AppTextField(
+                hint: 'e.g. Sealer not heating',
                 label: 'What went wrong',
                 controller: _cause,
                 validator: (v) =>

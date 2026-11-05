@@ -76,6 +76,7 @@ class _JoinWithInviteScreenState extends ConsumerState<JoinWithInviteScreen> {
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
             AppTextField(
+              hint: 'The code from your manager, e.g. K7P2QXM4RT',
               label: 'Invite code',
               controller: _codeController,
               prefixIcon: const Icon(Icons.vpn_key_outlined),

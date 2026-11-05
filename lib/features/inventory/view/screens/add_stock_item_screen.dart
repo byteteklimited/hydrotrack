@@ -92,6 +92,7 @@ class _AddStockItemScreenState extends ConsumerState<AddStockItemScreen> {
 
     final fields = <Widget>[
       AppTextField(
+        hint: 'e.g. Nylon roll',
         label: 'Name',
         controller: _nameController,
         enabled: !_isProductStock,
@@ -101,6 +102,7 @@ class _AddStockItemScreenState extends ConsumerState<AddStockItemScreen> {
             : null,
       ),
       AppTextField(
+        hint: 'e.g. Packaging',
         label: 'Category',
         controller: TextEditingController(text: _category.label),
         enabled: false,
@@ -109,6 +111,7 @@ class _AddStockItemScreenState extends ConsumerState<AddStockItemScreen> {
             : 'Finished goods are added with their product, under Products',
       ),
       AppTextField(
+        hint: 'e.g. rolls, kg, cartons',
         label: 'Unit',
         controller: _unitController,
         enabled: !_isProductStock,
@@ -120,6 +123,7 @@ class _AddStockItemScreenState extends ConsumerState<AddStockItemScreen> {
             : null,
       ),
       AppTextField.quantity(
+        hint: 'e.g. 5',
         label: 'Reorder level',
         controller: _reorderLevelController,
         helperText: 'Flag as running low at or below this count',

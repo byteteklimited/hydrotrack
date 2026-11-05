@@ -59,6 +59,7 @@ dev_dependencies:
   # package. See that file for information about deactivating specific lint
   # rules and activating additional ones.
   flutter_lints: ^6.0.0
+  flutter_launcher_icons: ^0.14.4
 
 # For information on the generic Dart part of this file, see the
 # following page: https://dart.dev/tools/pub/pubspec
@@ -71,11 +72,10 @@ flutter:
   # the material Icons class.
   uses-material-design: true
 
-  # HydroTrack logo (placeholder until real assets arrive) — see core/theme/app_brand.dart for which
-  # file is actually used (PNG; the JPG/SVG siblings are source
-  # material, not referenced directly by the app).
+  # HydroTrack's logo (core/theme/app_brand.dart); 2.0x/3.0x variants are
+  # picked automatically. Source artwork is in design/brand/ (not bundled).
   assets:
-    - assets/
+    - assets/brand/
 
   # An image asset can refer to one or more resolution-specific "variants", see
   # https://flutter.dev/to/resolution-aware-images

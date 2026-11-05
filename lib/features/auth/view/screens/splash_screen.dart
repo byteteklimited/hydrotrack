@@ -60,7 +60,7 @@ class _SplashScreenState extends ConsumerState<SplashScreen> {
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            Image.asset(AppBrand.logo, height: 120),
+            Image.asset(AppBrand.logo, width: AppBrand.splashWidth),
             const SizedBox(height: AppSpacing.xxl),
             SizedBox(
               width: 22,

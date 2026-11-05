@@ -280,3 +280,21 @@ Storage: `tenants.brand_primary` / `brand_accent` (migration 0035; null =
 HydroTrack's navy and cyan). In code: `BrandPalette` (core/theme) is a
 theme extension built from the organization's colors; widgets read
 `context.brand`, never fixed brand colors.
+
+## Hosting (live)
+
+- Web app: **https://app.hydrotrack.ng** on Cloudflare Pages (project
+  `hydrotrack`). Deploy a new version from this Mac:
+  ```
+  flutter build web --release --dart-define-from-file=.env.json
+  npx wrangler@4 pages deploy build/web --project-name hydrotrack --branch main
+  ```
+  (needs `CLOUDFLARE_API_TOKEN` and `CLOUDFLARE_ACCOUNT_ID` in the shell).
+- Domain: hydrotrack.ng, registered at GO54 (Whogohost), nameservers on
+  Cloudflare. DNS: `app` and `@` are CNAMEs to `hydrotrack-da9.pages.dev`
+  (proxied).
+- Supabase Auth: Site URL `https://app.hydrotrack.ng`; Redirect URLs
+  include `https://app.hydrotrack.ng/**`; email sent via Resend SMTP from
+  `no-reply@hydrotrack.ng`.
+- Brand artwork: `design/brand/` (SVG sources, 1024 px icons). App icons:
+  `dart run flutter_launcher_icons`.

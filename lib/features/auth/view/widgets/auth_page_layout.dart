@@ -35,7 +35,9 @@ class AuthPageLayout extends StatelessWidget {
     final content = Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
-        Center(child: Image.asset(AppBrand.logo, height: 56)),
+        Center(
+          child: Image.asset(AppBrand.logo, height: AppBrand.signInHeight),
+        ),
         const SizedBox(height: AppSpacing.xl),
         Text(
           title,

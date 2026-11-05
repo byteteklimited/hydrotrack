@@ -83,8 +83,11 @@ supabase/
   "load-out", "driver returns", "wastage"). Buttons say what they do.
 - Empty states say exactly what to do; errors say what went wrong and how
   to fix it.
-- Logo: `AppBrand.logo` — currently a generated PLACEHOLDER; it shows only
-  before an organization is open (splash, sign-in).
+- Logo: `AppBrand.logo` (assets/brand/, 1x/2x/3x PNGs rendered from
+  design/brand/hydrotrack-logo-cropped.svg); shows only before an
+  organization is open (splash, sign-in). App icons: design/brand/ →
+  `dart run flutter_launcher_icons` (flutter_launcher_icons.yaml); web
+  icons in web/icons/.
 - White label: inside an organization the theme is
   `AppTheme.forBrand(organization.palette)`. Read brand colors from
   `context.brand` (`primary`, `primaryText` for text/icons on white,
@@ -357,3 +360,14 @@ supabase/
       Tests: 328 Flutter tests (brand palette, contrast, theme, preview);
       live branding check (3) + api_isolation 22, device_sync 9,
       subscriptions 8.
+- [x] Go-live (2026-11-05): web app on Cloudflare Pages (project
+      `hydrotrack`, deployed with `npx wrangler@4 pages deploy build/web
+      --project-name hydrotrack --branch main`), custom domains
+      app.hydrotrack.ng + hydrotrack.ng (DNS on Cloudflare, registrar
+      GO54). Supabase Site URL https://app.hydrotrack.ng, auth email via
+      Resend SMTP (no-reply@hydrotrack.ng). Real HydroTrack logo and icons
+      (all platforms). Fixes found on the way: Edge Functions now allow the
+      x-location-id header (browsers were blocked); sign-up confirmation
+      links return to the signing-up address. Pending: Termii sender ID +
+      secrets, Supabase Pro, root-domain redirect rule, rotate the
+      Cloudflare API token.

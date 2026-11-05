@@ -1,0 +1,16 @@
+# App icons for every platform, made from the brand artwork in design/brand/.
+# Regenerate with: dart run flutter_launcher_icons
+flutter_launcher_icons:
+  image_path: "design/brand/icon-navy-1024.png"
+  android: "launcher_icon"
+  adaptive_icon_background: "#002179"
+  adaptive_icon_foreground: "design/brand/icon-foreground-1024.png"
+  ios: true
+  remove_alpha_ios: true
+  macos:
+    generate: true
+  windows:
+    generate: true
+    icon_size: 256
+  web:
+    generate: false

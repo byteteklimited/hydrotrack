@@ -9,10 +9,10 @@ import '../../../auth/data/providers/auth_providers.dart';
 import '../../data/providers/organization_providers.dart';
 import '../../../../core/theme/brand_palette.dart';
 
-enum _AccountAction { adminConsole, switchOrganization, signOut }
+enum _AccountAction { settings, adminConsole, switchOrganization, signOut }
 
 /// The signed-in person's avatar as an app-bar menu: which organization
-/// they're in, "HydroTrack admin" (platform admins only), "Switch
+/// they're in, "Settings", "HydroTrack admin" (platform admins only), "Switch
 /// organization" and "Sign out". Used on phones,
 /// where there's no sidebar footer to hold these.
 class AccountMenuButton extends ConsumerWidget {
@@ -30,6 +30,9 @@ class AccountMenuButton extends ConsumerWidget {
     return PopupMenuButton<_AccountAction>(
       tooltip: 'Account',
       onSelected: (action) => switch (action) {
+        _AccountAction.settings => Navigator.of(
+          context,
+        ).pushNamed(AppRoutes.settings),
         _AccountAction.adminConsole => Navigator.of(
           context,
         ).pushNamed(AppRoutes.admin),
@@ -53,6 +56,14 @@ class AccountMenuButton extends ConsumerWidget {
           ),
         ),
         const PopupMenuDivider(),
+        const PopupMenuItem(
+          value: _AccountAction.settings,
+          child: ListTile(
+            leading: Icon(Icons.settings_outlined),
+            title: Text('Settings'),
+            contentPadding: EdgeInsets.zero,
+          ),
+        ),
         if (isPlatformAdmin)
           const PopupMenuItem(
             value: _AccountAction.adminConsole,

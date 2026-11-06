@@ -8,6 +8,7 @@ import 'core/theme/app_theme.dart';
 import 'core/theme/brand_palette.dart';
 import 'core/widgets/app_error_state.dart';
 import 'core/widgets/app_loading.dart';
+import 'features/account/view/screens/settings_screen.dart';
 import 'features/admin/view/screens/admin_console_screen.dart';
 import 'features/auth/view/screens/forgot_password_screen.dart';
 import 'features/auth/view/screens/join_with_invite_screen.dart';
@@ -167,6 +168,7 @@ class HydroTrackApp extends ConsumerWidget {
         AppRoutes.forgotPassword: (context) => const ForgotPasswordScreen(),
         AppRoutes.setNewPassword: (context) => const SetNewPasswordScreen(),
         AppRoutes.admin: (context) => const AdminConsoleScreen(),
+        AppRoutes.settings: (context) => const SettingsScreen(),
       },
       navigatorKey: _navigatorKey,
       builder: (context, child) => Column(

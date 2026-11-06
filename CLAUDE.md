@@ -394,3 +394,10 @@ supabase/
       bank fields, plan in Record payment, Change plan. Tests: plans.test.sql
       (6 groups), all 15 pgTAP suites pass; subscriptions_test.py 13;
       338 Flutter tests.
+- [x] Settings (2026-11-06): gear button on Home (every role), "Settings"
+      in the phone account menu and the sidebar footer → AppRoutes.settings
+      (features/account): edit own name (profiles + auth metadata), change
+      PIN (phone accounts) or password (email accounts) after checking the
+      current one (offline sign-in updated too), links to Organization
+      settings and Plan and subscription (Owner/Admin), switch
+      organization, sign out. 340 Flutter tests.

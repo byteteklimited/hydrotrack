@@ -40,6 +40,19 @@ class _SignedOutAuth implements AuthRepository {
   Future<void> updatePassword(String password) => throw UnimplementedError();
 
   @override
+  String? get signInEmail => null;
+
+  @override
+  Future<void> updateFullName(String fullName) => throw UnimplementedError();
+
+  @override
+  Future<void> changeSecret({
+    required String identifier,
+    required String current,
+    required String next,
+  }) => throw UnimplementedError();
+
+  @override
   Future<void> signOut() async {}
 
   @override

@@ -42,6 +42,22 @@ abstract class AuthRepository {
   /// reset link).
   Future<void> updatePassword(String password);
 
+  /// The email the signed-in account signs in with; null for accounts
+  /// that sign in with a phone number (and a PIN).
+  String? get signInEmail;
+
+  /// Renames the signed-in person everywhere their name shows.
+  Future<void> updateFullName(String fullName);
+
+  /// Checks [current] by signing in again with [identifier], then sets
+  /// [next] as the new PIN or password. Throws [StateError] with a
+  /// readable message when [current] is wrong.
+  Future<void> changeSecret({
+    required String identifier,
+    required String current,
+    required String next,
+  });
+
   /// Fires when someone opens a password reset link.
   Stream<void> get passwordRecoveries;
 
@@ -153,6 +169,46 @@ class SupabaseAuthRepository implements AuthRepository {
   @override
   Future<void> updatePassword(String password) {
     return _client.auth.updateUser(UserAttributes(password: password));
+  }
+
+  @override
+  String? get signInEmail {
+    final email = _client.auth.currentUser?.email;
+    return email == null || email.isEmpty ? null : email;
+  }
+
+  @override
+  Future<void> updateFullName(String fullName) async {
+    final userId = _client.auth.currentUser?.id;
+    if (userId == null) throw StateError('Sign in again, then try again.');
+    await _client
+        .from('profiles')
+        .update({'full_name': fullName})
+        .eq('id', userId);
+    await _client.auth.updateUser(
+      UserAttributes(data: {'full_name': fullName}),
+    );
+  }
+
+  @override
+  Future<void> changeSecret({
+    required String identifier,
+    required String current,
+    required String next,
+  }) async {
+    final check = await signIn(identifier: identifier, secret: current);
+    switch (check) {
+      case SignInSuccess():
+        await updatePassword(next);
+      case SignInFailure(reason: SignInFailureReason.noConnection):
+        throw const NeedsInternetException();
+      case SignInFailure():
+        throw StateError(
+          _isEmail(identifier)
+              ? 'Your current password is not right.'
+              : 'Your current PIN is not right.',
+        );
+    }
   }
 
   @override

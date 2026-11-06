@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/intl.dart';
 
+import '../../../../core/constants/app_routes.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_spacing.dart';
 import '../../../../core/utils/formatters.dart';
@@ -69,10 +70,16 @@ class DashboardScreen extends ConsumerWidget {
                   ),
                 ],
               ),
-        // On phones there's no sidebar footer, so the account menu
-        // (organization, switch, sign out) lives here.
+        // Settings for everyone; on phones there's no sidebar footer, so
+        // the account menu (organization, switch, sign out) lives here too.
         actions: [
           if (user?.role == StaffRole.owner) const AlertsBell(),
+          IconButton(
+            icon: const Icon(Icons.settings_outlined),
+            tooltip: 'Settings',
+            onPressed: () =>
+                Navigator.of(context).pushNamed(AppRoutes.settings),
+          ),
           if (!hasSidebar) const AccountMenuButton(),
         ],
       ),

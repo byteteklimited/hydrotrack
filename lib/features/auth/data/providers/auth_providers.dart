@@ -185,6 +185,50 @@ final accountSetupControllerProvider =
       (ref) => AccountSetupController(ref),
     );
 
+/// The signed-in person's own settings: their name, and their PIN or
+/// password.
+class AccountController extends ActionController {
+  AccountController(this._ref);
+
+  final Ref _ref;
+
+  Future<bool> saveName(String fullName) async {
+    final done = await guard(() async {
+      await _ref.read(authRepositoryProvider).updateFullName(fullName);
+      final user = _ref.read(authStateProvider);
+      if (user != null) {
+        _ref.read(authStateProvider.notifier).state = user.copyWith(
+          fullName: fullName,
+        );
+      }
+      return true;
+    });
+    return done ?? false;
+  }
+
+  /// [identifier] is what the person signs in with (email or phone).
+  Future<bool> changeSecret({
+    required String identifier,
+    required String current,
+    required String next,
+  }) async {
+    final done = await guard(() async {
+      await _ref
+          .read(authRepositoryProvider)
+          .changeSecret(identifier: identifier, current: current, next: next);
+      // Offline sign-in on this device takes the new one too.
+      rememberForOfflineSignIn(_ref, next);
+      return true;
+    });
+    return done ?? false;
+  }
+}
+
+final accountControllerProvider =
+    StateNotifierProvider.autoDispose<AccountController, AsyncValue<void>>(
+      (ref) => AccountController(ref),
+    );
+
 /// Signs out and returns to the login screen. Shared by every "Sign out"
 /// control in the app (the sidebar footer, Home's account menu, the
 /// organization picker) so they all call the exact same function.

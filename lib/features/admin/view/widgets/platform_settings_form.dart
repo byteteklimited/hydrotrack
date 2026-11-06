@@ -4,6 +4,7 @@ import 'package:flutter/services.dart';
 
 import '../../../../core/theme/app_spacing.dart';
 import '../../../../core/utils/action_error.dart';
+import '../../../../core/utils/validators.dart';
 import '../../../../core/widgets/app_button.dart';
 import '../../../../core/widgets/app_text_field.dart';
 import '../../../subscriptions/data/models/bank_account.dart';
@@ -13,8 +14,6 @@ import '../../data/providers/admin_providers.dart';
 /// Limits the server also enforces (migration 0023).
 const _maxTrialDays = 90;
 const _maxGraceDays = 30;
-const _accountNumberLength = 10;
-final _accountNumberPattern = RegExp(r'^\d{10}$');
 
 class PlatformSettingsForm extends ConsumerStatefulWidget {
   const PlatformSettingsForm({super.key, required this.settings});
@@ -77,9 +76,7 @@ class _PlatformSettingsFormState extends ConsumerState<PlatformSettingsForm> {
   String? _accountNumberCheck(String? value) {
     final text = (value ?? '').trim();
     if (text.isEmpty) return _bankField(value, 'account number');
-    return _accountNumberPattern.hasMatch(text)
-        ? null
-        : 'The account number must be 10 digits';
+    return Validators.accountNumber(text);
   }
 
   static String? _days(String? value, int max) {
@@ -171,7 +168,7 @@ class _PlatformSettingsFormState extends ConsumerState<PlatformSettingsForm> {
             keyboardType: TextInputType.number,
             inputFormatters: [
               FilteringTextInputFormatter.digitsOnly,
-              LengthLimitingTextInputFormatter(_accountNumberLength),
+              LengthLimitingTextInputFormatter(Validators.accountNumberLength),
             ],
             validator: _accountNumberCheck,
           ),

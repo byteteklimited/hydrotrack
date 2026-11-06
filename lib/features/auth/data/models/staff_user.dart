@@ -47,6 +47,13 @@ class StaffUser {
     return '$first$last'.toUpperCase();
   }
 
+  StaffUser copyWith({String? fullName}) => StaffUser(
+    id: id,
+    fullName: fullName ?? this.fullName,
+    role: role,
+    phone: phone,
+  );
+
   factory StaffUser.fromJson(Map<String, dynamic> json) {
     return StaffUser(
       id: json['id'] as String,

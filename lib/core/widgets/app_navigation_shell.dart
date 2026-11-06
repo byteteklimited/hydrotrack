@@ -328,6 +328,11 @@ class _SidebarFooter extends ConsumerWidget {
     final isPlatformAdmin =
         ref.watch(isPlatformAdminProvider).valueOrNull ?? false;
     final actions = [
+      _FooterAction(
+        tooltip: 'Settings',
+        icon: Icons.settings_outlined,
+        onPressed: () => Navigator.of(context).pushNamed(AppRoutes.settings),
+      ),
       if (isPlatformAdmin)
         _FooterAction(
           tooltip: 'HydroTrack admin',

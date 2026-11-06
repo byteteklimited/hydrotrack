@@ -167,7 +167,7 @@ begin
   return next is(tests.offline_expense(v_late, now() - interval '12 hours') ->> 'status', 'rejected',
     'One made after is refused (and kept on the device''s list)');
   perform tests.as_user('pat');
-  perform public.admin_record_payment(tests.id('a'), 15000, 1);
+  perform public.admin_record_payment(tests.id('a'), 'standard', 25000, 1);
   perform tests.as_owner_db();
   return next is(tests.offline_expense(v_late, now() - interval '12 hours') ->> 'status', 'applied',
     'and goes through on retry once the organization has paid');
@@ -203,21 +203,21 @@ begin
   perform tests.seed();
   select trial_ends_at into v_trial_end from public.tenant_subscriptions where tenant_id = tests.id('a');
   perform tests.as_user('pat');
-  v_sub := public.admin_record_payment(tests.id('a'), 15000, 2, 'Transfer');
+  v_sub := public.admin_record_payment(tests.id('a'), 'standard', 50000, 2, 'Transfer');
   return next is((v_sub ->> 'paid_until')::timestamptz, v_trial_end + interval '2 months',
     'Paying during the trial adds the months after the trial');
   return next is(v_sub ->> 'status', 'active', 'and makes it active');
   v_sub := public.admin_add_free_days(tests.id('a'), 10, 'Goodwill');
   return next is((v_sub ->> 'paid_until')::timestamptz, v_trial_end + interval '2 months' + interval '10 days',
     'Free days extend the paid time');
-  return next throws_ok(format('select public.admin_record_payment(%L, 15000, 0)', tests.id('a')), 'P0001',
+  return next throws_ok(format('select public.admin_record_payment(%L, ''standard'', 25000, 0)', tests.id('a')), 'P0001',
     'Months paid for must be between 1 and 24', 'Months are checked');
 
   perform tests.as_owner_db();
   update public.tenant_subscriptions set trial_ends_at = now() - interval '30 days', paid_until = null
   where tenant_id = tests.id('b');
   perform tests.as_user('pat');
-  v_sub := public.admin_record_payment(tests.id('b'), 15000, 1);
+  v_sub := public.admin_record_payment(tests.id('b'), 'starter', 15000, 1);
   return next ok((v_sub ->> 'paid_until')::timestamptz between now() + interval '27 days' and now() + interval '32 days',
     'After running out, paid time starts today');
   v_sub := public.admin_add_free_days(tests.id('b'), 5);
@@ -240,14 +240,14 @@ declare
 begin
   perform tests.seed();
   perform tests.as_user('pat');
-  perform public.admin_update_platform_settings(15000, 30, 5, ' Pay to GTBank 0123456789 ');
-  return next is((public.admin_platform_settings()).payment_instructions, 'Pay to GTBank 0123456789',
-    'The admin sets the price, trial, grace and how to pay');
-  return next throws_ok('select public.admin_update_platform_settings(15000, 120, 5, null)', 'P0001',
+  perform public.admin_update_platform_settings(30, 5, 'Moniepoint MFB', '8137131177', 'Byte Tek Limited', ' Send the receipt on WhatsApp ');
+  return next is((public.admin_platform_settings()).payment_instructions, 'Send the receipt on WhatsApp',
+    'The admin sets the trial, grace, bank account and how to pay');
+  return next throws_ok('select public.admin_update_platform_settings(120, 5, null, null, null, null)', 'P0001',
     'Trial days must be between 0 and 90', 'Values are checked');
   perform tests.as_user('mike');
-  return next is((public.my_subscription(tests.id('a')) ->> 'monthly_price')::numeric, 15000::numeric,
-    'Members see the price');
+  return next is(public.my_subscription(tests.id('a')) ->> 'account_number', '8137131177',
+    'Members see where to pay');
   return next is((public.my_subscription(tests.id('a')) ->> 'access_ends_at')::timestamptz,
     (public.my_subscription(tests.id('a')) ->> 'trial_ends_at')::timestamptz + interval '5 days',
     'New grace applies to everyone');
@@ -264,14 +264,14 @@ begin
   perform tests.as_user('alice');
   return next is(public.is_platform_admin(), false, 'Owners aren''t platform admins');
   return next throws_ok('select * from public.admin_organizations()', '42501', null, 'can''t list organizations');
-  return next throws_ok(format('select public.admin_record_payment(%L, 1, 12)', tests.id('a')), '42501', null,
+  return next throws_ok(format('select public.admin_record_payment(%L, ''premium'', 1, 12)', tests.id('a')), '42501', null,
     'can''t record their own payment');
   return next throws_ok(format('select public.admin_add_free_days(%L, 30)', tests.id('a')), '42501', null,
     'or give themselves free days');
   return next throws_ok(format('select public.admin_set_suspended(%L, true, %L)', tests.id('b'), 'x'), '42501', null,
     'or suspend anyone');
-  return next throws_ok('select public.admin_update_platform_settings(0, 90, 30, null)', '42501', null,
-    'or change the price');
+  return next throws_ok('select public.admin_update_platform_settings(90, 30, null, null, null, null)', '42501', null,
+    'or change the settings');
   return next throws_ok('select public.admin_platform_settings()', '42501', null, 'or read the settings');
   return next throws_ok('insert into public.platform_admins (user_id) select auth.uid()', '42501', null,
     'or make themselves admins');

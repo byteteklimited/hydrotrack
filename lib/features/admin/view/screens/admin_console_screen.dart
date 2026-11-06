@@ -57,7 +57,7 @@ class _AdminConsoleScreenState extends ConsumerState<AdminConsoleScreen> {
         actions: [
           IconButton(
             icon: const Icon(Icons.tune),
-            tooltip: 'Plan and price',
+            tooltip: 'Plans and payment',
             onPressed: () => Navigator.of(context).push(
               MaterialPageRoute<void>(
                 builder: (_) => const PlatformSettingsScreen(),

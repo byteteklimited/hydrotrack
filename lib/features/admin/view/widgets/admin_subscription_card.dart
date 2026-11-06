@@ -6,6 +6,10 @@ import '../../../../core/theme/app_spacing.dart';
 import '../../../../core/utils/action_error.dart';
 import '../../../../core/widgets/app_button.dart';
 import '../../../../core/widgets/app_card.dart';
+import '../../../../core/utils/formatters.dart';
+import '../../../subscriptions/data/models/plan.dart';
+import '../../../subscriptions/data/providers/subscription_providers.dart';
+import '../../../subscriptions/view/widgets/plan_usage.dart';
 import '../../../subscriptions/view/widgets/subscription_status_tag.dart';
 import '../../data/models/admin_organization.dart';
 import '../../data/providers/admin_providers.dart';
@@ -42,7 +46,10 @@ class AdminSubscriptionCard extends ConsumerWidget {
       );
     }
     final busy = ref.watch(adminActionControllerProvider).isLoading;
+    final plans = ref.watch(plansProvider).valueOrNull ?? const <Plan>[];
     final suspended = subscription.suspendedAt != null;
+    final requested = subscription.requestedPlanKey;
+    final theme = Theme.of(context);
 
     return AppCard(
       title: 'Subscription',
@@ -51,7 +58,27 @@ class AdminSubscriptionCard extends ConsumerWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
+          if (subscription.plan != null)
+            Text(
+              '${subscription.plan!.name} plan',
+              style: theme.textTheme.titleSmall,
+            ),
           Text(subscriptionSummary(subscription, DateTime.now())),
+          for (final line in planUsageLines(subscription))
+            Text(
+              line.text,
+              style: theme.textTheme.bodyMedium?.copyWith(
+                color: line.over ? AppColors.dangerFg : AppColors.textSecondary,
+              ),
+            ),
+          if (requested != null)
+            Text(
+              'Owner chose ${toTitleCase(requested)}: record their payment '
+              'to move them to it.',
+              style: theme.textTheme.bodyMedium?.copyWith(
+                color: AppColors.warningFg,
+              ),
+            ),
           const SizedBox(height: AppSpacing.md),
           Wrap(
             spacing: AppSpacing.sm,
@@ -60,9 +87,18 @@ class AdminSubscriptionCard extends ConsumerWidget {
               AppButton(
                 label: 'Record payment',
                 leadingIcon: Icons.payments_outlined,
-                onPressed: busy
+                onPressed: busy || plans.isEmpty
                     ? null
-                    : () => showRecordPaymentDialog(context, organization),
+                    : () =>
+                          showRecordPaymentDialog(context, organization, plans),
+              ),
+              AppButton(
+                label: 'Change plan',
+                variant: AppButtonVariant.secondary,
+                leadingIcon: Icons.swap_horiz,
+                onPressed: busy || plans.isEmpty
+                    ? null
+                    : () => showChangePlanDialog(context, organization, plans),
               ),
               AppButton(
                 label: 'Give free days',

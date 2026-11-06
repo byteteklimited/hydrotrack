@@ -1,14 +1,14 @@
-/// The one HydroTrack plan (`platform_settings`).
+import '../../../subscriptions/data/models/bank_account.dart';
+
+/// HydroTrack-wide settings (`platform_settings`): trial and grace length
+/// and where organizations pay. Plan prices live on each plan.
 class PlatformSettings {
   const PlatformSettings({
     required this.trialDays,
     required this.graceDays,
-    this.monthlyPrice,
+    this.bankAccount,
     this.paymentInstructions,
   });
-
-  /// Null until set.
-  final num? monthlyPrice;
 
   /// For organizations created from now on.
   final int trialDays;
@@ -17,21 +17,26 @@ class PlatformSettings {
   /// read-only (applies to everyone).
   final int graceDays;
 
-  /// Shown to owners under "How to pay".
+  /// Shown to owners under "How to pay"; null until set.
+  final BankAccount? bankAccount;
+
+  /// Anything else owners should know, e.g. where to send the receipt.
   final String? paymentInstructions;
 
   factory PlatformSettings.fromJson(Map<String, dynamic> json) =>
       PlatformSettings(
-        monthlyPrice: json['monthly_price'] as num?,
         trialDays: json['trial_days'] as int,
         graceDays: json['grace_days'] as int,
+        bankAccount: BankAccount.fromJson(json),
         paymentInstructions: json['payment_instructions'] as String?,
       );
 
   Map<String, dynamic> toRpcParams() => {
-    'p_monthly_price': monthlyPrice ?? 0,
     'p_trial_days': trialDays,
     'p_grace_days': graceDays,
+    'p_bank_name': bankAccount?.bankName,
+    'p_account_number': bankAccount?.accountNumber,
+    'p_account_name': bankAccount?.accountName,
     'p_payment_instructions': paymentInstructions,
   };
 }

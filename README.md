@@ -142,15 +142,26 @@ Studio.app/Contents/jbr/Contents/Home"`, or upgrade Gradle.
 
 ## Subscriptions and admin console (Phase C)
 
-- **Plan**: one monthly price. New organizations get a free trial (14
+- **Plans** (migration 0036; every feature on each):
+  Starter ₦15,000/month (up to 3 staff, one factory), Standard ₦25,000
+  (up to 10 staff, one factory; "most popular"), Premium ₦50,000
+  (unlimited staff, multiple factories/depots). Staff = active non-owner
+  members + open invites; owners never count. New organizations are on
+  Standard during the trial. Over a limit (e.g. after moving down)
+  nothing is switched off — inviting/reactivating staff and adding/
+  reactivating locations are refused with a message until back under.
+- **Trial**: new organizations get a free trial (14
   days by default); when the trial or paid time ends there are 7 days of
   grace; after that the organization is **read-only** — everyone can still
   sign in, view and export, but nothing can be recorded, edited or deleted
   until it pays. Owners can still deactivate or remove staff.
-- **Paying** is manual: owners see the price and "How to pay" under
-  Organization → Subscription, pay by transfer and send the receipt;
-  the HydroTrack admin records the payment, which adds the months after
-  the trial or current paid time (or from today if it has run out).
+- **Paying** is manual: under Organization → Subscription, Owners/Admins
+  see the three plans, choose one, and pay by transfer to HydroTrack's
+  account (Moniepoint MFB 8137131177, Byte Tek Limited; set in the
+  console); the HydroTrack admin records the payment with the plan paid
+  for (pre-filled with their choice), which moves them to it and adds
+  the months after the trial or current paid time (or from today if it
+  has run out).
 - **Banner**: read-only shows to everyone; "payment due" and "trial ends
   in 3 days or less" show to Owner/Admin, who can tap through to renew.
 - **Offline**: a set-up device gets the status with each download and
@@ -162,11 +173,11 @@ Studio.app/Contents/jbr/Contents/Home"`, or upgrade Gradle.
   `insert into platform_admins (user_id) …`): "HydroTrack admin" in the
   account menu / sidebar footer / organization picker. Every organization
   with owner contact, staff count, last activity and status (search and
-  filter); Record payment, Give free days, Suspend (with a reason the
-  organization sees) / Resume, and history. "Plan and price" sets the
-  monthly price, trial days (new organizations), grace days (everyone)
-  and the payment instructions owners see. **Set the price and payment
-  instructions before going live.** The console gives no access to any
+  filter); Record payment, Change plan (no payment), Give free days,
+  Suspend (with a reason the organization sees) / Resume, and history.
+  "Plans and payment" edits each plan's price and limits, trial days
+  (new organizations), grace days (everyone), the bank account owners pay
+  into and any extra payment note. The console gives no access to any
   organization's own records.
 
 ## Phase D — operations

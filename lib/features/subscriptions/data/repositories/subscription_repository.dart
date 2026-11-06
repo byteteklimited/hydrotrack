@@ -9,8 +9,13 @@ abstract class SubscriptionRepository {
   /// Null when the server has no subscription for it (never in practice).
   Future<Subscription?> fetchSubscription();
 
-  /// Payments and free days, newest first (owners only; others get none).
+  /// Payments, free days and plan changes, newest first (owners only;
+  /// others get none).
   Future<List<SubscriptionEvent>> fetchHistory();
+
+  /// Choose [planKey] (Owner/Admin); it takes effect when HydroTrack
+  /// records the payment. Returns the updated subscription.
+  Future<Subscription> requestPlan(String planKey);
 }
 
 class SupabaseSubscriptionRepository implements SubscriptionRepository {
@@ -35,13 +40,24 @@ class SupabaseSubscriptionRepository implements SubscriptionRepository {
   Future<List<SubscriptionEvent>> fetchHistory() async {
     final rows = await _client
         .from('subscription_events')
-        .select('id, kind, amount, months, days, note, ends_at, created_at')
+        .select(
+          'id, kind, plan_key, amount, months, days, note, ends_at, created_at',
+        )
         .eq('tenant_id', _tenantId)
         .order('created_at', ascending: false);
     return [
       for (final row in rows as List)
         SubscriptionEvent.fromJson(row as Map<String, dynamic>),
     ];
+  }
+
+  @override
+  Future<Subscription> requestPlan(String planKey) async {
+    final json = await _client.rpc(
+      'request_plan',
+      params: {'p_tenant_id': _tenantId, 'p_plan_key': planKey},
+    );
+    return Subscription.fromJson(json as Map<String, dynamic>);
   }
 }
 
@@ -63,4 +79,8 @@ class OfflineSubscriptionRepository implements SubscriptionRepository {
   @override
   Future<List<SubscriptionEvent>> fetchHistory() =>
       _offline.online(_remote.fetchHistory);
+
+  @override
+  Future<Subscription> requestPlan(String planKey) =>
+      _offline.online(() => _remote.requestPlan(planKey));
 }

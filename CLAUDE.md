@@ -379,3 +379,18 @@ supabase/
       `newPdfDocument()` so ₦ prints; phone tab bar is AppBottomNavBar
       (one-line labels that shrink to fit, fixed slots so icons line up).
       330 Flutter tests.
+- [x] Plans (2026-11-06; agreed: Standard during the trial, owners not
+      counted, over a limit blocks new only, owner chooses + admin
+      confirms with the payment). 0036: `plans` (Starter ₦15k/3 staff/1
+      location, Standard ₦25k/10/1 popular, Premium ₦50k/unlimited),
+      tenant_subscriptions.plan_key (default standard) +
+      requested_plan_key, triggers enforce_staff_limit (invites,
+      reactivation) and enforce_location_limit, request_plan,
+      admin_record_payment(+plan), admin_set_plan, admin_update_plan;
+      platform_settings: monthly_price dropped, bank account added
+      (Moniepoint MFB 8137131177 Byte Tek Limited). 0037 fixed the staff
+      trigger (it broke new invites for a few minutes). App: plan cards +
+      how to pay with copyable account on Subscription; admin plans editor,
+      bank fields, plan in Record payment, Change plan. Tests: plans.test.sql
+      (6 groups), all 15 pgTAP suites pass; subscriptions_test.py 13;
+      338 Flutter tests.

@@ -37,7 +37,8 @@ final platformSettingsProvider = FutureProvider.autoDispose<PlatformSettings>((
   return ref.watch(adminRepositoryProvider).fetchSettings();
 });
 
-/// Record payment, free days, suspend/resume and plan settings.
+/// Record payment, change plan, free days, suspend/resume, plans and
+/// settings.
 class AdminActionController extends ActionController {
   AdminActionController(this._ref);
 
@@ -47,6 +48,7 @@ class AdminActionController extends ActionController {
 
   Future<bool> recordPayment({
     required String organizationId,
+    required String planKey,
     required num amount,
     required int months,
     String? note,
@@ -54,8 +56,22 @@ class AdminActionController extends ActionController {
     organizationId,
     () => _repository.recordPayment(
       organizationId: organizationId,
+      planKey: planKey,
       amount: amount,
       months: months,
+      note: note,
+    ),
+  );
+
+  Future<bool> setPlan({
+    required String organizationId,
+    required String planKey,
+    String? note,
+  }) => _changing(
+    organizationId,
+    () => _repository.setPlan(
+      organizationId: organizationId,
+      planKey: planKey,
       note: note,
     ),
   );
@@ -91,6 +107,27 @@ class AdminActionController extends ActionController {
       await _repository.updateSettings(settings);
       _ref.invalidate(platformSettingsProvider);
       _ref.invalidate(adminOrganizationsProvider);
+      return true;
+    });
+    return saved ?? false;
+  }
+
+  Future<bool> updatePlan({
+    required String planKey,
+    required num monthlyPrice,
+    int? maxStaff,
+    int? maxLocations,
+  }) async {
+    final saved = await guard(() async {
+      await _repository.updatePlan(
+        planKey: planKey,
+        monthlyPrice: monthlyPrice,
+        maxStaff: maxStaff,
+        maxLocations: maxLocations,
+      );
+      _ref.invalidate(plansProvider);
+      _ref.invalidate(adminOrganizationsProvider);
+      _ref.invalidate(currentSubscriptionProvider);
       return true;
     });
     return saved ?? false;

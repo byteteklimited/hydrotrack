@@ -22,7 +22,21 @@ void main() {
       'access_ends_at': '2026-10-08T08:00:00Z',
       'suspended_at': null,
       'suspended_reason': null,
-      'monthly_price': null,
+      'plan': {
+        'key': 'starter',
+        'name': 'Starter',
+        'description': 'For small factories',
+        'monthly_price': 15000,
+        'max_staff': 3,
+        'max_locations': 1,
+        'is_popular': false,
+      },
+      'requested_plan_key': 'premium',
+      'staff_in_use': 4,
+      'locations_in_use': 1,
+      'bank_name': null,
+      'account_number': null,
+      'account_name': null,
       'payment_instructions': null,
     },
   });
@@ -31,7 +45,9 @@ void main() {
     expect(organization.staffCount, 4);
     expect(organization.lastActivityAt, isNull);
     expect(organization.subscription?.status, SubscriptionStatus.expired);
-    expect(organization.subscription?.monthlyPrice, isNull);
+    expect(organization.subscription?.plan?.name, 'Starter');
+    expect(organization.subscription?.requestedPlanKey, 'premium');
+    expect(organization.subscription?.bankAccount, isNull);
   });
 
   test('search matches name and owner contact, ignoring case', () {
@@ -42,18 +58,34 @@ void main() {
     expect(organization.matches('Kano'), isFalse);
   });
 
-  test('plan settings round-trip to the RPC parameters', () {
+  test('settings round-trip to the RPC parameters', () {
     final settings = PlatformSettings.fromJson({
-      'monthly_price': 15000,
       'trial_days': 14,
       'grace_days': 7,
-      'payment_instructions': 'GTBank',
+      'bank_name': 'Moniepoint MFB',
+      'account_number': '8137131177',
+      'account_name': 'Byte Tek Limited',
+      'payment_instructions': 'Send the receipt on WhatsApp',
     });
     expect(settings.toRpcParams(), {
-      'p_monthly_price': 15000,
       'p_trial_days': 14,
       'p_grace_days': 7,
-      'p_payment_instructions': 'GTBank',
+      'p_bank_name': 'Moniepoint MFB',
+      'p_account_number': '8137131177',
+      'p_account_name': 'Byte Tek Limited',
+      'p_payment_instructions': 'Send the receipt on WhatsApp',
     });
+  });
+
+  test('no bank account until all three details are set', () {
+    final settings = PlatformSettings.fromJson({
+      'trial_days': 14,
+      'grace_days': 7,
+      'bank_name': 'Moniepoint MFB',
+      'account_number': null,
+      'account_name': null,
+    });
+    expect(settings.bankAccount, isNull);
+    expect(settings.toRpcParams()['p_bank_name'], isNull);
   });
 }

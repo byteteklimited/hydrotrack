@@ -9,7 +9,7 @@ import '../screens/subscription_screen.dart';
 import 'subscription_status_tag.dart';
 
 /// Organization settings: where the subscription stands, and a way to the
-/// full Subscription screen (price, how to pay, payments).
+/// full Subscription screen (plans, how to pay, payments).
 class SubscriptionCard extends ConsumerWidget {
   const SubscriptionCard({super.key});
 
@@ -25,10 +25,15 @@ class SubscriptionCard extends ConsumerWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
+            if (subscription.plan != null)
+              Text(
+                '${subscription.plan!.name} plan',
+                style: Theme.of(context).textTheme.titleSmall,
+              ),
             Text(subscriptionSummary(subscription, DateTime.now())),
             const SizedBox(height: AppSpacing.md),
             AppButton(
-              label: 'View plan and how to pay',
+              label: 'Plans and how to pay',
               variant: AppButtonVariant.secondary,
               leadingIcon: Icons.receipt_long_outlined,
               onPressed: () => Navigator.of(context).push(

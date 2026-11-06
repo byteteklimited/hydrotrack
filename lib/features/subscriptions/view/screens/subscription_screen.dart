@@ -4,7 +4,6 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_spacing.dart';
 import '../../../../core/utils/action_error.dart';
-import '../../../../core/utils/formatters.dart';
 import '../../../../core/widgets/app_card.dart';
 import '../../../../core/widgets/app_error_state.dart';
 import '../../../../core/widgets/app_loading.dart';
@@ -13,12 +12,16 @@ import '../../../auth/data/models/staff_user.dart';
 import '../../../auth/data/providers/auth_providers.dart';
 import '../../data/models/subscription.dart';
 import '../../data/providers/subscription_providers.dart';
+import '../widgets/how_to_pay_card.dart';
+import '../widgets/plan_choices.dart';
+import '../widgets/plan_usage.dart';
 import '../widgets/subscription_history_list.dart';
 import '../widgets/subscription_status_tag.dart';
 
-/// The organization's plan (Owner/Admin): where it stands, the price, how
-/// to pay, and — for the owner — past payments. Opening it refreshes the
-/// status, so a renewal shows as soon as HydroTrack records it.
+/// The organization's plan (Owner/Admin): where it stands, the three
+/// plans to choose from, how to pay, and — for the owner — past payments.
+/// Opening it refreshes the status, so a renewal shows as soon as
+/// HydroTrack records it.
 class SubscriptionScreen extends ConsumerStatefulWidget {
   const SubscriptionScreen({super.key});
 
@@ -27,7 +30,7 @@ class SubscriptionScreen extends ConsumerStatefulWidget {
 }
 
 class _SubscriptionScreenState extends ConsumerState<SubscriptionScreen> {
-  static const _maxContentWidth = 720.0;
+  static const _maxContentWidth = 1040.0;
 
   @override
   void initState() {
@@ -38,7 +41,7 @@ class _SubscriptionScreenState extends ConsumerState<SubscriptionScreen> {
   @override
   Widget build(BuildContext context) {
     final subscriptionAsync = ref.watch(currentSubscriptionProvider);
-    final isOwner = ref.watch(authStateProvider)?.role == StaffRole.owner;
+    final role = ref.watch(authStateProvider)?.role;
 
     return Scaffold(
       appBar: AppBar(title: const Text('Subscription')),
@@ -57,8 +60,13 @@ class _SubscriptionScreenState extends ConsumerState<SubscriptionScreen> {
                       children: [
                         _StatusCard(subscription: subscription),
                         const SizedBox(height: AppSpacing.lg),
-                        _HowToPayCard(subscription: subscription),
-                        if (isOwner) ...[
+                        PlanChoices(
+                          subscription: subscription,
+                          canChoose: role?.isAdminLevel ?? false,
+                        ),
+                        const SizedBox(height: AppSpacing.lg),
+                        HowToPayCard(subscription: subscription),
+                        if (role == StaffRole.owner) ...[
                           const SizedBox(height: AppSpacing.lg),
                           const _HistoryCard(),
                         ],
@@ -86,6 +94,7 @@ class _LoadError extends ConsumerWidget {
   );
 }
 
+/// The plan, where it stands, and how much of it is in use.
 class _StatusCard extends StatelessWidget {
   const _StatusCard({required this.subscription});
 
@@ -94,9 +103,9 @@ class _StatusCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
-    final price = subscription.monthlyPrice;
+    final plan = subscription.plan;
     return AppCard(
-      title: 'HydroTrack plan',
+      title: plan == null ? 'Your plan' : '${plan.name} plan',
       accentColor: subscription.canRecord ? null : AppColors.dangerFg,
       trailing: SubscriptionStatusTag(status: subscription.status),
       child: Column(
@@ -106,50 +115,18 @@ class _StatusCard extends StatelessWidget {
             subscriptionSummary(subscription, DateTime.now()),
             style: theme.textTheme.bodyLarge,
           ),
-          const SizedBox(height: AppSpacing.sm),
-          Text(
-            price == null
-                ? 'Price: ask HydroTrack'
-                : '${formatNaira(price)} a month',
-            style: theme.textTheme.bodyMedium?.copyWith(
-              color: AppColors.textSecondary,
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-}
-
-class _HowToPayCard extends StatelessWidget {
-  const _HowToPayCard({required this.subscription});
-
-  final Subscription subscription;
-
-  @override
-  Widget build(BuildContext context) {
-    final theme = Theme.of(context);
-    final instructions = subscription.paymentInstructions;
-    return AppCard(
-      title: 'How to pay',
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          SelectableText(
-            instructions ??
-                "HydroTrack hasn't added payment details yet. Contact "
-                    'HydroTrack to renew.',
-            style: theme.textTheme.bodyMedium,
-          ),
-          const SizedBox(height: AppSpacing.sm),
-          Text(
-            "After paying, send your receipt with your organization's name. "
-            'Your paid time is extended as soon as HydroTrack records the '
-            'payment.',
-            style: theme.textTheme.bodySmall?.copyWith(
-              color: AppColors.textSecondary,
-            ),
-          ),
+          if (plan != null) ...[
+            const SizedBox(height: AppSpacing.sm),
+            for (final line in planUsageLines(subscription))
+              Text(
+                line.text,
+                style: theme.textTheme.bodyMedium?.copyWith(
+                  color: line.over
+                      ? AppColors.dangerFg
+                      : AppColors.textSecondary,
+                ),
+              ),
+          ],
         ],
       ),
     );

@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_spacing.dart';
+import '../../../../core/utils/formatters.dart';
 import '../../../../core/widgets/app_card.dart';
 import '../../../subscriptions/view/widgets/subscription_status_tag.dart';
 import '../../data/models/admin_organization.dart';
@@ -45,7 +46,12 @@ class AdminOrganizationTile extends StatelessWidget {
             ),
             if (subscription != null)
               Text(
-                subscriptionSummary(subscription, DateTime.now()),
+                [
+                  ?subscription.plan?.name,
+                  subscriptionSummary(subscription, DateTime.now()),
+                  if (subscription.requestedPlanKey != null)
+                    'wants ${toTitleCase(subscription.requestedPlanKey!)}',
+                ].join(' · '),
                 style: secondary,
               ),
             Text(

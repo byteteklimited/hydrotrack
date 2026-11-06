@@ -107,6 +107,8 @@ declare
   v_depot uuid;
 begin
   perform tests.as_owner_db();
+  -- More than one location needs Premium (migration 0036).
+  update public.tenant_subscriptions set plan_key = 'premium' where tenant_id = tests.id('a');
   insert into public.locations (tenant_id, name, kind) values (tests.id('a'), 'Kano depot', 'depot') returning id into v_depot;
   insert into tests.fx (key, id) values ('depot', v_depot), ('main', public.main_location(tests.id('a')));
   delete from public.member_locations where tenant_id = tests.id('a') and user_id = tests.id('carol');

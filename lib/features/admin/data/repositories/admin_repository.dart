@@ -11,10 +11,20 @@ abstract class AdminRepository {
   Future<bool> isPlatformAdmin();
   Future<List<AdminOrganization>> fetchOrganizations();
   Future<List<SubscriptionEvent>> fetchHistory(String organizationId);
+
+  /// Also sets the plan paid for.
   Future<void> recordPayment({
     required String organizationId,
+    required String planKey,
     required num amount,
     required int months,
+    String? note,
+  });
+
+  /// A plan change without a payment.
+  Future<void> setPlan({
+    required String organizationId,
+    required String planKey,
     String? note,
   });
   Future<void> addFreeDays({
@@ -29,6 +39,14 @@ abstract class AdminRepository {
   });
   Future<PlatformSettings> fetchSettings();
   Future<void> updateSettings(PlatformSettings settings);
+
+  /// A plan's price and limits (null limit = unlimited).
+  Future<void> updatePlan({
+    required String planKey,
+    required num monthlyPrice,
+    int? maxStaff,
+    int? maxLocations,
+  });
 }
 
 class SupabaseAdminRepository implements AdminRepository {
@@ -64,6 +82,7 @@ class SupabaseAdminRepository implements AdminRepository {
   @override
   Future<void> recordPayment({
     required String organizationId,
+    required String planKey,
     required num amount,
     required int months,
     String? note,
@@ -72,8 +91,25 @@ class SupabaseAdminRepository implements AdminRepository {
       'admin_record_payment',
       params: {
         'p_tenant_id': organizationId,
+        'p_plan_key': planKey,
         'p_amount': amount,
         'p_months': months,
+        'p_note': note,
+      },
+    );
+  }
+
+  @override
+  Future<void> setPlan({
+    required String organizationId,
+    required String planKey,
+    String? note,
+  }) {
+    return _client.rpc(
+      'admin_set_plan',
+      params: {
+        'p_tenant_id': organizationId,
+        'p_plan_key': planKey,
         'p_note': note,
       },
     );
@@ -118,6 +154,24 @@ class SupabaseAdminRepository implements AdminRepository {
     return _client.rpc(
       'admin_update_platform_settings',
       params: settings.toRpcParams(),
+    );
+  }
+
+  @override
+  Future<void> updatePlan({
+    required String planKey,
+    required num monthlyPrice,
+    int? maxStaff,
+    int? maxLocations,
+  }) {
+    return _client.rpc(
+      'admin_update_plan',
+      params: {
+        'p_plan_key': planKey,
+        'p_monthly_price': monthlyPrice,
+        'p_max_staff': maxStaff,
+        'p_max_locations': maxLocations,
+      },
     );
   }
 }

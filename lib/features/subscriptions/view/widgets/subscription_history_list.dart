@@ -6,7 +6,7 @@ import '../../../../core/utils/formatters.dart';
 import '../../data/models/subscription_event.dart';
 import 'subscription_status_tag.dart';
 
-/// Payments, free days and suspensions, newest first. Used on the owner's
+/// Payments, free days, plan changes and suspensions, newest first. Used on the owner's
 /// subscription screen and in the admin console.
 class SubscriptionHistoryList extends StatelessWidget {
   const SubscriptionHistoryList({
@@ -24,10 +24,12 @@ class SubscriptionHistoryList extends StatelessWidget {
     final until = event.endsAt == null
         ? ''
         : ' · until ${formatSubscriptionDate(event.endsAt!)}';
+    final plan = event.planKey == null ? '' : toTitleCase(event.planKey!);
     return switch (event.kind) {
       SubscriptionEventKind.payment =>
-        '${formatNaira(event.amount ?? 0)} for '
-            '${plural(event.months ?? 0, 'month')}$until',
+        '${plan.isEmpty ? '' : '$plan · '}${formatNaira(event.amount ?? 0)} '
+            'for ${plural(event.months ?? 0, 'month')}$until',
+      SubscriptionEventKind.planChanged => 'Plan changed to $plan',
       SubscriptionEventKind.freeDays =>
         '${plural(event.days ?? 0, 'free day')}$until',
       SubscriptionEventKind.suspended => 'Suspended',

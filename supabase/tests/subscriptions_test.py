@@ -1,7 +1,8 @@
 """HydroTrack — live check of subscriptions over the real API.
 
-A throwaway owner creates an organization: it starts on a trial and can
-record; the admin console is refused to them; their subscription can't be
+A throwaway owner creates an organization: it starts on a Standard trial
+and can record, sees the plans, chooses one, and can't add a second
+location or change prices; the admin console is refused to them; their subscription can't be
 edited directly. Then the trial is moved into the past (as if 30 days went
 by): recording is refused with the read-only message, reading still works.
 Always deletes the throwaway account and organization.
@@ -34,6 +35,23 @@ def main():
         t.check(status == 200 and sub["status"] == "trial" and sub["can_record"], "A new organization is on a trial")
         status, _ = t.http("POST", "/rest/v1/rpc/record_expense", owner, expense)
         t.check(status == 200, "and can record")
+
+        t.check(sub["plan"]["key"] == "standard" and sub["account_number"] == "8137131177",
+                "on Standard, with HydroTrack's bank account")
+        status, plans = t.http("GET", "/rest/v1/plans?select=key,monthly_price&order=position", owner)
+        t.check(status == 200 and [(p["key"], p["monthly_price"]) for p in plans]
+                == [("starter", 15000), ("standard", 25000), ("premium", 50000)],
+                "Owners see the three plans and prices")
+        status, sub = t.http("POST", "/rest/v1/rpc/request_plan", owner,
+                             {"p_tenant_id": tenant_id, "p_plan_key": "premium"})
+        t.check(status == 200 and sub["requested_plan_key"] == "premium" and sub["plan"]["key"] == "standard",
+                "The owner chooses Premium; it waits for payment")
+        status, body = t.http("POST", "/rest/v1/locations", owner,
+                              {"tenant_id": tenant_id, "name": "Kano depot", "kind": "depot"})
+        t.check(status == 400 and body.get("hint") == "plan_limit", "Standard can't add a second location")
+        t.http("PATCH", "/rest/v1/plans?key=eq.starter", owner, {"monthly_price": 1})
+        price = t.sql("select monthly_price::int as p from public.plans where key = 'starter'")[0]["p"]
+        t.check(price == 15000, "Owners can't change plan prices")
 
         status, body = t.http("POST", "/rest/v1/rpc/admin_organizations", owner, {})
         t.check(status in (401, 403) and body.get("code") == "42501", "Owners can't open the admin console")

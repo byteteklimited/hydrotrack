@@ -1,3 +1,6 @@
+import 'bank_account.dart';
+import 'plan.dart';
+
 /// Shown when a device working offline is asked to record after the
 /// organization's access ended (the server would refuse it anyway).
 const subscriptionEndedOnDeviceMessage =
@@ -21,8 +24,8 @@ enum SubscriptionStatus {
       values.firstWhere((status) => status.name == key);
 }
 
-/// An organization's subscription: one monthly plan, a free trial, then a
-/// grace period before it becomes read-only.
+/// An organization's subscription: its plan, a free trial, then a grace
+/// period before it becomes read-only.
 class Subscription {
   const Subscription({
     required this.status,
@@ -32,7 +35,11 @@ class Subscription {
     this.paidUntil,
     this.suspendedAt,
     this.suspendedReason,
-    this.monthlyPrice,
+    this.plan,
+    this.requestedPlanKey,
+    this.staffInUse = 0,
+    this.locationsInUse = 0,
+    this.bankAccount,
     this.paymentInstructions,
   });
 
@@ -48,10 +55,23 @@ class Subscription {
   final DateTime? suspendedAt;
   final String? suspendedReason;
 
-  /// Null until HydroTrack sets a price.
-  final num? monthlyPrice;
+  /// The plan it's on (Standard during the trial). Null only in a status
+  /// saved on a device before plans existed.
+  final Plan? plan;
 
-  /// How to pay (bank details etc.), set by HydroTrack.
+  /// The plan the owner chose, waiting for HydroTrack to record payment.
+  final String? requestedPlanKey;
+
+  /// Staff who aren't owners, plus open invites.
+  final int staffInUse;
+
+  /// Active factories and depots.
+  final int locationsInUse;
+
+  /// Where to pay; null until HydroTrack sets it.
+  final BankAccount? bankAccount;
+
+  /// Anything else about paying, e.g. where to send the receipt.
   final String? paymentInstructions;
 
   /// Whether new records can be made — as the server saw it.
@@ -78,7 +98,13 @@ class Subscription {
     accessEndsAt: DateTime.parse(json['access_ends_at'] as String),
     suspendedAt: _date(json['suspended_at']),
     suspendedReason: json['suspended_reason'] as String?,
-    monthlyPrice: json['monthly_price'] as num?,
+    plan: json['plan'] == null
+        ? null
+        : Plan.fromJson(Map<String, dynamic>.from(json['plan'] as Map)),
+    requestedPlanKey: json['requested_plan_key'] as String?,
+    staffInUse: json['staff_in_use'] as int? ?? 0,
+    locationsInUse: json['locations_in_use'] as int? ?? 0,
+    bankAccount: BankAccount.fromJson(json),
     paymentInstructions: json['payment_instructions'] as String?,
   );
 

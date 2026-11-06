@@ -401,3 +401,10 @@ supabase/
       current one (offline sign-in updated too), links to Organization
       settings and Plan and subscription (Owner/Admin), switch
       organization, sign out. 340 Flutter tests.
+- [x] Logo upload fix (2026-11-06): browsers now use our own picker
+      (core/utils/image_picker_web.dart, package:web): reads the photo,
+      redraws it as a PNG of at most 1024 px (HEIC on Safari, big camera
+      photos, rotation all handled), and says exactly why when a photo
+      can't be read (Photos/iCloud on a Mac, HEIC on Chrome, broken file)
+      instead of the old catch-all "allow access" message. Phones/desktop
+      keep file_picker (image_picker_io.dart). file_picker_web dropped.

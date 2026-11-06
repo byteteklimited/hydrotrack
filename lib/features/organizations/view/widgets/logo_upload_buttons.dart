@@ -23,13 +23,19 @@ class LogoUploadButtons extends ConsumerWidget {
     final PickedImage? image;
     try {
       image = await pickImage();
-    } catch (_) {
+    } on ImagePickException catch (error) {
+      if (context.mounted) {
+        showActionErrorSnackBar(context, message: error.message);
+      }
+      return;
+    } catch (error) {
+      debugPrint('Logo picker failed: $error');
       if (context.mounted) {
         showActionErrorSnackBar(
           context,
           message:
-              'Could not open your photos. Allow this site to access files '
-              'in your browser settings, then try again.',
+              'Could not open the image picker. Reload the page and try '
+              'again.',
         );
       }
       return;
